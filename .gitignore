@@ -1,0 +1,14 @@
+# RMXP runtime/log files
+Game.log
+*.lnk
+
+# Save files
+Saves/
+
+# OS junk
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# Audio cache
+*.cache
