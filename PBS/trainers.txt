@@ -1,118 +1,140 @@
 ﻿# See the documentation on the wiki to learn how to edit this file.
+#KANTO
+# Route 1
 #-------------------------------
-[CAMPER,Liam]
-LoseText = A very good battle, indeed!
-Pokemon = DIGLETT,10
-Pokemon = BONSLY,11
+KANTOYOUNGSTER
+Ronny
+1
+RATTATA,3
 #-------------------------------
-[LEADER_Brock,Brock]
-Items = FULLRESTORE,FULLRESTORE
-LoseText = Very good.
-Pokemon = GEODUDE,12
-    Moves = DEFENSECURL,HEADSMASH,ROCKPOLISH,ROCKTHROW
-    AbilityIndex = 0
-    Gender = male
-    IV = 20,20,20,20,20,20
-Pokemon = ONIX,14
-    Name = Rocky
-    Moves = HEADSMASH,ROCKTHROW,RAGE,ROCKTOMB
-    AbilityIndex = 0
-    Item = SITRUSBERRY
-    Gender = male
-    IV = 20,20,20,20,20,20
-    Shiny = true
-    Ball = HEAVYBALL
+# Route 2
 #-------------------------------
-[TEAMROCKET_M,Grunt,1]
-LoseText = You're too good for me!
-Pokemon = WEEPINBELL,21
-    Shadow = true
+KANTOBUGCATCHER
+Ed
+2
+WEEDLE,6
+KAKUNA,8
 #-------------------------------
-[TEAMROCKET_F,Grunt,1]
-LoseText = You're too good for me!
-Pokemon = BURMY,19
-Pokemon = WINGULL,19
-Pokemon = ELECTABUZZ,20
-    Shadow = true
+# Viridian Forest
 #-------------------------------
-[YOUNGSTER,Ben]
-LoseText = Aww, I lost.
-Pokemon = RATTATA,11
-Pokemon = EKANS,11
+KANTOBUGCATCHER
+Rick
+2
+WEEDLE,6
+CATERPIE,6
 #-------------------------------
-[CAMPER,Jeff]
-LoseText = A very good battle, indeed!
-Pokemon = SPEAROW,16
-Pokemon = SENTRET,16
+KANTOBUGCATCHER
+Doug
+3
+WEEDLE,7
+KAKUNA,7
+WEEDLE,7
 #-------------------------------
-[CAMPER,Jeff,1]
-LoseText = You beat me again!
-Pokemon = FEAROW,29
-Pokemon = FURRET,29
+KANTOBUGCATCHER
+Anthony
+2
+CATERPIE,7
+CATERPIE,8
 #-------------------------------
-[PICNICKER,Susie]
-LoseText = Defeated! Oh my!
-Pokemon = MEOWTH,18
+KANTOBUGCATCHER
+Charlie
+3
+METAPOD,7
+CATERPIE,7
+METAPOD,7
 #-------------------------------
-[PICNICKER,Susie,1]
-LoseText = Defeated! Oh my!
-Pokemon = PERSIAN,32
+KANTOBUGCATCHER
+Sammy
+2
+BEEDRILL,10
+BUTTERFREE,10
 #-------------------------------
-[HIKER,Ford]
-LoseText = You're too good for me!
-Pokemon = MACHOP,19
+# Pewter City
 #-------------------------------
-[FISHERMAN,Andrew]
-LoseText = Washed out!
-Pokemon = MAGIKARP,14
-Pokemon = MAGIKARP,18
+KANTOLEADER_Brock
+Brock
+2,FULLRESTORE,FULLRESTORE
+GEODUDE,12,,DEFENSECURL,HEADSMASH,ROCKPOLISH,ROCKTHROW,0,M,,,,20
+ONIX,14,SITRUSBERRY,HEADSMASH,ROCKTHROW,RAGE,ROCKTOMB,0,M,,shiny,,20,,Rocky,,19
 #-------------------------------
-[BEAUTY,Bridget]
-LoseText = My Skitty!
-Pokemon = SKITTY,18
+# Route 3
 #-------------------------------
-[LASS,Crissy]
-LoseText = You didn't have to win so convincingly!
-Pokemon = PLUSLE,17
-Pokemon = MINUN,17
+KANTOLASS
+Janice
+2
+PIDGEY,9
+PIDGEY,9
 #-------------------------------
-[COOLCOUPLE,Alice & Bob]
-LoseText = Our teamwork failed!
-Pokemon = TURTWIG,19
-Pokemon = CHIMCHAR,19
+KANTOACETRAINER_M
+Kareem
+1
+BULBASAUR,12
 #-------------------------------
-[POKEMONTRAINER_May,May]
-LoseText = ...
-Pokemon = COMBUSKEN,19
+KANTOLASS
+Sally
+2
+RATTATA,10
+NIDORANmA,10
 #-------------------------------
-[SWIMMER2_F,Ariel]
-LoseText = Washed out!
-Pokemon = STARYU,15
-Pokemon = GOLDEEN,11
+KANTOLASS
+Robin
+2
+PIDGEY,10
+JIGGLYPUFF,14
 #-------------------------------
-[RIVAL1,Blue]
-LoseText = Not too shabby.
-Pokemon = PIDGEOTTO,17
-Pokemon = RATTATA,15
-Pokemon = BULBASAUR,18
+KANTOBUGCATCHER
+Colton
+3
+BEEDRILL,10
+BUTTERFREE,10
+METAPOD,10
 #-------------------------------
-[RIVAL1,Blue,1]
-LoseText = Not too shabby.
-Pokemon = PIDGEOTTO,17
-Pokemon = RATTATA,15
-Pokemon = CHARMANDER,18
+KANTOBUGCATCHER
+Greg
+4
+WEEDLE,9
+KAKUNA,9
+CATERPIE,9
+METAPOD,9
 #-------------------------------
-[RIVAL1,Blue,2]
-LoseText = Not too shabby.
-Pokemon = PIDGEOTTO,17
-Pokemon = RATTATA,15
-Pokemon = SQUIRTLE,18
+KANTOBUGCATCHER
+James
+2
+METAPOD,10
+BUTTERFREE,12
 #-------------------------------
-[CHAMPION,Blue]
-LoseText = A good battle indeed!
-Pokemon = VENUSAUR,63
-    Item = SITRUSBERRY
-Pokemon = CHARIZARD,63
-    Item = SITRUSBERRY
-Pokemon = BLASTOISE,63
-    Item = SITRUSBERRY
+KANTOYOUNGSTER
+Ben
+2
+RATTATA,11
+EKANS, 11
+#-------------------------------
+KANTOYOUNGSTER
+Calvin
+1
+SPEAROW,14
+#-------------------------------
+# Route 4
+#-------------------------------
+KANTOACETRAINER_M
+Oberon
+1
+MEOWTH,14
+#-------------------------------
+KANTOLASS
+Crissy
+3
+PARAS,31
+PARAS,31
+PARASECT,31
+#-------------------------------
+#JOHTO
+#ROUTE49
+#-------------------------------
+JOHTOPOKEFAN
+Kyle
+3
+SLOWPOKE,25
+SLOWBRO,25
+SLOWKING,26
+#-------------------------------

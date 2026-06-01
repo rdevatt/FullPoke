@@ -1,33 +1,479 @@
 ﻿# See the documentation on the wiki to learn how to edit this file.
 #-------------------------------
-[0]
-StartMoney = 3000
-StartItemStorage = POTION
+[000]
+PlayerA = KANTOPOKEMONTRAINER_Leaf,trchar001,girl_bike,girl_surf,girl_run,girl_surf,girl_fish_offset,xxx
+TrainerVictoryME = Battle victory trainer.ogg
+WildVictoryME = Battle victory wild.ogg
+TrainerBattleBGM = Battle trainer.mid
+SurfBGM = Bicycle.mid
+BicycleBGM = 0
+WildCaptureME = Surfing.mid
 Home = 3,7,5,8
-StorageCreator = Bill
-WildBattleBGM = Battle wild
-TrainerBattleBGM = Battle trainer
-WildVictoryBGM = Battle victory wild
-TrainerVictoryBGM = Battle victory trainer
-SurfBGM = Surfing
-BicycleBGM = Bicycle
+WildBattleBGM = Battle wild.mid
 #-------------------------------
-[1]
-TrainerType = POKEMONTRAINER_Red
-WalkCharset = trainer_POKEMONTRAINER_Red
-RunCharset = boy_run
-CycleCharset = boy_bike
-SurfCharset = boy_surf
-DiveCharset = boy_surf
-FishCharset = boy_fish_offset
-SurfFishCharset = boy_fish_offset
+[001]
+# Intro
 #-------------------------------
-[2]
-TrainerType = POKEMONTRAINER_Leaf
-WalkCharset = trainer_POKEMONTRAINER_Leaf
-RunCharset = girl_run
-CycleCharset = girl_bike
-SurfCharset = girl_surf
-DiveCharset = girl_surf
-FishCharset = girl_fish_offset
-SurfFishCharset = girl_fish_offset
+[002]
+# Kanto Region
+MapPosition = 0,13,12
+Outdoor = true
+ShowArea = true
+#-------------------------------
+[003]
+# Johto Region
+BattleBack = IndoorB
+MapPosition = 0,13,12
+HealingSpot = 2,8,8
+#-------------------------------
+[004]
+# Hoenn Region
+MapPosition = 0,13,12
+ShowArea = false
+#-------------------------------
+[005]
+# Sinnoh Interiors
+MapPosition = 0,13,11
+Outdoor = true
+ShowArea = true
+#-------------------------------
+[006]
+# Sevii Islands
+MapPosition = 0,13,11
+#-------------------------------
+[007]
+# NEW BARK TOWN
+MapPosition = 0,13,10
+Outdoor = true
+WildCaptureME = 2
+ShowArea = true
+#-------------------------------
+[008]
+# Sevii Town Interiors
+MapPosition = 0,13,12
+#-------------------------------
+[009]
+# Johto Town Interiors
+MapPosition = 0,14,10
+HealingSpot = 8,17,11
+#-------------------------------
+[010]
+# HOENN INTERIOR TOWNS
+BattleBack = IndoorB
+MapPosition = 0,13,10
+#-------------------------------
+[011]
+# BATTLE FRONTIER
+MapPosition = 0,14,10
+#-------------------------------
+[012]
+# Route Entrances
+MapPosition = 0,14,10
+#-------------------------------
+[013]
+# MT EMBER
+MapPosition = 0,14,10
+#-------------------------------
+[014]
+# JOHTO ROUTE ENTRANCES
+MapPosition = 0,13,10
+#-------------------------------
+[015]
+# HOENN ROUTE CONNECTIONS
+MapPosition = 0,13,10
+#-------------------------------
+[016]
+# Carmonte Interiors
+MapPosition = 0,13,10
+#-------------------------------
+[017]
+# CHERRYGROVE CITY
+MapPosition = 0,13,10
+#-------------------------------
+[018]
+# AZALEA TOWN
+MapPosition = 0,13,10
+#-------------------------------
+[019]
+# MT MORTAR
+MapPosition = 0,13,10
+#-------------------------------
+[020]
+# SHOAL CAVE NC
+MapPosition = 0,13,10
+#-------------------------------
+[021]
+# VIOLET CITY
+Weather = Rain,50
+MapPosition = 0,14,8
+Outdoor = true
+WildCaptureME = 1
+ShowArea = true
+#-------------------------------
+[023]
+# PALLET TOWN
+MapPosition = 0,6,14
+Outdoor = true
+ShowArea = true
+#-------------------------------
+[024]
+# VERMILION CITY
+MapPosition = 0,20,11
+Outdoor = true
+HealingSpot = 23,11,15
+#-------------------------------
+[025]
+# PEWTER CITY
+MapPosition = 0,6,3
+Outdoor = true
+#-------------------------------
+[026]
+# CERULEAN CITY
+MapPosition = 0,19,3
+Outdoor = true
+#-------------------------------
+[027]
+# LAVENDER TOWN
+MapPosition = 0,23,7
+Outdoor = true
+#-------------------------------
+[028]
+# CIANWOOD CITY
+BattleBack = Forest
+MapPosition = 0,16,8
+Outdoor = true
+ShowArea = true
+#-------------------------------
+[029]
+# CELADON CITY
+Bicycle = true
+MapPosition = 0,16,7
+Outdoor = true
+#-------------------------------
+[030]
+# FUCHSIA CITY
+MapPosition = 0,17,16
+Outdoor = true
+#-------------------------------
+[031]
+# SAFFRON CITY
+MapPosition = 0,20,8
+Outdoor = true
+WildCaptureME = 2
+ShowArea = true
+#-------------------------------
+[033]
+# INDIGO PLATEAU
+MapPosition = 0,1,2
+Outdoor = true
+#-------------------------------
+[034]
+# ROUTE 1
+BattleBack = IndoorC
+Bicycle = true
+MapPosition = 0,6,13
+Outdoor = true
+#-------------------------------
+[035]
+# ROUTE 2
+MapPosition = 0,6,7
+Outdoor = true
+ShowArea = true
+#-------------------------------
+[036]
+# ROUTE 3
+MapPosition = 0,9,4
+Outdoor = true
+HealingSpot = 35,17,7
+#-------------------------------
+[037]
+# ROUTE 4
+BattleBack = EliteA
+MapPosition = 0,14,3
+Outdoor = true
+#-------------------------------
+[038]
+# ROUTE 5
+MapPosition = 0,19,5
+Outdoor = true
+#-------------------------------
+[039]
+# ROUTE 6
+MapPosition = 0,19,10
+Outdoor = true
+WildCaptureME = 2
+ShowArea = true
+#-------------------------------
+[040]
+# ROUTE 7
+MapPosition = 0,17,8
+Outdoor = true
+BicycleAlways = true
+ShowArea = true
+#-------------------------------
+[041]
+# ROUTE 8
+MapPosition = 0,21,8
+Outdoor = true
+BicycleAlways = true
+WildCaptureME = 1
+ShowArea = true
+#-------------------------------
+[042]
+# ROUTE 9
+MapPosition = 0,22,3
+#-------------------------------
+[043]
+# ROUTE 10
+MapPosition = 0,23,5
+#-------------------------------
+[044]
+# ROUTE 11
+MapPosition = 0,22,12
+Outdoor = true
+WildCaptureME = 2
+ShowArea = true
+#-------------------------------
+[045]
+# ROUTE 12
+MapPosition = 0,23,11
+Outdoor = true
+BicycleAlways = true
+ShowArea = true
+#-------------------------------
+[046]
+# ROUTE 13
+Bicycle = true
+MapPosition = 0,23,14
+Outdoor = true
+#-------------------------------
+[047]
+# ROUTE 14
+BattleBack = Mountain
+Weather = Rain,0
+MapPosition = 0,21,15
+Outdoor = true
+WildCaptureME = 2
+ShowArea = true
+#-------------------------------
+[048]
+# ROUTE 15
+MapPosition = 0,19,16
+#-------------------------------
+[049]
+# ROUTE 16
+Bicycle = true
+MapPosition = 0,14,8
+Outdoor = true
+#-------------------------------
+[050]
+# ROUTE 17
+BattleBack = CaveDark
+Bicycle = true
+MapPosition = 0,13,12
+DarkMap = true
+Outdoor = true
+#-------------------------------
+[051]
+# ROUTE 18
+Bicycle = true
+Dungeon = true
+MapPosition = 0,14,16
+Outdoor = true
+#-------------------------------
+[052]
+# ROUTE 19
+MapPosition = 0,17,18
+Outdoor = true
+ShowArea = true
+#-------------------------------
+[053]
+# ROUTE 20
+MapPosition = 0,12,18
+Outdoor = true
+HealingSpot = 52,17,14
+#-------------------------------
+[054]
+# ROUTE 21
+MapPosition = 0,6,17
+Outdoor = true
+#-------------------------------
+[055]
+# ROUTE 22
+MapPosition = 0,3,10
+Outdoor = true
+HealingSpot = 52,30,10
+#-------------------------------
+[056]
+# ROUTE 23
+BattleBack = EliteA
+MapPosition = 0,1,7
+Outdoor = true
+#-------------------------------
+[057]
+# ROUTE 24
+MapPosition = 0,19,1
+Outdoor = true
+#-------------------------------
+[058]
+# ROUTE 25
+MapPosition = 0,22,0
+Outdoor = true
+#-------------------------------
+[059]
+# ROUTE 26
+BattleBack = EliteD
+MapPosition = 0,17,10
+Outdoor = true
+#-------------------------------
+[060]
+# ROUTE 27
+MapPosition = 0,17,10
+Outdoor = true
+#-------------------------------
+[061]
+# ONE ISLAND
+BattleBack = EliteB
+MapPosition = 0,17,10
+Outdoor = true
+#-------------------------------
+[062]
+# TWO ISLAND
+MapPosition = 0,17,10
+Outdoor = true
+#-------------------------------
+[063]
+# THREE ISLAND
+MapPosition = 0,17,10
+Outdoor = true
+#-------------------------------
+[064]
+# FOUR ISLAND
+BattleBack = EliteC
+MapPosition = 0,17,10
+Outdoor = true
+#-------------------------------
+[065]
+# FIVE ISLAND
+MapPosition = 0,17,10
+Outdoor = true
+#-------------------------------
+[066]
+# SIX ISLANDS
+MapPosition = 0,12,12
+Outdoor = true
+ShowArea = true
+#-------------------------------
+[067]
+# SEVEN ISLAND
+MapPosition = 0,12,12
+Outdoor = true
+#-------------------------------
+[068]
+# KINDLE ROAD
+BattleBack = Forest
+MapPosition = 0,12,12
+SafariMap = true
+Outdoor = true
+ShowArea = true
+#-------------------------------
+[069]
+# TREASURE BEACH
+DiveMap = 70
+MapPosition = 0,13,13
+Outdoor = true
+ShowArea = true
+#-------------------------------
+[070]
+# CAPE BRINK
+MapPosition = 0,13,13
+Outdoor = true
+#-------------------------------
+[071]
+# BOND BRIDGE
+MapPosition = 0,13,13
+Outdoor = true
+#-------------------------------
+[072]
+# THREE ISLE PORT
+Weather = Storm,50
+MapPosition = 0,18,17
+Outdoor = true
+ShowArea = true
+#-------------------------------
+[073]
+# RESORT GORGEOUS
+MapPosition = 0,22,16
+Outdoor = true
+ShowArea = true
+#-------------------------------
+[074]
+# WATER LABYRINTH
+Bicycle = true
+MapPosition = 0,12,10
+Outdoor = true
+#-------------------------------
+[075]
+# FIVE ISLE MEADOW
+MapPosition = 1,13,16
+Outdoor = true
+#-------------------------------
+[112]
+# ROUTE 46
+#-------------------------------
+[113]
+# PETALBURG CITY
+Outdoor = true
+#-------------------------------
+[114]
+# SLATEPORT CITY
+Outdoor = true
+#-------------------------------
+[116]
+# RUSTBORO CITY
+Outdoor = true
+#-------------------------------
+[122]
+#  LITTLEROOT TOWN
+Outdoor = true
+#-------------------------------
+[123]
+# OLDALE TOWN
+Outdoor = true
+#-------------------------------
+[129]
+# ROUTE 101
+Outdoor = true
+#-------------------------------
+[130]
+# ROUTE 102
+Outdoor = true
+#-------------------------------
+[131]
+# ROUTE 103
+Outdoor = true
+#-------------------------------
+[132]
+# ROUTE 104
+Outdoor = true
+#-------------------------------
+[138]
+# ROUTE 110
+Outdoor = true
+#-------------------------------
+[162]
+# ROUTE 134
+#-------------------------------
+[172]
+# CINNABAR ISLAND
+MapPosition = 0,6,18
+Outdoor = true
+#-------------------------------
+[173]
+# VIRIDIAN CITY
+MapPosition = 0,6,10
+Outdoor = true
+#-------------------------------
+[326]
+# VIRIDIAN FOREST
+MapPosition = 0,6,7

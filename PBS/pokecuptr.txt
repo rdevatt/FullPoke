@@ -1,0 +1,8 @@
+﻿[000]
+EndSpeechLose="Man, I lost!"
+Name=RONNY
+PokemonNos=5,8,13,21,27,33,36,42,44,48,57,58,74,78,94,104
+BeginSpeech=Here I come!
+Type=KANTOYOUNGSTER
+EndSpeechWin="Yes, I won!"
+

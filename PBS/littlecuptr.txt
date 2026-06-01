@@ -1,0 +1,7 @@
+﻿[000]
+EndSpeechLose="Man, I lost!"
+Name=MATAS
+PokemonNos=36,38,42,43,56,76,78,91,94,105,108,115
+BeginSpeech=Here I come!
+Type=KANTOBUGCATCHER
+EndSpeechWin="Yes, I won!"
