@@ -1,140 +1,153 @@
 ﻿# See the documentation on the wiki to learn how to edit this file.
-#KANTO
-# Route 1
 #-------------------------------
-KANTOYOUNGSTER
-Ronny
-1
-RATTATA,3
+# Route 1
+[KANTOYOUNGSTER,Ronny]
+LoseText = Aww drat! Not again!
+Pokemon = RATTATA,3
 #-------------------------------
 # Route 2
-#-------------------------------
-KANTOBUGCATCHER
-Ed
-2
-WEEDLE,6
-KAKUNA,8
+[KANTOBUGCATCHER,Ed]
+LoseText = I... I can't believe I lost.
+Pokemon = WEEDLE,6
+Pokemon = KAKUNA,8
 #-------------------------------
 # Viridian Forest
+[KANTOBUGCATCHER,Rick]
+LoseText = I can't believe I failed the bug type.
+Pokemon = WEEDLE,6
+Pokemon = CATERPIE,6
 #-------------------------------
-KANTOBUGCATCHER
-Rick
-2
-WEEDLE,6
-CATERPIE,6
+[KANTOBUGCATCHER,Doug]
+LoseText = Oh no, now I won't have a beedrill!
+Pokemon = WEEDLE,7
+Pokemon = KAKUNA,7
+Pokemon = WEEDLE,7
 #-------------------------------
-KANTOBUGCATCHER
-Doug
-3
-WEEDLE,7
-KAKUNA,7
-WEEDLE,7
+[KANTOBUGCATCHER,Anthony]
+LoseText = I guess we just weren't strong enough...
+Pokemon = CATERPIE,7
+Pokemon = CATERPIE,8
 #-------------------------------
-KANTOBUGCATCHER
-Anthony
-2
-CATERPIE,7
-CATERPIE,8
+[KANTOBUGCATCHER,Charlie]
+LoseText = Aw shuckles, I guess we won't be evolving today.
+Pokemon = METAPOD,7
+Pokemon = CATERPIE,7
+Pokemon = METAPOD,7
 #-------------------------------
-KANTOBUGCATCHER
-Charlie
-3
-METAPOD,7
-CATERPIE,7
-METAPOD,7
-#-------------------------------
-KANTOBUGCATCHER
-Sammy
-2
-BEEDRILL,10
-BUTTERFREE,10
+[KANTOBUGCATCHER,Sammy]
+LoseText = I guess I have some work to do to compete here in Kanto.
+Pokemon = BEEDRILL,10
+Pokemon = BUTTERFREE,10
 #-------------------------------
 # Pewter City
-#-------------------------------
-KANTOLEADER_Brock
-Brock
-2,FULLRESTORE,FULLRESTORE
-GEODUDE,12,,DEFENSECURL,HEADSMASH,ROCKPOLISH,ROCKTHROW,0,M,,,,20
-ONIX,14,SITRUSBERRY,HEADSMASH,ROCKTHROW,RAGE,ROCKTOMB,0,M,,shiny,,20,,Rocky,,19
+[KANTOLEADER_Brock,Brock]
+LoseText = Excellent.  You have earned the Boulder Badge.
+Items = FULLRESTORE,FULLRESTORE
+Pokemon = GEODUDE,12
+    Moves = DEFENSECURL,HEADSMASH,ROCKPOLISH,ROCKTHROW
+    AbilityIndex = 0
+    Gender = male
+    IV = 20,20,20,20,20,20
+Pokemon = ONIX,14
+    Name = Rocky
+    Moves = HEADSMASH,ROCKTHROW,RAGE,ROCKTOMB
+    AbilityIndex = 0
+    Item = SITRUSBERRY
+    Gender = male
+    IV = 20,20,20,20,20,20
+    Shiny = true
+    Ball = HEAVYBALL
 #-------------------------------
 # Route 3
+[KANTOLASS,Janice]
+LoseText = I... I can't believe I lost.
+Pokemon = PIDGEY,9
+Pokemon = PIDGEY,9
 #-------------------------------
-KANTOLASS
-Janice
-2
-PIDGEY,9
-PIDGEY,9
+[KANTOACETRAINER_M,Kareem]
+LoseText = That was a great battle!
+Pokemon = BULBASAUR,12
 #-------------------------------
-KANTOACETRAINER_M
-Kareem
-1
-BULBASAUR,12
+[KANTOLASS,Sally]
+LoseText = Maybe cuteness isn't everything
+Pokemon = RATTATA,10
+Pokemon = NIDORANmA,10
 #-------------------------------
-KANTOLASS
-Sally
-2
-RATTATA,10
-NIDORANmA,10
+[KANTOLASS,Robin]
+LoseText = Next time we'll warm up with some scales first!
+Pokemon = PIDGEY,10
+Pokemon = JIGGLYPUFF,14
 #-------------------------------
-KANTOLASS
-Robin
-2
-PIDGEY,10
-JIGGLYPUFF,14
+[KANTOBUGCATCHER,Colton]
+LoseText = I think I got that phrase mixed up...
+Pokemon = BEEDRILL,10
+Pokemon = BUTTERFREE,10
+Pokemon = METAPOD,10
 #-------------------------------
-KANTOBUGCATCHER
-Colton
-3
-BEEDRILL,10
-BUTTERFREE,10
-METAPOD,10
+[KANTOBUGCATCHER,Greg]
+LoseText = Maybe this will take longer than I thought...
+Pokemon = WEEDLE,9
+Pokemon = KAKUNA,9
+Pokemon = CATERPIE,9
+Pokemon = METAPOD,9
 #-------------------------------
-KANTOBUGCATCHER
-Greg
-4
-WEEDLE,9
-KAKUNA,9
-CATERPIE,9
-METAPOD,9
+[KANTOBUGCATCHER,James]
+LoseText = I guess I won't be going home tonight...
+Pokemon = METAPOD,10
+Pokemon = BUTTERFREE,12
 #-------------------------------
-KANTOBUGCATCHER
-James
-2
-METAPOD,10
-BUTTERFREE,12
+[KANTOYOUNGSTER,Ben]
+LoseText = At least my shorts didn't fall down this time!
+Pokemon = RATTATA,11
+Pokemon = EKANS,11
 #-------------------------------
-KANTOYOUNGSTER
-Ben
-2
-RATTATA,11
-EKANS, 11
-#-------------------------------
-KANTOYOUNGSTER
-Calvin
-1
-SPEAROW,14
+[KANTOYOUNGSTER,Calvin]
+LoseText = Drat! Which way is home?
+Pokemon = SPEAROW,14
 #-------------------------------
 # Route 4
+[KANTOACETRAINER_M,Oberon]
+LoseText = I expected better results.
+Pokemon = MEOWTH,14
 #-------------------------------
-KANTOACETRAINER_M
-Oberon
-1
-MEOWTH,14
+[KANTOLASS,Crissy]
+LoseText = I wonder where my strategy went wrong...
+Pokemon = PARAS,31
+Pokemon = PARAS,31
+Pokemon = PARASECT,31
 #-------------------------------
-KANTOLASS
-Crissy
-3
-PARAS,31
-PARAS,31
-PARASECT,31
+# ROUTE49
+[JOHTOPOKEFAN,Kyle]
+LoseText = I... I can't believe I lost.
+Pokemon = SLOWPOKE,25
+Pokemon = SLOWBRO,25
+Pokemon = SLOWKING,26
 #-------------------------------
-#JOHTO
-#ROUTE49
+# Oak's Lab - rival picks the starter strong against yours
+[KANTORIVAL1,RIVAL,1]
+LoseText = Hmph! I'll beat you next time!
+Pokemon = BULBASAUR,5
 #-------------------------------
-JOHTOPOKEFAN
-Kyle
-3
-SLOWPOKE,25
-SLOWBRO,25
-SLOWKING,26
+[KANTORIVAL1,RIVAL,2]
+LoseText = Hmph! I'll beat you next time!
+Pokemon = CHARMANDER,5
 #-------------------------------
+[KANTORIVAL1,RIVAL,3]
+LoseText = Hmph! I'll beat you next time!
+Pokemon = SQUIRTLE,5
+#-------------------------------
+# Route 22 - rival's second battle
+[KANTORIVAL1,RIVAL,4]
+LoseText = We'll meet again !
+Pokemon = PIDGEY,9
+Pokemon = SQUIRTLE,8
+#-------------------------------
+[KANTORIVAL1,RIVAL,5]
+LoseText = We'll meet again !
+Pokemon = PIDGEY,9
+Pokemon = BULBASAUR,8
+#-------------------------------
+[KANTORIVAL1,RIVAL,6]
+LoseText = We'll meet again !
+Pokemon = PIDGEY,9
+Pokemon = CHARMANDER,8

@@ -1,4 +1,4 @@
-﻿# See the documentation on the wiki to learn how to edit this file.
+# See the documentation on the wiki to learn how to edit this file.
 #-------------------------------
 [POKEMONTRAINER_Red]
 Name = Pokémon Trainer
@@ -399,3 +399,334 @@ Gender = Male
 BaseMoney = 100
 BattleBGM = Battle Champion
 VictoryBGM = Battle victory leader
+#-------------------------------
+# FullPoke custom trainer types (converted from the v18 trainertypes.txt)
+#-------------------------------
+[KANTOPOKEMONTRAINER_Red]
+Name = Pokémon Trainer
+Gender = Male
+BaseMoney = 60
+#-------------------------------
+[KANTOPOKEMONTRAINER_Leaf]
+Name = Pokémon Trainer
+Gender = Female
+BaseMoney = 60
+#-------------------------------
+[KANTORIVAL1]
+Name = Rival
+Gender = Male
+BaseMoney = 16
+#-------------------------------
+[KANTORIVAL2]
+Name = Rival
+Gender = Male
+BaseMoney = 36
+#-------------------------------
+[KANTOBEAUTY]
+Name = Beauty
+Gender = Female
+BaseMoney = 56
+BattleBGM = Battle trainer
+VictoryBGM = Battle victory trainer
+#-------------------------------
+[KANTOBIKER]
+Name = Biker
+Gender = Male
+BaseMoney = 32
+BattleBGM = Battle trainer
+VictoryBGM = Battle victory trainer
+#-------------------------------
+[KANTOBIRDKEEPER]
+Name = Bird Keeper
+Gender = Male
+BaseMoney = 32
+BattleBGM = Battle trainer
+VictoryBGM = Battle victory trainer
+#-------------------------------
+[KANTOBLACKBELT]
+Name = Black Belt
+Gender = Male
+BaseMoney = 32
+BattleBGM = Battle trainer
+VictoryBGM = Battle victory trainer
+#-------------------------------
+[KANTOBUGCATCHER]
+Name = Bug Catcher
+Gender = Male
+BaseMoney = 16
+BattleBGM = Battle trainer
+VictoryBGM = Battle victory trainer
+#-------------------------------
+[KANTOCHANELLER]
+Name = Channeler
+Gender = Female
+BaseMoney = 32
+BattleBGM = Battle trainer
+VictoryBGM = Battle victory trainer
+#-------------------------------
+[KANTOACETRAINER_M]
+Name = Ace Trainer
+Gender = Male
+BaseMoney = 60
+BattleBGM = Battle trainer
+VictoryBGM = Battle victory trainer
+#-------------------------------
+[KANTOACETRAINER_F]
+Name = Ace Trainer
+Gender = Female
+BaseMoney = 60
+BattleBGM = Battle trainer
+VictoryBGM = Battle victory trainer
+#-------------------------------
+[KANTOROUGHNECK]
+Name = Roughneck
+Gender = Male
+BaseMoney = 24
+BattleBGM = Battle trainer
+VictoryBGM = Battle victory trainer
+#-------------------------------
+[KANTOENGINEER]
+Name = Engineer
+Gender = Male
+BaseMoney = 48
+BattleBGM = Battle trainer
+VictoryBGM = Battle victory trainer
+#-------------------------------
+[KANTOFISHERMAN]
+Name = Fisherman
+Gender = Male
+BaseMoney = 32
+BattleBGM = Battle trainer
+VictoryBGM = Battle victory trainer
+#-------------------------------
+[KANTOGAMER]
+Name = Gamer
+Gender = Male
+BaseMoney = 72
+SkillLevel = 32
+BattleBGM = Battle trainer
+VictoryBGM = Battle victory trainer
+#-------------------------------
+[KANTOGENTLEMAN]
+Name = Gentleman
+Gender = Male
+BaseMoney = 72
+BattleBGM = Battle trainer
+VictoryBGM = Battle victory trainer
+#-------------------------------
+[KANTOHIKER]
+Name = Hiker
+Gender = Male
+BaseMoney = 32
+BattleBGM = Battle trainer
+VictoryBGM = Battle victory trainer
+#-------------------------------
+[KANTOCAMPER]
+Name = Camper
+Gender = Male
+BaseMoney = 16
+BattleBGM = Battle trainer
+VictoryBGM = Battle victory trainer
+#-------------------------------
+[KANTOPICNICKER]
+Name = Picnicker
+Gender = Female
+BaseMoney = 16
+BattleBGM = Battle trainer
+VictoryBGM = Battle victory trainer
+#-------------------------------
+[KANTOJUGGLER]
+Name = Juggler
+Gender = Male
+BaseMoney = 32
+BattleBGM = Battle trainer
+VictoryBGM = Battle victory trainer
+#-------------------------------
+[KANTOLASS]
+Name = Lass
+Gender = Female
+BaseMoney = 16
+BattleBGM = Battle trainer
+VictoryBGM = Battle victory trainer
+#-------------------------------
+[KANTOPOKEMANIAC]
+Name = Poké Maniac
+Gender = Male
+BaseMoney = 64
+BattleBGM = Battle trainer
+VictoryBGM = Battle victory trainer
+#-------------------------------
+[KANTOROCKER]
+Name = Rocker
+Gender = Male
+BaseMoney = 24
+BattleBGM = Battle trainer
+VictoryBGM = Battle victory trainer
+#-------------------------------
+[TEAMROCKET_JJ]
+Name = Team Rocket
+Gender = Mixed
+BaseMoney = 50
+#-------------------------------
+[TEAMROCKET_PROTON]
+Name = Team Rocket Executive
+Gender = Male
+BaseMoney = 75
+#-------------------------------
+[TEAMROCKET_PETREL]
+Name = Team Rocket Executive
+Gender = Male
+BaseMoney = 75
+#-------------------------------
+[TEAMROCKET_ARIANA]
+Name = Team Rocket Executive
+Gender = Female
+BaseMoney = 75
+#-------------------------------
+[TEAMROCKET_ARCHER]
+Name = Team Rocket Executive
+Gender = Male
+BaseMoney = 75
+#-------------------------------
+[KANTOSAILOR]
+Name = Sailor
+Gender = Male
+BaseMoney = 32
+BattleBGM = Battle trainer
+VictoryBGM = Battle victory trainer
+#-------------------------------
+[KANTOSCIENTIST]
+Name = Scientist
+Gender = Male
+BaseMoney = 48
+BattleBGM = Battle trainer
+VictoryBGM = Battle victory trainer
+#-------------------------------
+[KANTOSUPERNERD]
+Name = Super Nerd
+Gender = Male
+BaseMoney = 48
+BattleBGM = Battle trainer
+VictoryBGM = Battle victory trainer
+#-------------------------------
+[KANTOSWIMMER_M]
+Name = Swimmer
+Gender = Male
+BaseMoney = 16
+SkillLevel = 32
+BattleBGM = Battle trainer
+VictoryBGM = Battle victory trainer
+#-------------------------------
+[KANTOSWIMMER_F]
+Name = Swimmer
+Gender = Female
+BaseMoney = 16
+SkillLevel = 32
+BattleBGM = Battle trainer
+VictoryBGM = Battle victory trainer
+#-------------------------------
+[KANTOTAMER]
+Name = Tamer
+Gender = Male
+BaseMoney = 40
+BattleBGM = Battle trainer
+VictoryBGM = Battle victory trainer
+#-------------------------------
+[KANTOYOUNGSTER]
+Name = Youngster
+Gender = Male
+BaseMoney = 16
+BattleBGM = Battle trainer
+#-------------------------------
+[KANTOLEADER_Brock]
+Name = Gym Leader
+Gender = Male
+BaseMoney = 100
+BattleBGM = Battle Gym Leader
+VictoryBGM = Battle victory leader
+#-------------------------------
+[KANTOLEADER_Misty]
+Name = Gym Leader
+Gender = Female
+BaseMoney = 100
+BattleBGM = Battle Gym Leader
+VictoryBGM = Battle victory leader
+#-------------------------------
+[KANTOLEADER_Surge]
+Name = Gym Leader
+Gender = Male
+BaseMoney = 100
+BattleBGM = Battle Gym Leader
+VictoryBGM = Battle victory leader
+#-------------------------------
+[KANTOLEADER_Erika]
+Name = Gym Leader
+Gender = Female
+BaseMoney = 100
+BattleBGM = Battle Gym Leader
+VictoryBGM = Battle victory leader
+#-------------------------------
+[KANTOLEADER_Koga]
+Name = Gym Leader
+Gender = Male
+BaseMoney = 100
+BattleBGM = Battle Gym Leader
+VictoryBGM = Battle victory leader
+#-------------------------------
+[KANTOLEADER_Sabrina]
+Name = Gym Leader
+Gender = Female
+BaseMoney = 100
+BattleBGM = Battle Gym Leader
+VictoryBGM = Battle victory leader
+#-------------------------------
+[KANTOLEADER_Blaine]
+Name = Gym Leader
+Gender = Male
+BaseMoney = 100
+BattleBGM = Battle Gym Leader
+VictoryBGM = Battle victory leader
+#-------------------------------
+[KANTOLEADER_Blue]
+Name = Gym Leader
+Gender = Female
+BaseMoney = 100
+BattleBGM = Battle Gym Leader
+VictoryBGM = Battle victory leader
+#-------------------------------
+[KANTOELITEFOUR_Lorelei]
+Name = Elite Four
+Gender = Female
+BaseMoney = 100
+BattleBGM = Battle Elite
+#-------------------------------
+[KANTOELITEFOUR_Richie]
+Name = Elite Four
+Gender = Male
+BaseMoney = 100
+BattleBGM = Battle Elite
+#-------------------------------
+[KANTOELITEFOUR_Bruno]
+Name = Elite Four
+Gender = Male
+BaseMoney = 100
+BattleBGM = Battle Elite
+#-------------------------------
+[KANTOELITEFOUR_Agatha]
+Name = Elite Four
+Gender = Female
+BaseMoney = 100
+BattleBGM = Battle Elite
+#-------------------------------
+[CHAMPION_Lance]
+Name = Champion
+Gender = Male
+BaseMoney = 100
+BattleBGM = Battle Elite
+#-------------------------------
+[JOHTOPOKEFAN]
+Name = Poke Fan
+Gender = Male
+BaseMoney = 32
+BattleBGM = Battle trainer
+VictoryBGM = Battle victory trainer
