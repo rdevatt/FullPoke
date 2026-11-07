@@ -63,7 +63,7 @@ BattleBack = field
 [332]   # Mt. Moon
 Name = Mt. Moon
 MapPosition = 0,11,4
-BattleBack = cave
+BattleBack = cave1
 Environment = Cave
 #-------------------------------
 [037]   # Route 4
@@ -279,5 +279,5 @@ BattleBack = field
 [369]   # Underground Pass
 Name = Underground Pass
 MapPosition = 0,6,5
-BattleBack = cave
+BattleBack = cave1
 Environment = Cave
