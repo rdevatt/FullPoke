@@ -730,3 +730,97 @@ Gender = Male
 BaseMoney = 32
 BattleBGM = Battle trainer
 VictoryBGM = Battle victory trainer
+#-------------------------------
+[FP_LEADER_M]
+Name = Gym Leader
+Gender = Male
+BaseMoney = 100
+BattleBGM = Battle Gym Leader
+VictoryBGM = Battle victory leader
+#-------------------------------
+[FP_LEADER_F]
+Name = Gym Leader
+Gender = Female
+BaseMoney = 100
+BattleBGM = Battle Gym Leader
+VictoryBGM = Battle victory leader
+#-------------------------------
+[FP_CAPTAIN_M]
+Name = Trial Captain
+Gender = Male
+BaseMoney = 80
+BattleBGM = Battle Gym Leader
+VictoryBGM = Battle victory leader
+#-------------------------------
+[FP_CAPTAIN_F]
+Name = Trial Captain
+Gender = Female
+BaseMoney = 80
+BattleBGM = Battle Gym Leader
+VictoryBGM = Battle victory leader
+#-------------------------------
+[FP_KAHUNA_M]
+Name = Kahuna
+Gender = Male
+BaseMoney = 100
+BattleBGM = Battle Gym Leader
+VictoryBGM = Battle victory leader
+#-------------------------------
+[FP_KAHUNA_F]
+Name = Kahuna
+Gender = Female
+BaseMoney = 100
+BattleBGM = Battle Gym Leader
+VictoryBGM = Battle victory leader
+#-------------------------------
+[FP_ELITE_M]
+Name = Elite Four
+Gender = Male
+BaseMoney = 120
+BattleBGM = Battle Elite
+VictoryBGM = Battle victory leader
+#-------------------------------
+[FP_ELITE_F]
+Name = Elite Four
+Gender = Female
+BaseMoney = 120
+BattleBGM = Battle Elite
+VictoryBGM = Battle victory leader
+#-------------------------------
+[FP_CHAMPION_M]
+Name = Champion
+Gender = Male
+BaseMoney = 150
+BattleBGM = Battle Champion
+VictoryBGM = Battle victory leader
+#-------------------------------
+[FP_CHAMPION_F]
+Name = Champion
+Gender = Female
+BaseMoney = 150
+BattleBGM = Battle Champion
+VictoryBGM = Battle victory leader
+#-------------------------------
+[FP_RIVAL_M]
+Name = Pokémon Trainer
+Gender = Male
+BaseMoney = 40
+#-------------------------------
+[FP_RIVAL_F]
+Name = Pokémon Trainer
+Gender = Female
+BaseMoney = 40
+#-------------------------------
+[FP_BOSS_M]
+Name = Boss
+Gender = Male
+BaseMoney = 120
+BattleBGM = Battle Elite
+VictoryBGM = Battle victory leader
+#-------------------------------
+[FP_STARBOSS]
+Name = Team Star Boss
+Gender = Female
+BaseMoney = 80
+BattleBGM = Battle Gym Leader
+VictoryBGM = Battle victory leader

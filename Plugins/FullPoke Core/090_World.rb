@@ -50,16 +50,28 @@ module FullPoke
     def register_encounters
       encounters.each do |e|
         next if !e[:map]
-        types = {}
-        e[:types].each do |type, slots|
-          valid = slots.select { |s| GameData::Species.exists?(s[1]) }
-          types[type] = valid if !valid.empty?
+        if e[:circuit]
+          types = FullPoke::Circuit.encounter_table(*e[:circuit]) rescue {}
+          steps = { Land: 21 }
+        elsif e[:forest]
+          # The forest's real pool comes from FullPoke::Forest; this table only
+          # marks its tall grass as an encounter area.
+          types = { Land: [[100, :CATERPIE, 3, 3]] }
+          steps = { Land: 14 }
+        else
+          types = e[:types] || {}
+          steps = e[:step_chances] || {}
         end
-        next if types.empty?
+        valid_types = {}
+        types.each do |type, slots|
+          valid = slots.select { |s| GameData::Species.exists?(s[1]) }
+          valid_types[type] = valid if !valid.empty?
+        end
+        next if valid_types.empty?
         key = sprintf("%s_%d", e[:map], e[:version] || 0).to_sym
         GameData::Encounter::DATA[key] = GameData::Encounter.new({
           id: key, map: e[:map], version: e[:version] || 0,
-          step_chances: e[:step_chances], types: types
+          step_chances: steps, types: valid_types
         })
       end
     end

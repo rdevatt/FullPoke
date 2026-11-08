@@ -52,7 +52,7 @@ module FullPoke
   REGIONS = [
     RegionInfo.new(:kanto,  0, "Kanto",  0, [:BULBASAUR, :CHARMANDER, :SQUIRTLE], "Prof. Oak", "Pallet Town", nil),
     RegionInfo.new(:johto,  1, "Johto",  1, [:CHIKORITA, :CYNDAQUIL, :TOTODILE], "Prof. Elm", "New Bark Town", "Silver"),
-    RegionInfo.new(:hoenn,  2, "Hoenn",  2, [:TREECKO, :TORCHIC, :MUDKIP], "Prof. Birch", "Littleroot Town", "Wally"),
+    RegionInfo.new(:hoenn,  2, "Hoenn",  2, [:TREECKO, :TORCHIC, :MUDKIP], "Prof. Birch", "Littleroot Town", "May"),
     RegionInfo.new(:sinnoh, 3, "Sinnoh", 3, [:TURTWIG, :CHIMCHAR, :PIPLUP], "Prof. Rowan", "Twinleaf Town", "Barry"),
     RegionInfo.new(:unova,  4, "Unova",  4, [:SNIVY, :TEPIG, :OSHAWOTT], "Prof. Juniper", "Nuvema Town", "Cheren"),
     RegionInfo.new(:kalos,  5, "Kalos",  5, [:CHESPIN, :FENNEKIN, :FROAKIE], "Prof. Sycamore", "Vaniville Town", "Shauna"),

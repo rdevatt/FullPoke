@@ -281,3 +281,571 @@ Name = Underground Pass
 MapPosition = 0,6,5
 BattleBack = cave1
 Environment = Cave
+# >>> FullPoke generated (tools/headless/build_world.rb) >>>
+#-------------------------------
+[191]
+Name = Johto Gyms and League
+BattleBack = indoor1
+#-------------------------------
+[273]
+Name = Sinnoh Gyms and League
+BattleBack = indoor1
+#-------------------------------
+[383]
+Name = Hoenn Victory Road
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[469]
+Name = Nimbasa City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[471]
+Name = Driftveil City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[472]
+Name = Mistralton City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[473]
+Name = Icirrus City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[474]
+Name = Opelucid City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[486]
+Name = Unova Gyms and League
+BattleBack = indoor1
+#-------------------------------
+[539]
+Name = Kalos Gyms and League
+BattleBack = indoor1
+#-------------------------------
+[541]
+Name = Kalos Pokémon Center
+#-------------------------------
+[542]
+Name = Vaniville Town
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[544]
+Name = Santalune City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[545]
+Name = Lumiose City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[547]
+Name = Cyllage City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[550]
+Name = Shalour City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[551]
+Name = Coumarine City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[552]
+Name = Laverre City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[554]
+Name = Anistar City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[556]
+Name = Snowbelle City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[626]
+Name = Kalos Victory Road
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[629]
+Name = Alola Pokémon Center
+#-------------------------------
+[634]
+Name = Iki Town
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[635]
+Name = Hau'oli City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[643]
+Name = Heahea City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[644]
+Name = Paniola Town
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[645]
+Name = Royal Avenue
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[646]
+Name = Konikoni City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[657]
+Name = Maile City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[658]
+Name = Tapu Village
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[659]
+Name = Po Town
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[698]
+Name = Galar Pokémon Center
+#-------------------------------
+[700]
+Name = Galar Gyms and League
+BattleBack = indoor1
+#-------------------------------
+[702]
+Name = Postwick
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[704]
+Name = Motostoke
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[705]
+Name = Turffield
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[706]
+Name = Hulbury
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[707]
+Name = Hammerlocke
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[708]
+Name = Stow-on-Side
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[709]
+Name = Ballonlea
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[710]
+Name = Circhester
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[711]
+Name = Spikemuth
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[913]
+Name = Interregional Forest - Kanto Path
+Outdoor = true
+ShowArea = true
+BattleBack = forest
+#-------------------------------
+[914]
+Name = Interregional Forest - Johto Path
+Outdoor = true
+ShowArea = true
+BattleBack = forest
+#-------------------------------
+[915]
+Name = Interregional Forest - Hoenn Path
+Outdoor = true
+ShowArea = true
+BattleBack = forest
+#-------------------------------
+[916]
+Name = Interregional Forest - Galar Path
+Outdoor = true
+ShowArea = true
+BattleBack = forest
+#-------------------------------
+[917]
+Name = Interregional Forest - Heart Clearing
+Outdoor = true
+ShowArea = true
+BattleBack = forest
+#-------------------------------
+[918]
+Name = Interregional Forest - Sinnoh Path
+Outdoor = true
+ShowArea = true
+BattleBack = forest
+#-------------------------------
+[919]
+Name = Interregional Forest - Alola Path
+Outdoor = true
+ShowArea = true
+BattleBack = forest
+#-------------------------------
+[920]
+Name = Interregional Forest - Southern Paths
+Outdoor = true
+ShowArea = true
+BattleBack = forest
+#-------------------------------
+[921]
+Name = Interregional Forest - Unova Path
+Outdoor = true
+ShowArea = true
+BattleBack = forest
+#-------------------------------
+[922]
+Name = Johto Pokémon Center
+#-------------------------------
+[923]
+Name = Violet City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[924]
+Name = Azalea Town
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[925]
+Name = Goldenrod City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[926]
+Name = Ecruteak City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[927]
+Name = Cianwood City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[928]
+Name = Olivine City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[929]
+Name = Mahogany Town
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[930]
+Name = Blackthorn City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[931]
+Name = Johto Victory Road
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[932]
+Name = Hoenn Pokémon Center
+#-------------------------------
+[933]
+Name = Hoenn Gyms and League
+BattleBack = indoor1
+#-------------------------------
+[934]
+Name = Rustboro City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[935]
+Name = Dewford Town
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[936]
+Name = Mauville City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[937]
+Name = Lavaridge Town
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[938]
+Name = Petalburg City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[939]
+Name = Fortree City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[940]
+Name = Mossdeep City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[941]
+Name = Sootopolis City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[942]
+Name = Sinnoh Pokémon Center
+#-------------------------------
+[943]
+Name = Oreburgh City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[944]
+Name = Eterna City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[945]
+Name = Veilstone City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[946]
+Name = Pastoria City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[947]
+Name = Hearthome City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[948]
+Name = Canalave City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[949]
+Name = Snowpoint City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[950]
+Name = Sunyshore City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[951]
+Name = Sinnoh Victory Road
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[952]
+Name = Unova Pokémon Center
+#-------------------------------
+[953]
+Name = Striaton City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[954]
+Name = Nacrene City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[955]
+Name = Castelia City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[956]
+Name = Unova Victory Road
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[957]
+Name = Alola Gyms and League
+BattleBack = indoor1
+#-------------------------------
+[958]
+Name = Alola Victory Road
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[959]
+Name = Galar Victory Road
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[961]
+Name = Paldea Pokémon Center
+#-------------------------------
+[962]
+Name = Paldea Gyms and League
+BattleBack = indoor1
+#-------------------------------
+[963]
+Name = Cortondo
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[964]
+Name = Artazon
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[965]
+Name = Levincia
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[966]
+Name = Cascarrafa
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[967]
+Name = Medali
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[968]
+Name = Montenevera
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[969]
+Name = Alfornada
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[970]
+Name = Glaseado Mountain
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[971]
+Name = Paldea Victory Road
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[972]
+Name = Cabo Poco
+Outdoor = true
+ShowArea = true
+BattleBack = field
+# <<< FullPoke generated <<<

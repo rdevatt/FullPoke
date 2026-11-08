@@ -203,6 +203,24 @@ ItemHandlers::UseInField.add(:GROVECOMPASS, proc { |item|
   next FullPoke.use_compass
 })
 
+# Blacking out returns the player to the last Pokémon Center used in the region
+# they're in; before they've used one, to the region's first town.
+EventHandlers.add(:on_enter_map, :fullpoke_respawn_point,
+  proc { |_old_map_id|
+    next if !$PokemonGlobal || !$game_map
+    region_id = FullPoke.current_map_region
+    next if !region_id || region_id == :forest
+    center = $PokemonGlobal.pokecenterMapId
+    next if center && center > 0 && FullPoke.region_of_map(center) == region_id
+    dest = FullPoke::World.arrival(region_id)
+    next if !dest
+    $PokemonGlobal.pokecenterMapId     = dest[0]
+    $PokemonGlobal.pokecenterX         = dest[1]
+    $PokemonGlobal.pokecenterY         = dest[2]
+    $PokemonGlobal.pokecenterDirection = dest[3]
+  }
+)
+
 # Everyone carries a Grove Compass (each independent adventure's bag too).
 EventHandlers.add(:on_enter_map, :fullpoke_grove_compass,
   proc { |_old_map_id|

@@ -31,7 +31,23 @@ tools/headless/run.sh t_connections.rb      # map connection geometry
 tools/headless/run.sh t_journey.rb          # play: new game -> Pokédex -> Brock -> save/load
 tools/headless/run.sh t_ui.rb               # open every menu screen + real battle scene
 HEADLESS_DEBUG=0 tools/headless/run.sh t_release.rb   # boot like a player (no Debug)
+tools/headless/run.sh t_systems.rb          # regions/modes/levels/scaling/teams/forest pool (no walking)
+tools/headless/run.sh t_journey9.rb         # simulated nine-region journey (ORDER=kanto:c,johto:i,...)
+REGIONS=kalos MODE=independent tools/headless/run.sh t_regions.rb   # walk a region: gate -> League
+tools/headless/run.sh t_reach.rb 23 13 9 33 292   # which maps are reachable on foot from Pallet Town
 ```
+
+The generated world (Interregional Forest, the region circuits, the Kanto
+League hookup and the New Game region choice) is built by:
+
+```bash
+tools/headless/run.sh build_world.rb   # rebuild generated maps (IDs kept in world_ids.json)
+tools/headless/run.sh t_compile.rb     # then recompile (map metadata/connections)
+```
+
+It only replaces maps it generated and events named `FP: ...` on map-pack
+maps, so it's safe to re-run. Edit the builder or the region data in
+`Plugins/FullPoke Core/1xx_Data_*.rb`, not the generated maps.
 
 `t_compile.rb` rewrites `Data/*.dat` and may re-save maps (the compiler upgrades
 old-style door/trainer events). It also re-saves `Data/Tilesets.rxdata` and
@@ -60,7 +76,9 @@ docker build -t fullpoke-ruby tools/headless/docker && tools/headless/render.sh 
 | `event_builder.rb`, `build_kanto_opening.rb` | DSL over the v21 compiler's `push_*` helpers; builds the Kanto opening (re-runnable: replaces `FP:` events) |
 | `t_*.rb` | Checks and playthrough tests listed above |
 | `convert_pbs.rb`, `convert_events.rb`, `remap_*.rb`, `fix_*.rb`, `warp_pairs.rb`, `warp_mutual.rb`, `patch_*.rb` | The one-time v18 → v21 migration steps, kept for reference and re-use on newly imported maps |
-| `render_map.rb`, `dump_events.rb`, `warps.rb`, `switch_usage.rb`, `extract_scripts.rb` | Inspection |
+| `render_map.rb`, `dump_events.rb`, `warps.rb`, `switch_usage.rb`, `extract_scripts.rb`, `map_tree.rb`, `tile_stats.rb`, `room_at.rb` | Inspection |
+| `world_lib.rb`, `build_world.rb`, `world_ids.json` | The generated world (see above) |
+| `test_lib.rb` | `check`/`section`/`on_map` helpers for the newer tests |
 
 `build_kanto_opening.rb` overwrites the events it owns (names starting `FP:` in
 Oak's Lab, Oak's two "stop the player" events in Pallet Town, and the intro's

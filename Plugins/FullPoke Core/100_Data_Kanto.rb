@@ -75,8 +75,43 @@ module FullPoke
                  party: "PIDGEOT:59 ALAKAZAM:57 RHYDON:59 GYARADOS:59 EXEGGUTOR:61 STARTER:63:SITRUSBERRY", rival_starter: true,
                  signature: [:PIDGEOT, :ALAKAZAM], tier: 10,
                  lose_text: "NO! That can't be! You beat my best!")
+      FullPoke::Circuit.define(:kanto, {
+        stages: [
+          { town: "Pewter City", leader: :kanto_brock_pbs, badge: "Boulder Badge" },
+          { town: "Cerulean City", leader: :kanto_misty, badge: "Cascade Badge" },
+          { town: "Vermilion City", leader: :kanto_surge, badge: "Thunder Badge" },
+          { town: "Celadon City", leader: :kanto_erika, badge: "Rainbow Badge" },
+          { town: "Fuchsia City", leader: :kanto_koga, badge: "Soul Badge" },
+          { town: "Saffron City", leader: :kanto_sabrina, badge: "Marsh Badge" },
+          { town: "Cinnabar Island", leader: :kanto_blaine, badge: "Volcano Badge" },
+          { town: "Viridian City", leader: :kanto_giovanni, badge: "Earth Badge" }
+        ],
+        rivals: {},
+        league: [:kanto_lorelei, :kanto_bruno, :kanto_agatha, :kanto_lance],
+        champion: :kanto_champion,
+        legendary: [:MEWTWO, 70]
+      })
     end
   end
 end
 
 FullPoke::Data.kanto
+
+# Players who start elsewhere and walk into Pallet Town from the forest still
+# get the Kanto opening: Oak stops them at the tall grass and takes them to his
+# lab (switch 61, normally set by the intro).
+EventHandlers.add(:on_fullpoke_region_begun, :kanto_opening,
+  proc { |region_id, _mode|
+    next if region_id != :kanto || !$game_switches
+    $game_switches[61] = true if !$game_switches[65]
+  }
+)
+
+# Oak's starter is recorded as the Kanto starter (the rival's ace depends on it).
+EventHandlers.add(:on_end_battle, :kanto_starter_record,
+  proc { |_outcome, _can_lose|
+    next if !$fullpoke || FullPoke.state(:kanto).starter || !$game_switches[65]
+    sp = [[40, :BULBASAUR], [41, :CHARMANDER], [42, :SQUIRTLE]].find { |sw, _| $game_switches[sw] }
+    FullPoke.state(:kanto).starter = sp[1] if sp
+  }
+)

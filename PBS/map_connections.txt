@@ -1,4 +1,4 @@
-﻿# See the documentation on the wiki to learn how to edit this file.
+# See the documentation on the wiki to learn how to edit this file.
 #-------------------------------
 # Sevii Islands (6) - Sinnoh Interiors (5)
 6,South,12,5,North,0
@@ -1018,3 +1018,17 @@
 494,South,0,464,North,4
 # Route 302 (494) - Striaton City (465)
 494,North,0,465,South,0
+# >>> FullPoke generated (tools/headless/build_world.rb) >>>
+913,East,0,914,West,0
+913,South,0,916,North,0
+914,East,0,915,West,0
+914,South,0,917,North,0
+915,South,0,918,North,0
+916,East,0,917,West,0
+916,South,0,919,North,0
+917,East,0,918,West,0
+917,South,0,920,North,0
+918,South,0,921,North,0
+919,East,0,920,West,0
+920,East,0,921,West,0
+# <<< FullPoke generated <<<

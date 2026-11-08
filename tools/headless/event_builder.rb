@@ -28,7 +28,10 @@ class EventList
   end
   def wait_moves = cmd(210, [])
   # if_script("cond") { then } .else { otherwise }
+  # The condition is made strictly true/false: RPG Maker's script branches skip
+  # both the "then" and the "else" part when the script returns nil.
   def if_script(cond, otherwise: nil, &then_block)
+    cond = "(#{cond}) ? true : false" unless cond.end_with?('? true : false')
     Compiler.push_branch(@list, cond, @i)
     @i += 1
     instance_eval(&then_block)

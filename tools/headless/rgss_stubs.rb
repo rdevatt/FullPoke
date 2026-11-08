@@ -266,7 +266,10 @@ end
 
 module System
   VERSION = '2.4.2/c9378cf'
-  def self.uptime; $headless_clock; end
+  # Advances a little on every call as well as every frame: engine code that
+  # waits on the clock without drawing (e.g. the battle ability splash's
+  # one-second pause in a scene with no visuals) would otherwise never finish.
+  def self.uptime; $headless_clock += 0.0005; end
   def self.platform; 'Linux'; end
   def self.is_windows?; false; end
   def self.is_really_windows?; false; end

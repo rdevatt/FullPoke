@@ -22,6 +22,9 @@ end
 # Puts the player on a map (as a transfer would), so map-dependent logic
 # (region, party set, offset) applies.
 def on_map(map_id, x = nil, y = nil)
+  # Teleporting out of a running cutscene (e.g. the intro) would leave its
+  # script running and block every other event.
+  $game_system.map_interpreter.clear if $game_system.map_interpreter.running?
   m = load_data(format('Data/Map%03d.rxdata', map_id))
   x ||= m.width / 2
   y ||= m.height / 2
