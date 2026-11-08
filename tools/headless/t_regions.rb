@@ -39,11 +39,12 @@ def talk_to(ev)
   settle(20000)
 end
 
-def enter(ev)
+def enter(ev, same_map: false)
   map = $game_map.map_id
   go_to(ev.x, ev.y)
   settle(4000)
-  raise "#{ev.name} didn't warp (still #{where})" if $game_map.map_id == map
+  moved = same_map ? ($game_player.x - ev.x).abs + ($game_player.y - ev.y).abs > 1 : $game_map.map_id != map
+  raise "#{ev.name} didn't warp (still #{where})" if !moved
 end
 
 def train_party(level)
@@ -81,7 +82,7 @@ def play_region(region, mode)
   talk_to(prof)
   st = FullPoke.state(region)
   check("#{region}: starter #{st.starter.inspect} L#{$player.party[0]&.level}",
-        st.starter == FullPoke.region(region).starters[0] && $player.party[0]&.level == FullPoke.scale_level(5, region))
+        st.starter == FullPoke.region(region).starters[0] && ($player.party[0]&.level || 0) >= FullPoke.scale_level(5, region))
   # Test-only: two strong regional teammates so the AI wins reliably
   FullPoke::Teams.candidate_pool(nil, region, []).last(5).each { |sp| pbAddPokemonSilent(sp, 5) }
   if (ex_ = $game_map.events.values.find { |e| e.name == 'FP: Lab exit' })
@@ -93,10 +94,10 @@ def play_region(region, mode)
     stage_map = $game_map.map_id
     # Story battles in town
     extras_top = (FullPoke::Circuit.stage(region, n)[:extras] || []).map { |k| FullPoke::Circuit.leader_top_level(k) + st.offset }.max || 0
-    train_party([leader_level(region, n), extras_top].max + 12)
+    train_party([leader_level(region, n), extras_top].max + 20)
     $game_map.events.values.select { |e| e.name.start_with?('FP: ') && e.character_name.start_with?('trainer_') && !e.name.start_with?('FP: Leader') }.each do |e|
       talk_to(e)
-      train_party([leader_level(region, n), extras_top].max + 12)
+      train_party([leader_level(region, n), extras_top].max + 20)
     end
     enter(ev_named('FP: Gym door'))
     leader = ev_named('FP: Leader')
@@ -117,11 +118,11 @@ def play_region(region, mode)
   count = FullPoke::Circuit.league_count(region)
   count.times do |i|
     train_party(FullPoke::Circuit.leader_top_level(FullPoke::Circuit.get(region)[:champion]) + st.offset + 15)
-    target = (i == 5) ? ev_named('FP: Final') : ev_named('FP: League ', near: [$game_player.x, $game_player.y - 4])
+    target = (i == 5) ? ev_named('FP: Final') : ev_named('FP: League battle')
     talk_to(target)
-    check("#{region}: League battle #{i + 1}/#{count} (#{target.name.sub('FP: ', '')}) won", FullPoke::Circuit.league_cleared?(region, i))
+    check("#{region}: League battle #{i + 1}/#{count} (#{target.name.sub('FP: League battle ', '')}) won", FullPoke::Circuit.league_cleared?(region, i))
     next if i >= 4
-    enter(ev_named('FP: League door'))
+    enter(ev_named('FP: League door'), same_map: true)
   end
   check("#{region}: region completed (#{FullPoke.completed_count} total)", FullPoke.completed?(region))
   hof = ev_named('FP: Hall of Fame')

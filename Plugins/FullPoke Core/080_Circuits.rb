@@ -192,8 +192,9 @@ module FullPoke
       setBattleRule("cannotRun")
       setBattleRule("disablePokeBalls")
       FullPoke.instance_variable_set(:@totem_next, true)
-      outcome = WildBattle.start(species, level)
-      won = (outcome == 1 || outcome == 4)
+      # WildBattle.start is true unless the player lost (running and catching
+      # are disabled here, so true means the Totem was defeated)
+      won = WildBattle.start(species, level) ? true : false
       FullPoke.set_flag(region_id, :"totem#{n}") if won
       return won
     end
@@ -263,8 +264,8 @@ module FullPoke
       return if FullPoke.flag?(region_id, :legendary)
       pbMessage(_INTL("{1} appeared!", GameData::Species.get(species).name))
       setBattleRule("canLose")
-      outcome = WildBattle.start(species, level)
-      FullPoke.set_flag(region_id, :legendary) if [1, 4].include?(outcome)
+      # Caught or defeated: either way the encounter is over
+      FullPoke.set_flag(region_id, :legendary) if WildBattle.start(species, level)
     end
   end
 

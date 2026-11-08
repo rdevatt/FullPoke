@@ -1,6 +1,11 @@
 # FullPoke: project status
 
-_Last updated 2026-11-07._
+_Last updated 2026-11-08._
+
+> **The nine-region game (Interregional Forest, play modes, level scaling,
+> region circuits, Gen 9 status) is tracked in
+> [FULL_GAME_ROADMAP.md](FULL_GAME_ROADMAP.md).** This document covers the
+> engine migration, the Kanto opening and the map-pack cleanup.
 
 FullPoke runs on **Pokémon Essentials v21.1** (mkxp-z `Game.exe`, Ruby 3.1).
 The maps come from an all-regions map pack built for Essentials v18. This
@@ -17,7 +22,9 @@ You can now play the opening from a new game through the first Gym:
 > + 5 Poké Balls) → Route 2 → Viridian Forest (Bug Catchers) → Pewter City
 > Pokémon Center → Pewter Gym → **Brock (Boulder Badge)**
 
-Story content beyond Brock hasn't been built yet (see Remaining work).
+After Brock, Kanto's Gyms 2–8, the Indigo Plateau and the League are now
+playable (see FULL_GAME_ROADMAP.md, milestone 6); Kanto's mid-game story
+events still aren't built.
 
 ## What was broken and what was done
 
@@ -77,8 +84,9 @@ The headless runs can't check these. Do them once on Windows:
 ## Remaining work (priority order)
 
 ### 1. Story and content (game progression)
-- **Kanto after Brock isn't built.** Misty's event is a placeholder; Gyms 3–8,
-  the Elite Four and most of the story have no events. `trainers.txt` has the
+- **Kanto's story after Brock** (S.S. Anne, Pokémon Tower, Silph Co., Snorlax,
+  Safari Zone) has no events. Gyms 2–8 and the League now work (see the
+  roadmap). `trainers.txt` has the
   early-route trainers, Brock and the rival only. Several map-pack events are
   marked `INCOMPLETE EVENT` (the Route 22 rival rematch; the Cerulean rival
   battle uses the Route 22 party).

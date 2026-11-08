@@ -371,12 +371,24 @@ def build_gyms(region, root)
       3.times { |z| map.data[lox + x, y, z] = league_src.data[x, y, z] }
     end
   end
+  solidify_void(map)
   rooms = league_rooms(league_src).map { |b| [b[0] + lox, b[1], b[2], b[3]] }
   [map, id, gyms, rooms]
 end
 
+# The League map's empty space is tile 48 (solid) or 384 (black but walkable in
+# this tileset). Makes all of it solid so nobody can wander off a room.
+def solidify_void(map)
+  map.height.times do |y|
+    map.width.times do |x|
+      next if map.data[x, y, 1] != 0 || map.data[x, y, 2] != 0
+      map.data[x, y, 0] = 48 if map.data[x, y, 0] == 384
+    end
+  end
+end
+
 def league_rooms(src)
-  void = ->(x, y) { src.data[x, y, 0] == 48 && src.data[x, y, 1] == 0 && src.data[x, y, 2] == 0 }
+  void = ->(x, y) { [48, 384].include?(src.data[x, y, 0]) && src.data[x, y, 1] == 0 && src.data[x, y, 2] == 0 }
   seen = {}
   rooms = []
   src.height.times do |y|
@@ -532,8 +544,28 @@ def place_league(region, data, gyms_id, gmap, rooms, vroad_id, back: nil)
   rooms.each_with_index do |(rx, ry, rw, rh), i|
     cx = rx + rw / 2
     bottom = free_spot(gmap, cx, ry + rh - 2, box: [rx, ry, rw, rh])
-    top = free_spot(gmap, cx, ry + 1, box: [rx, ry, rw, rh])
-    mid = free_spot(gmap, cx, ry + (rh / 2) - 1, box: [rx, ry, rw, rh], avoid: [bottom, top])
+    # Work from what is actually walkable from the entrance
+    inside = ->(p) { p[0] >= rx && p[1] >= ry && p[0] < rx + rw && p[1] < ry + rh }
+    reach = reachable_from(gmap, *bottom).select { |p, _| inside.call(p) }
+    top = reach.keys.reject { |p| event_at?(gmap, *p) }.min_by { |x, y| [y, (x - cx).abs] }
+    target_y = ry + (rh / 2) - 1
+    mid = reach.keys.reject { |p| p == bottom || p == top || event_at?(gmap, *p) }
+               .sort_by { |x, y| (x - cx).abs + (y - target_y).abs }
+               .find do |p|
+                 # The member mustn't block the way from the entrance to the next door
+                 seen = { bottom => true }
+                 q = [bottom]
+                 until q.empty?
+                   c = q.shift
+                   [[1, 0], [-1, 0], [0, 1], [0, -1]].each do |dx, dy|
+                     n = [c[0] + dx, c[1] + dy]
+                     next if seen[n] || n == p || !reach[n]
+                     seen[n] = true
+                     q << n
+                   end
+                 end
+                 seen[top]
+               end
     entry ||= [gyms_id, bottom[0], bottom[1]]
     if i == 0
       back_to = back || [vroad_id, 19, 1]
@@ -542,8 +574,8 @@ def place_league(region, data, gyms_id, gmap, rooms, vroad_id, back: nil)
       })]) if passable_tile?(gmap, bottom[0], bottom[1] + 1)
     end
     defn = FullPoke::Teams.get(keys[i])
-    nm = defn[:name] || FullPoke.region(region).rival_name
-    new_event(gmap, "FP: League #{nm}", mid[0], mid[1], [new_page(trigger: 0, graphic: "trainer_#{defn[:tr_type]}", direction: 2, list: EventList.build {
+    nm = defn[:name] || FullPoke.region(region).rival_name || 'Champion'
+    new_event(gmap, "FP: League battle #{nm}", mid[0], mid[1], [new_page(trigger: 0, graphic: "trainer_#{defn[:tr_type]}", direction: 2, list: EventList.build {
       text("#{nm}: Welcome to the #{FullPoke.region(region).name} League. Let's begin!")
       script("FullPoke::Circuit.league_battle(:#{region}, #{i})")
     })])
@@ -771,6 +803,7 @@ def build_kanto
   # Indigo Plateau and the League
   league = WG.load_map(292)
   remove_fp_events(league)
+  solidify_void(league)
   rooms = league_rooms(league)
   indigo = WG.load_map(33)
   remove_fp_events(indigo)

@@ -139,7 +139,8 @@ New game -> intro -> choose a starting region + mode
   - Gyms 2–8 have no Gym trainers.
 
 ### 7. The other eight regions: partial (playable circuits)
-Each region is a complete circuit:
+Johto through Galar have each been played start to finish by `t_regions.rb`
+(see Testing). Each region is a complete circuit:
 
 - **Start town:** forest gate, home, the professor's starter choice and the
   first rival battle.
@@ -160,7 +161,7 @@ Each region is a complete circuit:
 | Hoenn | Littleroot Town (map-pack layout) | 8 Gyms (Roxanne–Juan), rival ×3, Maxie | Sidney, Phoebe, Glacia, Drake → Steven; Rayquaza | built |
 | Sinnoh | Twinleaf Town (map-pack layout) | 8 Gyms (Roark–Volkner), rival ×3, Cyrus | Aaron, Bertha, Flint, Lucian → Cynthia; Giratina | built |
 | Unova | Nuvema Town (map-pack layout) | 8 Gyms (Cilan–Drayden), rival ×3, Ghetsis | Shauntal, Grimsley, Caitlin, Marshal → Iris; Reshiram | built |
-| Kalos | Vaniville Town | 8 Gyms (Viola–Wulfric), rival ×3, Lysandre | Malva, Siebold, Wikstrom, Drasna → Diantha; Xerneas | built, **played through by `t_regions.rb`** |
+| Kalos | Vaniville Town | 8 Gyms (Viola–Wulfric), rival ×3, Lysandre | Malva, Siebold, Wikstrom, Drasna → Diantha; Xerneas | built |
 | Alola | Iki Town | 4 island trials with Totems (Ilima, Lana, Kiawe, Mallow, Acerola) and the kahunas' grand trials (Hala, Olivia, Nanu); rival ×3, Guzma | Hala, Olivia, Acerola, Kahili → Kukui; Solgaleo | built |
 | Galar | Postwick | 8 Gyms (Milo–Raihan), Hop ×3, Chairman Rose | Champion Cup: Marnie, Bede, Hop, Raihan → Leon; Zacian | built |
 | Paldea | Cabo Poco | Victory Road (8 Gyms) + Path of Legends (5 Titans) + Starfall Street (5 Team Star bosses) | Rika, Poppy, Larry, Hassel → Geeta, then Nemona (needs all three stories); Koraidon | built, **locked until Gen 9 data is installed** |
@@ -186,15 +187,20 @@ Each region is a complete circuit:
     Elite Four, Champion, Kahuna…). They're told apart by name only.
   - Per-character battle sprites and overworld sprites are missing.
 
-### 8. Testing: partial
+### 8. Testing: done for everything but Paldea (headless)
 | Test | What it covers | Result |
 | --- | --- | --- |
 | `t_compile.rb` | PBS + plugin compile | pass |
-| `t_systems.rb` | milestones 1, 2, 4, 5 | 170/170 |
-| `t_regions.rb` | full on-foot playthrough of a region (forest gate → starter → 8 Gyms → League → Hall of Fame) | Kalos: see below |
-| `t_journey9.rb` | all nine regions in a mixed order and modes: offsets, scaling, team rules, a real Champion battle per region, forest unlocks, completion counting, save/load after each region | see below |
-| `t_reach.rb` | on-foot reachability audit | Kanto results above |
-| `t_journey.rb` | Kanto opening → Boulder Badge → save/load | pass |
+| `t_systems.rb` | milestones 1, 2, 4, 5 (levels to 999, offsets, isolation, enhanced teams, forest pool, save/load) | 170/170 |
+| `t_regions.rb` | walks a whole region on foot: forest gate → mode → professor/starter/rival → 8 stages (route trainers, story battles, Gym trainers, Leader/Totem) → Victory Road → 4 Elite Four rooms → Champion → completion → Hall of Fame → home | **27/27 for each of Johto (continuous), Hoenn (independent), Sinnoh (continuous), Unova (independent), Kalos (independent), Alola (continuous), Galar (independent)** |
+| `t_kanto.rb` | Kanto Gyms 2–8 through the real Gym doors, Route 23 → Indigo Plateau → Elite Four → Champion → Hall of Fame | 23/23 in continuous and in independent mode |
+| `t_newgame.rb` | New Game → intro → choose region and mode → that region's first town, right party set | pass for all 7 generated regions (Kanto via `t_release.rb`) |
+| `t_journey9.rb` | all nine regions in a mixed order and modes: offsets (0 → 63 → 113 → 175 → 234 → 292 …), wild/trainer scaling, team rules, a real Champion battle per region (up to level 357), forest unlocks, completion counting, no duplicates, save/load after each region; Paldea locked | 213/213 |
+| `t_reach.rb` | on-foot reachability audit | all 8 Kanto Gym towns + Indigo Plateau + League reachable from Pallet Town |
+| `t_journey.rb`, `t_ui.rb`, `t_release.rb` | Kanto opening → Boulder Badge → save/load; every menu and the real battle scene; release-mode boot | pass |
+
+The tests let the AI play the player's side and raise the team's level before
+big battles. That's a test setting; game balance hasn't been playtested.
 
 ## Generation 9
 
@@ -240,11 +246,14 @@ sprites are kept. The pack's `CHAMPIONS_MECHANICS` setting is switched off.
    - Enhanced teams (whether 5-Pokémon Gyms are fun rather than walls).
 
 ## Next steps (priority)
-1. Run `t_regions.rb` for every region in both modes and fix what it finds.
-2. Install the Gen 9 pack (needs your approval), then play Paldea through.
-3. Kanto: repair Lavender, Rock Tunnel and Victory Road links; build the story
+1. Install the Gen 9 pack (needs your approval), then play Paldea through.
+2. Kanto: repair Lavender, Rock Tunnel and Victory Road links; build the story
    events (S.S. Anne, Pokémon Tower, Silph Co.); add Gym trainers.
-4. Move the circuits onto the map pack's real Johto, Hoenn and Sinnoh layouts
+3. Move the circuits onto the map pack's real Johto, Hoenn and Sinnoh layouts
    by placing doors and links by hand.
-5. Per-character trainer sprites and overworld graphics.
-6. More postgame: rematches, Battle Frontier-style facilities.
+4. Per-character trainer sprites and overworld graphics.
+5. Water, cave and fishing encounters in the circuits. Kanto and Johto's
+   map-pack maps have them; the generated circuits only have tall grass.
+6. The trainer card shows Kanto's eight badges only; make it show the
+   current region's.
+7. More postgame: rematches, Battle Frontier-style facilities.

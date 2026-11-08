@@ -5,7 +5,8 @@ Built with **Pokémon Essentials v21.1** (RPG Maker XP project, mkxp-z runtime).
 
 - **Play:** run `Game.exe`. To playtest with the Debug menu, open
   `Game.rxproj` in RPG Maker XP and press Playtest (F12).
-- **Status, known issues and the to-do list:** [docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md)
+- **The nine-region game, what's done and what's left:** [docs/FULL_GAME_ROADMAP.md](docs/FULL_GAME_ROADMAP.md)
+- **Engine migration, Kanto opening, Windows checklist:** [docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md)
 - **Headless tests and data tools** (compile PBS, play scripted sessions, inspect
   maps without Windows): [tools/headless/README.md](tools/headless/README.md)
 
