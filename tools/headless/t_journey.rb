@@ -1,7 +1,7 @@
 require_relative 'play_lib'
 load File.join(__dir__, 't_parcel.rb')
 mon = $player.party[0]
-mon.level = 20; mon.calc_stats; mon.heal      # make the AI's wins reliable; this tests events, not luck
+mon.level = 24; mon.calc_stats; mon.heal      # make the AI's wins reliable; this tests events, not luck
 def expect_map(id, label)
   raise "#{label}: expected map #{id}, got #{where}" unless $game_map.map_id == id
   puts "STEP #{label}: #{where}"

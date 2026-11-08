@@ -6581,3 +6581,12 @@ Pocket = 8
 Price = 0
 Flags = KeyItem
 Description = A letter written by Joe. It should be delivered to the person it is addressed to.
+#-------------------------------
+[GROVECOMPASS]
+Name = Grove Compass
+NamePlural = Grove Compasses
+Pocket = 8
+Price = 0
+FieldUse = Direct
+Flags = KeyItem
+Description = A compass whose needle always points to the Interregional Forest. Use it to return to the forest gate of the region you're in.
