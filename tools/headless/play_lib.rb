@@ -151,7 +151,7 @@ def find_path(gx, gy)
   avoid = {}
   switch = {}   # the map pack's bridge switches: [x, y] => 1 (BridgeOn) or 0 (BridgeOff)
   $game_map.events.each_value do |e|
-    if e.name =~ /^Bridge(On|Off)/i
+    if e.name =~ /^(?:FP: )?Bridge(On|Off)/i
       switch[[e.x, e.y]] = ($1.downcase == 'on') ? 1 : 0
       next
     end

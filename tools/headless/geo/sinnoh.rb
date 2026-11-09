@@ -33,7 +33,7 @@ GEO_SPEC[:sinnoh] = {
     [:hearthome, [[7, 53], [8, 53], [9, 53], [10, 53]], [8, 51, 8], :r212, [[17, 3], [18, 3], [19, 3], [20, 3]], [18, 5, 2]],
     # Veilstone's south exit and Route 214's gatehouse
     # Oreburgh's east end and Route 207 (the map pack walls them apart)
-    [:oreburgh, [[67, 18]], [66, 18, 4], :r207, [[2, 3], [2, 4], [2, 5]], [3, 4, 6]],
+    [:oreburgh, [[61, 13], [61, 14]], [60, 14, 4], :r207, [[2, 3], [2, 4], [2, 5]], [3, 4, 6]],
     # Eterna's south gatehouse and the top of the Cycling Road (Route 206)
     [:eterna, [[15, 56], [16, 56], [17, 56], [18, 56]], [16, 54, 8], :r206, [[15, 4], [16, 4], [17, 4], [18, 4]], [16, 6, 2]],
     # Route 213: the gatehouse between the hotel meadow and Valor Lakefront
@@ -107,5 +107,10 @@ GEO_SPEC[:sinnoh] = {
     { kind: :wild, species: [:DRIFLOON, 22], flag: :valley_drifloon, at: [:r205, [55, 145]], name: 'Valley Windworks Drifloon',
       graphic: '', intro: "A Drifloon floats over from the Valley Windworks!" }
   ],
-  victory_road: { from: :league_isle, at: [[22, 66]] }
+  victory_road: { from: :league_isle, at: [[22, 66]] },
+  # The Cycling Road's south BridgeOn switches are four rows short of the deck
+  bridge_switches: { r206: { on: (10..20).map { |x| [x, 105] } } },
+  # Tile 520 is blank; walls (mountain tops drawn with walkable rock) use it
+  tile_fixes: { 31 => { solid: [520] } },
+  wall_tile: 520
 }

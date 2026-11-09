@@ -86,6 +86,8 @@ class GeoRegion
     build_rooms
     gmap, gid, grooms, lrooms = build_gyms(@region, root)
     @gyms = { map: gmap, id: gid, rooms: grooms }
+    build_walls
+    build_bridge_switches
     connect_maps
     build_gates
     build_warps
@@ -106,6 +108,43 @@ class GeoRegion
       cave = WG.load_map(mid).tileset_id == 27 || (@spec[:caves] || []).include?(key)
       meta(mid, @spec.dig(:names, key) || INFO_NAME.call(mid), outdoor: !cave, battleback: cave ? 'cave1' : 'field',
            extra: cave ? ["DarkMap = false"] : [])
+    end
+  end
+
+  #-----------------------------------------------------------------------------
+  # Scenery drawn with walkable ground that no path leads onto (mountain tops,
+  # plateaus): walls: { map => [[x, y], ...] } covers the area around each tile
+  # with an invisible solid tile (wall_tile, made solid by tile_fixes).
+  #-----------------------------------------------------------------------------
+  def build_walls
+    (@spec[:walls] || {}).each do |key, seeds|
+      m = map(key)
+      seeds.each do |sx, sy|
+        raise "#{@region} #{key}: wall seed #{sx},#{sy} isn't walkable" if !passable_tile?(m, sx, sy)
+        reachable_from(m, sx, sy).each_key do |x, y|
+          next if event_at?(m, x, y)
+          if m.data[x, y, 2] != 0
+            next if m.data[x, y, 1] != 0
+            m.data[x, y, 1] = m.data[x, y, 2]
+          end
+          m.data[x, y, 2] = @spec[:wall_tile]
+        end
+      end
+    end
+  end
+
+  # More BridgeOn/BridgeOff switches where the pack's own sit too far from the
+  # bridge (FullPoke turns a bridge off on land with no bridge tile beside):
+  #   bridge_switches: { map => { on: [[x, y], ...], off: [...] } }
+  def build_bridge_switches
+    (@spec[:bridge_switches] || {}).each do |key, sw|
+      m = map(key)
+      sw.each do |kind, tiles|
+        name = (kind == :on) ? 'BridgeOn' : 'BridgeOff'
+        tiles.each do |x, y|
+          new_event(m, "FP: #{name}", x, y, [new_page(trigger: 1, list: EventList.build { script("pb#{name}") })])
+        end
+      end
     end
   end
 
@@ -713,8 +752,18 @@ def inherit_tileset_settings
   end
 end
 
+# A region's own tileset corrections:
+#   tile_fixes: { tileset => { solid: [tile ids], open: [tile ids] } }
+def apply_tile_fixes(spec)
+  (spec[:tile_fixes] || {}).each do |ts_id, f|
+    (f[:solid] || []).each { |t| TILESETS[ts_id].passages[t] = 0x0f }
+    (f[:open] || []).each { |t| TILESETS[ts_id].passages[t] = 0 }
+  end
+end
+
 def build_geo_region(region)
   inherit_tileset_settings
   fix_building_passages(GEO_SPEC[region][:maps].values)
+  apply_tile_fixes(GEO_SPEC[region])
   GeoRegion.new(region).build
 end

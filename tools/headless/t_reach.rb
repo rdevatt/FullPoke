@@ -149,6 +149,8 @@ end
 # never reached (every tile should be reachable). Empty cells (nothing drawn)
 # don't count; tiles under events don't count. Unreached tiles are grouped
 # into areas: "areas" are groups of 10+ tiles, "pockets" smaller ones.
+# (AUDIT=@file reads the ids from a file in tools/headless)
+ENV['AUDIT'] = File.read(File.join(__dir__, ENV['AUDIT'][1..])).strip if ENV['AUDIT']&.start_with?('@')
 if ENV['AUDIT']
   totals = Hash.new(0)
   ENV['AUDIT'].split(',').map(&:to_i).each do |am|
@@ -180,6 +182,28 @@ if ENV['AUDIT']
     next if miss.empty?
     puts format('AUDIT %4d %-34s walkable %6d unreached %6d (areas %d: %d tiles; pockets %d: %d tiles) %s', am, INFOS[am]&.name.to_s[0, 34], walk, miss.length,
                 areas.length, areas.sum(&:length), pockets.length, pockets.sum(&:length), areas.max_by(&:length)&.first&.join(','))
+    # AUDIT_AREAS=1 also lists each area's size, bounds and a tile in it
+    areas.sort_by { |g| -g.length }.each do |g|
+      xs = g.map(&:first); ys = g.map(&:last)
+      ground = g.map { |x, y| m.data[x, y, 0] }.tally.max_by(3) { |_, c| c }.map { |t, c| "#{t}x#{c}" }.join(' ')
+      puts format('        area %5d tiles  x %d-%d  y %d-%d  at %-8s ground %s', g.length, xs.min, xs.max, ys.min, ys.max, g.min_by { |x, y| [y, x] }.join(','), ground)
+    end if ENV['AUDIT_AREAS']
+  end
+  # AUDIT_TILES=1: per bottom-layer tile, how often it was reached vs left in
+  # unreached areas (to find cliff-top tiles drawn walkable)
+  if ENV['AUDIT_TILES']
+    stats = Hash.new { |h, k| h[k] = [0, 0] }
+    ENV['AUDIT'].split(',').map(&:to_i).each do |am|
+      m = rx_map(am) or next
+      m.height.times do |y|
+        m.width.times do |x|
+          next if !tile_ok?(m, x, y) || (0..2).all? { |z| m.data[x, y, z].to_i == 0 }
+          key = [m.tileset_id, m.data[x, y, 0], [1, 2].map { |z| m.data[x, y, z] }.max]
+          seen[[am, x, y]] ? stats[key][0] += 1 : stats[key][1] += 1
+        end
+      end
+    end
+    stats.sort_by { |_, (r, u)| -u }.first(60).each { |(ts, l0, top), (r, u)| puts format('TILES ts%d layer0 %5d top %5d  reached %6d  unreached %6d', ts, l0, top, r, u) }
   end
   puts "AUDIT total walkable #{totals[:walk]}, unreached: #{totals[:area]} in areas, #{totals[:pocket]} in small pockets"
 end
