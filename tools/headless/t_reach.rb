@@ -2,10 +2,16 @@
 # starting point and reports which maps can be reached: through map connections,
 # warps (doors, stairs, gates) and FullPoke's scripted gates. Used to audit the
 # map pack's Kanto connections and the generated circuits.
-#   tools/headless/run.sh t_reach.rb [map x y] [target map ids...]
+#   tools/headless/run.sh t_reach.rb [--surf] [--story] [map x y] [target map ids...]
 # Ledges are treated as one-way (downwards); NPCs and other solid events block.
+#   --surf   water can be crossed (the player has Surf)
+#   --story  Kanto's story obstacles are cleared (Snorlax, Cut trees, the ghost)
+# Doors and stairs on solid tiles count (the player bumps into them).
 require_relative 'play_lib'
 
+SURF = !ARGV.delete('--surf').nil?
+STORY = !ARGV.delete('--story').nil?
+CLEARED = /\AFP: (Snorlax|CutTree|Ghost|Giovanni)\z/
 start_map, sx, sy = (ARGV[0] ? ARGV[0..2].map(&:to_i) : [23, 13, 9])
 targets = ARGV[3..]&.map(&:to_i) || []
 new_game   # sets up $map_factory and the game state the engine's map helpers need
@@ -22,7 +28,7 @@ def tile_ok?(m, x, y)
     t = m.data[x, y, z]
     next if t.nil? || t == 0
     tag = ts.terrain_tags[t]
-    return false if [5, 6, 7, 16].include?(tag)   # water (needs Surf)
+    return SURF if [5, 6, 7].include?(tag)        # water (needs Surf)
     return false if ts.passages[t] & 0x0f == 0x0f
     return true if ts.priorities[t] == 0
   end
@@ -42,7 +48,8 @@ def events_of(id)
     m.events.each_value do |e|
       pg = e.pages[0]
       next if !pg
-      if pg.graphic.character_name != '' && !pg.through && pg.trigger != 1
+      next if STORY && e.name =~ CLEARED
+      if (pg.graphic.character_name != '' || pg.graphic.tile_id > 0) && !pg.through && pg.trigger != 1
         solid[[e.x, e.y]] = true
       end
       pg.list.each do |c|
@@ -92,7 +99,7 @@ until queue.empty?
       next
     end
     next if solid[[nx, ny]] && !warps[[nx, ny]]
-    next if !tile_ok?(m, nx, ny)
+    next if !tile_ok?(m, nx, ny) && !warps[[nx, ny]]
     next if ledge?(m, nx, ny) && dy != 1
     st = [id, nx, ny]
     next if seen[st]

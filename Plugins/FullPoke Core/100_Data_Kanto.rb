@@ -75,6 +75,53 @@ module FullPoke
                  party: "PIDGEOT:59 ALAKAZAM:57 RHYDON:59 GYARADOS:59 EXEGGUTOR:61 STARTER:63:SITRUSBERRY", rival_starter: true,
                  signature: [:PIDGEOT, :ALAKAZAM], tier: 10,
                  lose_text: "NO! That can't be! You beat my best!")
+      # Gym trainers (Gyms 2-8), Team Rocket and the story locations' trainers.
+      # Teams follow FireRed/LeafGreen, a little trimmed.
+      { kanto_gym2_t1: [:KANTOSWIMMER_M, "Luis", "HORSEA:16 SHELLDER:16"],
+        kanto_gym2_t2: [:KANTOPICNICKER, "Diana", "GOLDEEN:19"],
+        kanto_gym3_t1: [:KANTOSAILOR, "Dwayne", "PIKACHU:21 PIKACHU:21"],
+        kanto_gym3_t2: [:KANTOENGINEER, "Baily", "VOLTORB:21 MAGNEMITE:21"],
+        kanto_gym3_t3: [:KANTOGENTLEMAN, "Tucker", "PIKACHU:23"],
+        kanto_gym4_t1: [:KANTOLASS, "Kay", "BELLSPROUT:23 WEEPINBELL:23"],
+        kanto_gym4_t2: [:KANTOBEAUTY, "Bridget", "ODDISH:21 BELLSPROUT:21 ODDISH:21 BELLSPROUT:21"],
+        kanto_gym4_t3: [:KANTOACETRAINER_F, "Mary", "BELLSPROUT:22 ODDISH:22 WEEPINBELL:22 GLOOM:22 IVYSAUR:22"],
+        kanto_gym5_t1: [:KANTOJUGGLER, "Kirk", "DROWZEE:31 KADABRA:31"],
+        kanto_gym5_t2: [:KANTOTAMER, "Phil", "SANDSLASH:33 ARBOK:33"],
+        kanto_gym5_t3: [:KANTOJUGGLER, "Nate", "DROWZEE:34 HYPNO:34"],
+        kanto_gym6_t1: [:PSYCHIC_M, "Johan", "KADABRA:31 SLOWPOKE:34 MRMIME:34 KADABRA:34"],
+        kanto_gym6_t2: [:KANTOCHANELLER, "Amanda", "GASTLY:34 HAUNTER:34"],
+        kanto_gym6_t3: [:PSYCHIC_M, "Tyron", "MRMIME:38"],
+        kanto_gym7_t1: [:BURGLAR, "Quinn", "GROWLITHE:36 VULPIX:36 NINETALES:36"],
+        kanto_gym7_t2: [:KANTOSUPERNERD, "Erik", "VULPIX:36 PONYTA:36"],
+        kanto_gym7_t3: [:BURGLAR, "Ramon", "PONYTA:34 CHARMANDER:34 VULPIX:34 GROWLITHE:34"],
+        kanto_gym8_t1: [:KANTOACETRAINER_M, "Samuel", "SANDSLASH:37 SANDSHREW:37 RHYHORN:38 NIDORINO:37 NIDOKING:39"],
+        kanto_gym8_t2: [:KANTOBLACKBELT, "Atsushi", "MACHOP:40 MACHOKE:40"],
+        kanto_gym8_t3: [:KANTOTAMER, "Jason", "NIDORINO:43 NIDOKING:43"],
+        kanto_ssanne_t1: [:KANTOSAILOR, "Trevor", "MACHOP:18 SHELLDER:18"],
+        kanto_ssanne_t2: [:KANTOSAILOR, "Leonard", "SHELLDER:21"],
+        kanto_ssanne_t3: [:KANTOGENTLEMAN, "Arthur", "NIDORAN:19 NIDORANfE:19"],
+        kanto_rocktunnel_t1: [:KANTOHIKER, "Lenny", "GEODUDE:19 MACHOP:19 GEODUDE:19"],
+        kanto_rocktunnel_t2: [:KANTOHIKER, "Oliver", "ONIX:20 ONIX:20 GEODUDE:20"],
+        kanto_tower_t1: [:KANTOCHANELLER, "Patricia", "GASTLY:22"],
+        kanto_tower_t2: [:KANTOCHANELLER, "Carly", "GASTLY:24"],
+        kanto_tower_t3: [:KANTOCHANELLER, "Hope", "HAUNTER:23"],
+        kanto_vroad_t1: [:KANTOACETRAINER_M, "Naven", "PERSIAN:42 PONYTA:42 RAPIDASH:42 VULPIX:42"],
+        kanto_vroad_t2: [:KANTOACETRAINER_F, "Catherine", "BELLSPROUT:42 WEEPINBELL:42 VICTREEBEL:42 PARASECT:42"] }.each do |key, (tt, name, party)|
+        t.register(key: key, region: :kanto, role: :trainer, tr_type: tt, name: name, party: party,
+                   lose_text: "You're too good for me!")
+      end
+      { kanto_rocket_gamecorner: "RATTATA:20 RATICATE:20 ZUBAT:20",
+        kanto_rocket_hideout1: "DROWZEE:21 MACHOP:21",
+        kanto_rocket_hideout2: "RATICATE:20 ZUBAT:20 EKANS:20",
+        kanto_rocket_hideout3: "KOFFING:22 ZUBAT:22",
+        kanto_rocket_tower1: "ZUBAT:25 ZUBAT:25 GOLBAT:25",
+        kanto_rocket_tower2: "KOFFING:26 DROWZEE:26",
+        kanto_rocket_tower3: "ZUBAT:23 RATTATA:23 RATICATE:23",
+        kanto_rocket_silph1: "MACHOP:33 DROWZEE:33",
+        kanto_rocket_silph2: "CUBONE:33 CUBONE:33" }.each do |key, party|
+        t.register(key: key, region: :kanto, role: :trainer, tr_type: :TEAMROCKET_M, name: "Grunt", party: party,
+                   lose_text: "Blast it! Team Rocket will remember this!")
+      end
       FullPoke::Circuit.define(:kanto, {
         stages: [
           { town: "Pewter City", leader: :kanto_brock_pbs, badge: "Boulder Badge" },
