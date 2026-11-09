@@ -28,12 +28,20 @@ module Route
   def tile(m, x, y)
     return nil if x < 0 || y < 0 || x >= m.width || y >= m.height
     ts = TS[m.tileset_id]
+    bridge = false
     [2, 1, 0].each do |z|
       t = m.data[x, y, z]
       next if t.nil? || t == 0
       tag = ts.terrain_tags[t]
+      # Bridges are ignored unless you're up on one (a BridgeOn event): read
+      # what's underneath, and count the bridge as a walkway only over ground
+      # you couldn't otherwise cross (Fortree's treetop walkways)
+      if tag == 15
+        bridge = true
+        next
+      end
       return :water if [5, 6, 7].include?(tag)
-      return nil if ts.passages[t] & 0x0f == 0x0f
+      return (bridge ? :land : nil) if ts.passages[t] & 0x0f == 0x0f
       return :land if ts.priorities[t] == 0
     end
     :land
@@ -67,6 +75,32 @@ module Route
     [solid, warps]
   end
 
+  # RPG Maker's per-direction blocking: a tile can stop you leaving or entering
+  # it in one direction (shores, fences, ledges). bit: down 1, left 2, right 4, up 8.
+  # DIRECTIONAL=0 turns it off (e.g. to find which tile blocks a route).
+  DIRECTIONAL = ENV['DIRECTIONAL'] != '0'
+  def dir_ok?(m, x, y, d)
+    ts = TS[m.tileset_id]
+    bit = 1 << (d / 2 - 1)
+    # A bridge over ground you can't otherwise cross is a walkway: its own
+    # flags decide (as when a BridgeOn event has put you up on it)
+    bridge = [2, 1, 0].map { |z| m.data[x, y, z] }.find { |t| t && t > 0 && ts.terrain_tags[t] == 15 }
+    if bridge
+      under = [1, 0].map { |z| m.data[x, y, z] }.select { |t| t && t > 0 && ts.terrain_tags[t] != 15 }
+      return ts.passages[bridge] & bit == 0 if under.any? { |t| ts.passages[t] & 0x0f == 0x0f }
+    end
+    [2, 1, 0].each do |z|
+      t = m.data[x, y, z]
+      next if t.nil? || t == 0
+      next if ts.terrain_tags[t] == 15
+      return true if [5, 6, 7].include?(ts.terrain_tags[t])   # surfable water ignores direction flags
+      return true if ts.terrain_tags[t] == 1                  # ledges are jumped (downward only, see plan)
+      return false if ts.passages[t] & bit != 0
+      return true if ts.priorities[t] == 0
+    end
+    true
+  end
+
   # Areas the player isn't allowed into yet (badges, starter) are avoided.
   def allowed?(id) = FullPoke::World.map_rule_ok?(id)
 
@@ -77,7 +111,7 @@ module Route
 
   # Breadth-first plan; returns a list of [state, how] where how is :step,
   # [:warp, x, y] (walk into the warp tile at x, y) or [:edge, dir].
-  def plan(goal_map, gx = nil, gy = nil, surf: false)
+  def plan(goal_map, gx = nil, gy = nil, surf: false, directional: DIRECTIONAL)
     start = [$game_map.map_id, $game_player.x, $game_player.y]
     prev = { start => nil }
     queue = [start]
@@ -113,6 +147,7 @@ module Route
         next if prev.key?(nxt) || solid[[nx, ny]]
         kind = tile(m, nx, ny)
         next if !kind || (kind == :water && !surf)
+        next if directional && (!dir_ok?(m, x, y, d) || !dir_ok?(m, nx, ny, 10 - d))
         next if ledge?(m, nx, ny) && d != 2
         prev[nxt] = [cur, :step]
         queue << nxt
@@ -136,7 +171,10 @@ def surf_ready? = $PokemonGlobal.surfing || !$player.get_pokemon_with_move(:SURF
 def travel_to(map_id, x = nil, y = nil, tries: 6)
   tries.times do |t|
     return true if $game_map.map_id == map_id && (x.nil? || ($game_player.x == x && $game_player.y == y))
-    steps = Route.plan(map_id, x, y, surf: surf_ready?) or raise "no route to map #{map_id} #{x},#{y} from #{where}"
+    # Strict plan first; if per-direction blocking (which bridges and ladders make
+    # approximate) leaves no way, let the real movement decide
+    steps = Route.plan(map_id, x, y, surf: surf_ready?) || Route.plan(map_id, x, y, surf: surf_ready?, directional: false) or
+      raise "no route to map #{map_id} #{x},#{y} from #{where}"
     ok = (follow(steps) rescue (log("follow: #{$!.message}"); false))
     return true if ok && $game_map.map_id == map_id && (x.nil? || ($game_player.x - x).abs + ($game_player.y - y).abs <= 1)
     # Didn't get there: let things settle and step aside before planning again
@@ -184,7 +222,20 @@ def follow(steps)
         i += 1 if [$game_player.x, $game_player.y] == [state[1], state[2]]
         next
       end
-      go_to(tx, ty)
+      begin
+        go_to(tx, ty)
+      rescue RuntimeError
+        # The engine's own pathfinding can't see walkways that a BridgeOn
+        # event opens on the way: walk the planned steps one by one instead
+        (i..j).each do |k|
+          px, py = $game_player.x, $game_player.y
+          sx, sy = steps[k][0][1], steps[k][0][2]
+          d = sy > py ? :down : sy < py ? :up : sx > px ? :right : :left
+          walk(d)
+          settle(2000)
+          break if $game_map.map_id != map_id || [$game_player.x, $game_player.y] != [sx, sy]
+        end
+      end
       return false if $game_map.map_id != map_id || [$game_player.x, $game_player.y] != [tx, ty]
       i = j + 1
     when Array

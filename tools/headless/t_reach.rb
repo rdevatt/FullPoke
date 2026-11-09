@@ -33,6 +33,7 @@ def tile_ok?(m, x, y)
     t = m.data[x, y, z]
     next if t.nil? || t == 0
     tag = ts.terrain_tags[t]
+    return true if tag == 15   # bridge: walkable once a BridgeOn event puts you up on it
     if [5, 6, 7, 16].include?(tag)   # water (needs Surf)
       return SURF && ts.passages[t] & 0x0f != 0x0f || SURF && z == 0
     end

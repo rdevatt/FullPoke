@@ -89,6 +89,7 @@ class GeoRegion
     connect_maps
     build_gates
     build_warps
+    build_ferries
     build_towns
     build_start
     build_routes
@@ -211,6 +212,31 @@ class GeoRegion
     end
   end
 
+  # Boatmen who sail the player to another map (once they have enough of the
+  # region's badges): { name:, at: [map, [x, y]], to: [map, [x, y]], badges:, dest_name: }.
+  # Walking into them starts the trip, so route planners treat them as warps.
+  def build_ferries
+    (@spec[:ferries] || []).each do |f|
+      key, (x, y) = f[:at]
+      m = map(key)
+      x, y = free_spot(m, x, y)
+      dkey, (dx, dy) = f[:to]
+      # Land beside the other boatman, not in front of him (one more step up
+      # would sail straight back)
+      ax, ay = free_spot(map(dkey), dx + 2, dy + 1, avoid: [[dx, dy], [dx, dy + 1], [dx - 1, dy], [dx + 1, dy]])
+      region = @region
+      dest_id = id(dkey)
+      list = EventList.build do
+        if_script("FullPoke.region_badge_count(:#{region}) >= #{f[:badges]}",
+                  otherwise: proc { text("#{f[:name]}: I'll sail you to #{f[:dest_name]} once you've earned #{f[:badges]} badges here.") }) do
+          text("#{f[:name]}: All aboard for #{f[:dest_name]}!")
+          transfer(dest_id, ax, ay, 2)
+        end
+      end
+      new_event(m, "FP: Ferry to #{dkey}", x, y, [new_page(trigger: 1, graphic: f[:graphic] || 'trainer_SAILOR', list: list)])
+    end
+  end
+
   #-----------------------------------------------------------------------------
   # Towns: doors, Poké Centers, Marts, Gyms, houses
   #-----------------------------------------------------------------------------
@@ -223,8 +249,15 @@ class GeoRegion
         begin
           dx, dy = exact ? [gx, gy] : Geo.snap_door(m, gx, gy)
         rescue RuntimeError => e
-          GEO_WARNINGS << "#{@region} #{town}: door #{kind} #{gx},#{gy} skipped (#{e.message})"
-          next
+          # Tilesets with no blocking set at all (the pack's tileset 26/30
+          # towns): the door is a tile you step onto, at the given spot
+          if [1, 2].any? { |z| m.data[gx, gy, z].to_i >= 384 } && passable_tile?(m, gx, gy + 1) && !event_at?(m, gx, gy)
+            dx, dy = gx, gy
+            GEO_WARNINGS << "#{@region} #{town}: door #{kind} #{gx},#{gy} placed without a building front (#{e.message})"
+          else
+            GEO_WARNINGS << "#{@region} #{town}: door #{kind} #{gx},#{gy} skipped (#{e.message})"
+            next
+          end
         end
         clear_door_approach(m, dx, dy)
         out = step_out(m, dx, dy, 2)
@@ -527,6 +560,8 @@ end
 # tileset, and anything also used as ground) are never changed. Tileset 1 is
 # Kanto's and is left alone.
 FIX_PASSAGES_MIN_ID = 3000
+# Tileset 1 is Kanto's; 26 already has hand-set passability in the base tilesets
+FIX_PASSAGES_SKIP = [1, 26]
 FIXED_TILES = {}
 
 # Doormats, carpets, steps and curbs around a door look like building parts to
@@ -581,7 +616,7 @@ def fix_building_passages(map_ids)
   by_ts = Hash.new { |h, k| h[k] = [] }
   map_ids.each { |mid| m = WG.load_map(mid); by_ts[m.tileset_id] << m }
   by_ts.each do |ts_id, maps|
-    next if ts_id == 1
+    next if FIX_PASSAGES_SKIP.include?(ts_id)
     ts = TILESETS[ts_id]
     seen = Hash.new(0); hit = Hash.new(0); ground = {}
     maps.each do |m|
@@ -632,7 +667,30 @@ def populate_gym(region, n, gyms)
   end
 end
 
+# Tiles a tileset left unset but another tileset draws identically and does set
+# up (geo/tileset_inherit.json, made by tileset_inherit.rb): e.g. the forest
+# and water tiles of Outside2WATERSEA, a copy of Kanto's outdoor image.
+TILESET_INHERIT = File.join(__dir__, 'geo', 'tileset_inherit.json')
+def inherit_tileset_settings
+  return if $tileset_inherited || !File.exist?(TILESET_INHERIT)
+  $tileset_inherited = true
+  JSON.parse(File.read(TILESET_INHERIT)).each do |ts_id, d|
+    ts = TILESETS[ts_id.to_i]
+    d['tiles'].each do |t, (pass, prio, tag)|
+      t = t.to_i
+      next if ts.passages[t] != 0 || ts.priorities[t] != 0 || ts.terrain_tags[t] != 0
+      ts.passages[t] = pass; ts.priorities[t] = prio; ts.terrain_tags[t] = tag
+    end
+    # Hand corrections of the pack's own settings (documented in the JSON's maker)
+    (d['overrides'] || {}).each do |t, (pass, prio, tag)|
+      ts.passages[t.to_i] = pass; ts.priorities[t.to_i] = prio; ts.terrain_tags[t.to_i] = tag
+    end
+    puts "Tileset #{ts_id}: #{d['tiles'].length} tiles set up like tileset #{d['from']}"
+  end
+end
+
 def build_geo_region(region)
+  inherit_tileset_settings
   fix_building_passages(GEO_SPEC[region][:maps].values)
   GeoRegion.new(region).build
 end
