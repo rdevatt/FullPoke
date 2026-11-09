@@ -289,6 +289,18 @@ Outdoor = true
 ShowArea = true
 BattleBack = field
 #-------------------------------
+[009]
+Name = Johto Town Interiors
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[014]
+Name = Johto Route Entrances
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
 [017]
 Name = Cherrygrove City
 Outdoor = true
@@ -357,6 +369,18 @@ BattleBack = field
 #-------------------------------
 [093]
 Name = Route 29
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[094]
+Name = Route 28
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[096]
+Name = Alto Mare
 Outdoor = true
 ShowArea = true
 BattleBack = field
@@ -654,6 +678,11 @@ Outdoor = true
 ShowArea = true
 BattleBack = field
 #-------------------------------
+[171]
+Name = Mt Silver
+BattleBack = cave1
+DarkMap = false
+#-------------------------------
 [178]
 Name = Route 47
 Outdoor = true
@@ -666,8 +695,28 @@ Outdoor = true
 ShowArea = true
 BattleBack = field
 #-------------------------------
+[184]
+Name = Cliffedge Gate
+BattleBack = cave1
+DarkMap = false
+#-------------------------------
+[185]
+Name = Dark Cave
+BattleBack = cave1
+DarkMap = false
+#-------------------------------
+[186]
+Name = Dragon Den
+BattleBack = cave1
+DarkMap = false
+#-------------------------------
 [187]
 Name = Ice Path
+BattleBack = cave1
+DarkMap = false
+#-------------------------------
+[188]
+Name = Slowpoke Well
 BattleBack = cave1
 DarkMap = false
 #-------------------------------
@@ -681,17 +730,48 @@ Outdoor = true
 ShowArea = true
 BattleBack = field
 #-------------------------------
+[193]
+Name = Ruins Of Alph
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[195]
+Name = Ruins Of Alph Caves
+BattleBack = cave1
+DarkMap = false
+#-------------------------------
 [196]
 Name = Ilex Forest
 Outdoor = true
 ShowArea = true
 BattleBack = field
 #-------------------------------
+[197]
+Name = Bell Tower
+BattleBack = cave1
+DarkMap = false
+#-------------------------------
+[199]
+Name = Sprout Tower
+BattleBack = cave1
+DarkMap = false
+#-------------------------------
+[200]
+Name = Olivine Lighthouse
+BattleBack = cave1
+DarkMap = false
+#-------------------------------
 [201]
 Name = Lake Of Rage
 Outdoor = true
 ShowArea = true
 BattleBack = field
+#-------------------------------
+[204]
+Name = Tohjo Falls
+BattleBack = cave1
+DarkMap = false
 #-------------------------------
 [209]
 Name = Twinleaf Town
@@ -906,6 +986,12 @@ BattleBack = field
 [273]
 Name = Sinnoh Gyms and League
 BattleBack = indoor1
+#-------------------------------
+[277]
+Name = Route 49
+Outdoor = true
+ShowArea = true
+BattleBack = field
 #-------------------------------
 [383]
 Name = Hoenn Victory Road
@@ -1577,6 +1663,11 @@ Name = Route 30
 Outdoor = true
 ShowArea = true
 BattleBack = field
+#-------------------------------
+[893]
+Name = Cliff Caves
+BattleBack = cave1
+DarkMap = false
 #-------------------------------
 [900]
 Name = Route 211
