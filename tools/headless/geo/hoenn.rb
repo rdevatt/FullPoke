@@ -253,7 +253,7 @@ GEO_SPEC[:hoenn] = {
     underpass: 9, shoal: 8, pyre: 7, legendary_caves: 9, underwater: 8, r135: 9
   },
   trainers: { r122: 1, r124: 2, r126: 2, r125: 1, r127: 1, r128: 1, r129: 1, r130: 1, r131: 1, r132: 1, r133: 1, r134: 1,
-              r105: 1, r107: 1, r108: 1, granite: 1, meteor: 1, underpass: 1, legendary_caves: 1, underwater: 0, mirage: 1 },
+              r105: 1, r107: 1, r108: 1, granite: 1, meteor: 1, underpass: 1, legendary_caves: 1, underwater: 1, mirage: 1 },
   caves: [:rusturf, :mirage],
   requires: {
     r101: { starter: true }, dewford: 1, r106: 1, slateport: 2, r110: 2, mauville: 2,

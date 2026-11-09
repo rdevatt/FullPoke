@@ -295,6 +295,12 @@ Outdoor = true
 ShowArea = true
 BattleBack = field
 #-------------------------------
+[011]
+Name = Battle Frontier
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
 [014]
 Name = Johto Route Entrances
 Outdoor = true
@@ -312,6 +318,11 @@ Name = Azalea Town
 Outdoor = true
 ShowArea = true
 BattleBack = field
+#-------------------------------
+[020]
+Name = Shoal Cave Nc
+BattleBack = cave1
+DarkMap = false
 #-------------------------------
 [021]
 Name = Violet City
@@ -571,6 +582,12 @@ Outdoor = true
 ShowArea = true
 BattleBack = field
 #-------------------------------
+[128]
+Name = Pacifidlog Town
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
 [129]
 Name = Route 101
 Outdoor = true
@@ -595,8 +612,32 @@ Outdoor = true
 ShowArea = true
 BattleBack = field
 #-------------------------------
+[133]
+Name = Route 105
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
 [134]
 Name = Route 106
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[135]
+Name = Route 107
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[136]
+Name = Route 108
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[137]
+Name = Route 109
 Outdoor = true
 ShowArea = true
 BattleBack = field
@@ -620,6 +661,18 @@ DarkMap = false
 #-------------------------------
 [141]
 Name = Route 113
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[142]
+Name = Route 114
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[143]
+Name = Route 115
 Outdoor = true
 ShowArea = true
 BattleBack = field
@@ -666,8 +719,20 @@ Outdoor = true
 ShowArea = true
 BattleBack = field
 #-------------------------------
+[151]
+Name = Route 123
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
 [152]
 Name = Route 124
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[153]
+Name = Route 125
 Outdoor = true
 ShowArea = true
 BattleBack = field
@@ -677,6 +742,59 @@ Name = Route 126
 Outdoor = true
 ShowArea = true
 BattleBack = field
+#-------------------------------
+[155]
+Name = Route 127
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[156]
+Name = Route 128
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[157]
+Name = Route 129
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[158]
+Name = Route 130
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[159]
+Name = Route 131
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[160]
+Name = Route 132
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[161]
+Name = Route 133
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[162]
+Name = Route 134
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[164]
+Name = Mirage Tower
+BattleBack = cave1
+DarkMap = false
 #-------------------------------
 [171]
 Name = Mt Silver
@@ -993,6 +1111,11 @@ Outdoor = true
 ShowArea = true
 BattleBack = field
 #-------------------------------
+[382]
+Name = Desert Underpass
+BattleBack = cave1
+DarkMap = false
+#-------------------------------
 [383]
 Name = Hoenn Victory Road
 Outdoor = true
@@ -1074,6 +1197,11 @@ Outdoor = true
 ShowArea = true
 BattleBack = field
 #-------------------------------
+[493]
+Name = Meteor Falls
+BattleBack = cave1
+DarkMap = false
+#-------------------------------
 [494]
 Name = Route 2
 Outdoor = true
@@ -1130,6 +1258,11 @@ BattleBack = field
 #-------------------------------
 [515]
 Name = Rusturf Tunnel
+BattleBack = cave1
+DarkMap = false
+#-------------------------------
+[517]
+Name = Small Caves
 BattleBack = cave1
 DarkMap = false
 #-------------------------------
@@ -1251,6 +1384,11 @@ Outdoor = true
 ShowArea = true
 BattleBack = field
 #-------------------------------
+[562]
+Name = Granite Cave
+BattleBack = cave1
+DarkMap = false
+#-------------------------------
 [563]
 Name = Route 3
 Outdoor = true
@@ -1271,6 +1409,22 @@ BattleBack = field
 #-------------------------------
 [566]
 Name = Petalburg Woods
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[568]
+Name = Jagged Pass
+BattleBack = cave1
+DarkMap = false
+#-------------------------------
+[569]
+Name = Fiery Path
+BattleBack = cave1
+DarkMap = false
+#-------------------------------
+[570]
+Name = Mt. Pyre Interior
 Outdoor = true
 ShowArea = true
 BattleBack = field
@@ -1305,6 +1459,12 @@ Outdoor = true
 ShowArea = true
 BattleBack = field
 #-------------------------------
+[576]
+Name = Mt. Pyre Exterior
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
 [577]
 Name = Route 12
 Outdoor = true
@@ -1329,6 +1489,11 @@ Outdoor = true
 ShowArea = true
 BattleBack = field
 #-------------------------------
+[582]
+Name = Legendary Caves
+BattleBack = cave1
+DarkMap = false
+#-------------------------------
 [603]
 Name = Route 17
 Outdoor = true
@@ -1349,6 +1514,12 @@ BattleBack = field
 #-------------------------------
 [607]
 Name = Route 21
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[612]
+Name = Southern Island
 Outdoor = true
 ShowArea = true
 BattleBack = field
@@ -1706,6 +1877,12 @@ Outdoor = true
 ShowArea = true
 BattleBack = field
 #-------------------------------
+[886]
+Name = Hoenn Underwater Nc
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
 [891]
 Name = Route 30
 Outdoor = true
@@ -1716,6 +1893,18 @@ BattleBack = field
 Name = Cliff Caves
 BattleBack = cave1
 DarkMap = false
+#-------------------------------
+[894]
+Name = Route 135
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[895]
+Name = Larousse City
+Outdoor = true
+ShowArea = true
+BattleBack = field
 #-------------------------------
 [900]
 Name = Route 211

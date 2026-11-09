@@ -286,8 +286,11 @@ class GeoRegion
         end
         true
       end
-      # Victory Road's entrance is placed later, by build_league
-      reserved = (@spec.dig(:victory_road, :from) == key ? @spec[:victory_road][:at] : []).to_h { |t| [t, true] }
+      # Victory Road's entrance (placed later, by build_league) and the way up to it
+      reserved = {}
+      (@spec.dig(:victory_road, :from) == key ? @spec[:victory_road][:at] : []).each do |vx, vy|
+        [[0, 0], [0, 1], [0, -1], [1, 0], [-1, 0]].each { |dx, dy| reserved[[vx + dx, vy + dy]] = true }
+      end
       land = ->(x, y) { kind.(x, y) == :land && !event_at?(m, x, y) && !reserved[[x, y]] }
       walk = lambda do |starts|
         warp = {}
@@ -716,6 +719,17 @@ class GeoRegion
     end
   end
 
+  # Open sea (water all around) away from the map's edges
+  def open_water_spots(m)
+    spots = []
+    (3...m.height - 3).each do |y|
+      (3...m.width - 3).each do |x|
+        spots << [x, y] if !event_at?(m, x, y) && (-1..1).all? { |dy| (-1..1).all? { |dx| Geo.water_tile?(m, x + dx, y + dy) } }
+      end
+    end
+    spots
+  end
+
   def spread(spots, count, rng, min_dist)
     picked = []
     spots.shuffle(random: rng).each do |s|
@@ -729,11 +743,14 @@ class GeoRegion
   def place_route_content(key, m, n, count)
     rng = Random.new(Zlib.crc32("geo/#{@region}/#{key}"))
     spots = open_spots(m)
+    swim = spots.empty?   # a route that's all sea: Swimmers out on the water
+    spots = open_water_spots(m) if swim
     return if spots.empty?
     picks = spread(spots, count + 2, rng, 10)
     picks.first(count).each_with_index do |(x, y), i|
       idx = 10 + (Zlib.crc32(key.to_s) % 50) + i   # distinct per route within the stage's level band
       tr_type, gfx, = FullPoke::Circuit.route_trainer_class(@region, n, idx)
+      gfx = i.even? ? 'trainer_SWIMMER_M' : 'trainer_SWIMMER_F' if swim
       # Face a way whose line of sight stays in open ground, so a trainer who
       # walks up to the player never ends up blocking a narrow path
       open = spots.to_h { |s| [s, true] }
@@ -744,7 +761,7 @@ class GeoRegion
       ev_trainer(m, x, y, [sight, 1].max, gfx, dir, tr_type, 'Hey! You look like a Trainer!',
                  "FullPoke.route_trainer_battle(:#{@region}, #{n}, #{idx})", 'Good luck out there!', name_prefix: 'FP: ')
     end
-    rest = picks.drop(count)
+    rest = swim ? [] : picks.drop(count)
     ev_item_ball(m, *rest[0], %i[POTION POKEBALL SUPERPOTION GREATBALL HYPERPOTION ULTRABALL REVIVE FULLRESTORE MAXREVIVE][n - 1], name_prefix: 'FP: ') if rest[0]
     ev_hidden_item(m, *rest[1], %i[ETHER RARECANDY PPUP NUGGET RARECANDY MAXETHER PPMAX RARECANDY PPMAX][n - 1], name_prefix: 'FP: ') if rest[1]
   end
