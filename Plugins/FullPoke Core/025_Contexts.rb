@@ -31,7 +31,7 @@ module FullPoke
 
   # Which party set the given map uses.
   def context_for_map(map_id)
-    region_id = region_of_map(map_id)
+    region_id = (map_id == $game_map&.map_id) ? current_map_region : region_of_map(map_id)
     return :main if !region_id || region_id == :forest
     st = state(region_id)
     return region_id if st.independent? && !st.completed

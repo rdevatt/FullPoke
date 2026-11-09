@@ -231,7 +231,8 @@ EventHandlers.add(:on_enter_map, :fullpoke_respawn_point,
     region_id = FullPoke.current_map_region
     next if !region_id || region_id == :forest
     center = $PokemonGlobal.pokecenterMapId
-    next if center && center > 0 && FullPoke.region_of_map(center) == region_id
+    next if center && center > 0 &&
+            FullPoke.region_at(center, $PokemonGlobal.pokecenterX, $PokemonGlobal.pokecenterY) == region_id
     dest = FullPoke::World.arrival(region_id)
     next if !dest
     $PokemonGlobal.pokecenterMapId     = dest[0]

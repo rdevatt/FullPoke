@@ -42,6 +42,12 @@ module FullPoke
       return data[:forest_maps] || []
     end
 
+    # Rooms of the map pack's composite interior maps that belong to another
+    # region than the map: { map_id => [[x0, y0, x1, y1, region], ...] }
+    def room_regions
+      return data[:room_regions] || {}
+    end
+
     # Encounter tables for generated maps, in GameData::Encounter's format.
     def encounters
       return data[:encounters] || []

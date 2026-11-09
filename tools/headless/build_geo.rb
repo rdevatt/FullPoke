@@ -241,6 +241,15 @@ class GeoRegion
     (@spec[:towns] || {}).each do |town, t|
       t[:doors].each { |d| @room_requests << [town, d] if %i[pc mart house home lab big].include?(d[0]) }
     end
+    @rooms = {}
+    # Rooms the map pack drew on its own interior maps (pack_rooms.rb) are
+    # used where one is assigned; the rest are generated
+    nth = Hash.new(0)
+    @room_requests.reject! do |town, d|
+      room = PackRooms.take(@region, town, d[0], (nth[[town, d[0]]] += 1) - 1)
+      @rooms[[town, d[1], d[2]]] = room if room
+      room
+    end
     n = @room_requests.length
     cols = 8
     rows = (n + cols - 1) / cols
@@ -249,7 +258,6 @@ class GeoRegion
     IDS.infos[@interiors_id].name = "#{@reg.name} Interiors"
     @interiors = WG.new_map(cols * CELL_W, [rows, 1].max * CELL_H, 2)
     WG.fill_void(@interiors, 384)
-    @rooms = {}
     house_i = 0
     @room_requests.each_with_index do |(town, d), i|
       ox = (i % cols) * CELL_W + 1
@@ -274,6 +282,14 @@ class GeoRegion
   end
 
   def room_box(room) = [room[:origin][0], room[:origin][1], room[:size][0], room[:size][1]]
+  # The map a room is on: the region's generated interiors, or a pack map
+  def room_map(room) = room[:map] ? kmap(room[:map]) : @interiors
+  def room_map_id(room) = room[:map] || @interiors_id
+  # A free tile in a room for an NPC (on a pack map: one walkable from its door)
+  def room_spot(room, x, y)
+    reach = room[:map] ? reachable_from(room_map(room), *room[:arrive]) : nil
+    free_spot(room_map(room), x, y, box: room_box(room), avoid: [room[:arrive]], reach: reach)
+  end
 
   #-----------------------------------------------------------------------------
   # Map connections and warps between the real maps
@@ -716,8 +732,12 @@ class GeoRegion
           ev_sign(m, dx, dy, "FP: Door #{label}", lines || ["It's locked."])
         else
           room = @rooms[[town, gx, gy]]
-          ev_warp(m, dx, dy, @interiors_id, room[:arrive][0], room[:arrive][1], 8, name: "FP: Door #{label || kind}")
-          ev_warp(@interiors, room[:door][0], room[:door][1], id(town), out[0], out[1], 2, name: "FP: Exit to #{town}")
+          ev_warp(m, dx, dy, room_map_id(room), room[:arrive][0], room[:arrive][1], 8, name: "FP: Door #{label || kind}")
+          if room[:map]
+            (room[:exits] || [room[:door]]).each { |ex, ey| PackRooms.exit_warp(room[:map], ex, ey, id(town), out[0], out[1], "FP: Exit to #{town}") }
+          else
+            ev_warp(@interiors, room[:door][0], room[:door][1], id(town), out[0], out[1], 2, name: "FP: Exit to #{town}")
+          end
           furnish(kind, room, town, stage, di, label, lines)
         end
       end
@@ -729,16 +749,17 @@ class GeoRegion
   def furnish(kind, room, town, stage, di, label, lines)
     box = room_box(room)
     ox, oy = room[:origin]
+    rm = room_map(room)
     case kind
     when :mart
-      x, y = free_spot(@interiors, ox + 3, oy + 3, box: box, avoid: [room[:arrive]])
-      new_event(@interiors, 'FP: Clerk', x, y, [new_page(trigger: 0, graphic: 'NPC 19', list: EventList.build {
+      x, y = room[:clerk] || room_spot(room, ox + 3, oy + 3)
+      new_event(rm, 'FP: Clerk', x, y, [new_page(trigger: 0, graphic: 'NPC 19', direction: room[:clerk_dir] || 2, list: EventList.build {
         text('Welcome! How may I help you?')
         script("pbPokemonMart(#{mart_items([stage, 1].max).inspect})")
       })])
     when :home
-      x, y = free_spot(@interiors, ox + 3, oy + 3, box: box, avoid: [room[:arrive]])
-      new_event(@interiors, 'FP: Mom', x, y, [new_page(trigger: 0, graphic: 'NPC 06', list: EventList.build {
+      x, y = room_spot(room, ox + 3, oy + 3)
+      new_event(rm, 'FP: Mom', x, y, [new_page(trigger: 0, graphic: 'NPC 06', list: EventList.build {
         text("Mom: Welcome home, dear! You look tired. Take a rest.")
         recover_all
         play_me('Pkmn healing')
@@ -747,13 +768,14 @@ class GeoRegion
     when :lab
       @lab_room = room
     when :pc
-      nil   # the copied room has the nurse and PC
+      PackRooms.furnish_pc(room) if room[:map]   # a generated room was copied with its nurse and PC
     else
       text = lines || HOUSE_LINES[(Zlib.crc32("#{town}/#{di}")) % HOUSE_LINES.length]
-      x, y = free_spot(@interiors, ox + box[2] / 2, oy + 3, box: box, avoid: [room[:arrive]])
+      x, y = room_spot(room, ox + box[2] / 2, oy + 3)
       gfx = format('NPC %02d', 1 + Zlib.crc32("#{town}#{di}") % 20)
-      ev_npc(@interiors, x, y, "FP: #{label || 'Resident'}", gfx, text)
+      ev_npc(rm, x, y, "FP: #{label || 'Resident'}", gfx, text)
     end
+    PackRooms.furnish_extra(room, town, label) if room[:map]
   end
 
   def gym_door(town, m, dx, dy, out, n)
@@ -777,14 +799,15 @@ class GeoRegion
     ax, ay = st[:arrival]
     sx, sy = free_spot(m, ax - 1, ay - 1, avoid: [[ax, ay]] + st[:forest_gate])
     ev_sign(m, sx, sy, 'FP: Forest sign', ["#{st[:gate_dir] || 'South'}: Interregional Forest", "Paths to every region's first town."])
-    home = @rooms.find { |(t, _, _), _| t == st[:town] && @spec[:towns][t][:doors].any? { |d| d[0] == :home } }&.last
+    hd = @spec[:towns][st[:town]][:doors].find { |d| d[0] == :home }
+    home = hd && @rooms[[st[:town], hd[1], hd[2]]]
     hx, hy = home ? home[:arrive] : [ax, ay]
     lab = @lab_room or raise "#{@region}: the start town needs a :lab door"
-    px, py = free_spot(@interiors, lab[:origin][0] + 6, lab[:origin][1] + 4, box: room_box(lab))
+    px, py = lab[:professor] || room_spot(lab, lab[:origin][0] + 6, lab[:origin][1] + 4)
     reg = @reg
     region = @region
     rival = @data[:rivals][0]
-    new_event(@interiors, "FP: #{reg.professor}", px, py, [new_page(trigger: 0, graphic: 'trainer_PROFESSOR', list: EventList.build {
+    new_event(room_map(lab), "FP: #{reg.professor}", px, py, [new_page(trigger: 0, graphic: 'trainer_PROFESSOR', list: EventList.build {
       if_script("FullPoke.state(:#{region}).starter", otherwise: proc {
         text("#{reg.professor}: Welcome to the #{reg.name} region! You'll need a partner for your journey.")
         script("FullPoke.give_starter(:#{region})")
@@ -800,7 +823,8 @@ class GeoRegion
       end
     })])
     WORLD[:regions][@region] = { arrival: [id(st[:town]), ax, ay, st[:arrival_dir] || 8],
-                                 home: [@interiors_id, hx, hy, 2], start_map: id(st[:town]) }
+                                 home: [home ? room_map_id(home) : @interiors_id, hx, hy, 2], start_map: id(st[:town]),
+                                 lab: [room_map_id(lab), px, py] }
   end
 
   #-----------------------------------------------------------------------------
@@ -905,10 +929,10 @@ class GeoRegion
   def build_story
     (@spec[:story] || []).each do |s|
       key, (x, y) = s[:at]
-      m = s[:interior] ? @interiors : map(key)
+      m = s[:interior] ? room_map(@rooms[s[:interior]]) : map(key)
       if s[:interior]
         room = @rooms[s[:interior]]
-        x, y = free_spot(@interiors, room[:origin][0] + room[:size][0] / 2, room[:origin][1] + 3, box: room_box(room), avoid: [room[:arrive]])
+        x, y = room_spot(room, room[:origin][0] + room[:size][0] / 2, room[:origin][1] + 3)
       else
         x, y = free_spot(m, x, y)
       end

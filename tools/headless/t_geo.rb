@@ -77,7 +77,7 @@ if first_route
 end
 
 # The professor's lab
-interiors = FullPoke::World.home(REGION)[0]
+interiors = (FullPoke::World.region_data(REGION)[:lab] || FullPoke::World.home(REGION))[0]
 $choices = [0, 0]
 visit_and_talk(interiors, "FP: #{FullPoke.region(REGION).professor}")
 st = FullPoke.state(REGION)
