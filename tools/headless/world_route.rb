@@ -28,13 +28,20 @@ module Route
   def tile(m, x, y)
     return nil if x < 0 || y < 0 || x >= m.width || y >= m.height
     ts = TS[m.tileset_id]
+    bridge = false
     [2, 1, 0].each do |z|
       t = m.data[x, y, z]
       next if t.nil? || t == 0
       tag = ts.terrain_tags[t]
-      return :land if tag == 15   # bridge (walkable once on it)
+      # Bridges are ignored unless you're up on one (a BridgeOn event): read
+      # what's underneath, and count the bridge as a walkway only over ground
+      # you couldn't otherwise cross (Fortree's treetop walkways)
+      if tag == 15
+        bridge = true
+        next
+      end
       return :water if [5, 6, 7].include?(tag)
-      return nil if ts.passages[t] & 0x0f == 0x0f
+      return (bridge ? :land : nil) if ts.passages[t] & 0x0f == 0x0f
       return :land if ts.priorities[t] == 0
     end
     :land
@@ -70,6 +77,8 @@ module Route
 
   # RPG Maker's per-direction blocking: a tile can stop you leaving or entering
   # it in one direction (shores, fences, ledges). bit: down 1, left 2, right 4, up 8.
+  # DIRECTIONAL=0 turns it off (e.g. to find which tile blocks a route).
+  DIRECTIONAL = ENV['DIRECTIONAL'] != '0'
   def dir_ok?(m, x, y, d)
     ts = TS[m.tileset_id]
     bit = 1 << (d / 2 - 1)
@@ -77,6 +86,8 @@ module Route
       t = m.data[x, y, z]
       next if t.nil? || t == 0
       next if ts.terrain_tags[t] == 15
+      return true if [5, 6, 7].include?(ts.terrain_tags[t])   # surfable water ignores direction flags
+      return true if ts.terrain_tags[t] == 1                  # ledges are jumped (downward only, see plan)
       return false if ts.passages[t] & bit != 0
       return true if ts.priorities[t] == 0
     end
@@ -129,7 +140,7 @@ module Route
         next if prev.key?(nxt) || solid[[nx, ny]]
         kind = tile(m, nx, ny)
         next if !kind || (kind == :water && !surf)
-        next if !dir_ok?(m, x, y, d) || !dir_ok?(m, nx, ny, 10 - d)
+        next if DIRECTIONAL && (!dir_ok?(m, x, y, d) || !dir_ok?(m, nx, ny, 10 - d))
         next if ledge?(m, nx, ny) && d != 2
         prev[nxt] = [cur, :step]
         queue << nxt

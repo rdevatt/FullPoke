@@ -4,6 +4,9 @@
 # pack's tilesets are versions of one image (Outside2WATERSEA = OutsideWorld2.6
 # vs Kanto's OutsideWorld2.7).
 #   docker run ... fullpoke-ruby ruby tileset_inherit.rb /game <tileset> <from tileset>
+# geo/tileset_inherit.json also has hand-written "overrides" per tileset (tiles
+# whose pack settings are wrong, e.g. Route 119's bridge edges): keep them when
+# regenerating.
 require 'chunky_png'
 require 'json'
 require_relative 'rpg_classes'

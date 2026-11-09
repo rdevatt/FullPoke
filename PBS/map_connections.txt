@@ -695,7 +695,7 @@
 115,West,0,145,East,0
 145,West,0,127,East,2
 115,North,0,139,South,0
-115,East,0,146,West,19
+115,East,0,146,West,0
 139,West,20,140,East,0
 140,West,0,125,East,1
 139,North,0,141,South,0

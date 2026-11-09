@@ -220,7 +220,9 @@ class GeoRegion
       m = map(key)
       x, y = free_spot(m, x, y)
       dkey, (dx, dy) = f[:to]
-      ax, ay = free_spot(map(dkey), dx, dy + 1, avoid: [[dx, dy]])
+      # Land beside the other boatman, not in front of him (one more step up
+      # would sail straight back)
+      ax, ay = free_spot(map(dkey), dx + 2, dy + 1, avoid: [[dx, dy], [dx, dy + 1], [dx - 1, dy], [dx + 1, dy]])
       region = @region
       dest_id = id(dkey)
       list = EventList.build do
@@ -648,6 +650,10 @@ def inherit_tileset_settings
       t = t.to_i
       next if ts.passages[t] != 0 || ts.priorities[t] != 0 || ts.terrain_tags[t] != 0
       ts.passages[t] = pass; ts.priorities[t] = prio; ts.terrain_tags[t] = tag
+    end
+    # Hand corrections of the pack's own settings (documented in the JSON's maker)
+    (d['overrides'] || {}).each do |t, (pass, prio, tag)|
+      ts.passages[t.to_i] = pass; ts.priorities[t.to_i] = prio; ts.terrain_tags[t.to_i] = tag
     end
     puts "Tileset #{ts_id}: #{d['tiles'].length} tiles set up like tileset #{d['from']}"
   end

@@ -27,7 +27,7 @@ GEO_SPEC[:hoenn] = {
     [:r121, 'East', :lilycove], [:r121, 'South', :r122], [:lilycove, 'East', :r124],
     [:r124, 'East', :mossdeep], [:r124, 'South', :r126]
   ],
-  offsets: {},
+  offsets: { [:mauville, :r118] => 0 },
   # Petalburg Woods sits between Route 104's two halves
   warps: [
     [:r104, [40, 30], :woods, { near: [40, 8], pick: :top }, { out_a: 8 }],
@@ -37,8 +37,8 @@ GEO_SPEC[:hoenn] = {
   ],
   # Boatmen: walk up to one to sail (if you have the badges)
   ferries: [
-    { name: 'Mr. Briney', at: [:r104, [35, 44]], to: [:dewford, [58, 22]], badges: 1, dest_name: 'Dewford Town' },
-    { name: 'Mr. Briney', at: [:dewford, [58, 22]], to: [:r104, [35, 44]], badges: 0, dest_name: 'Route 104' },
+    { name: 'Mr. Briney', at: [:r104, [44, 66]], to: [:dewford, [58, 22]], badges: 1, dest_name: 'Dewford Town' },
+    { name: 'Mr. Briney', at: [:dewford, [58, 22]], to: [:r104, [44, 66]], badges: 0, dest_name: 'Route 104' },
     { name: 'Mr. Briney', at: [:dewford, [62, 22]], to: [:slateport, [28, 46]], badges: 2, dest_name: 'Slateport City' },
     { name: 'Mr. Briney', at: [:slateport, [28, 46]], to: [:dewford, [62, 22]], badges: 0, dest_name: 'Dewford Town' },
     { name: 'Sailor', at: [:mossdeep, [24, 26]], to: [:sootopolis, [27, 53]], badges: 7, dest_name: 'Sootopolis City' },
