@@ -1,7 +1,9 @@
-# Kanto after Brock: Gyms 2-8 through the towns' real Gym doors, then Route 23 ->
-# Indigo Plateau -> Elite Four -> Champion -> Hall of Fame. Towns are reached
-# by teleporting next to each Gym door (t_reach.rb checks they're connected on
-# foot); everything from the door on is walked and battled.
+# Kanto after Brock: Gyms 2-8 through the towns' real Gym doors (past the Gym
+# trainers), then the Route 22 gate (8 Badges) -> Route 23 (Surf) -> Victory
+# Road -> Indigo Plateau -> Elite Four -> Champion -> Hall of Fame. Towns are
+# reached by teleporting next to each Gym door (t_kanto_reach.rb checks they're
+# connected on foot); everything from the door on is walked and battled. The
+# story between Gyms is t_kanto_story.rb.
 #   MODE=continuous tools/headless/run.sh t_kanto.rb
 require_relative 'play_lib'
 require_relative 'test_lib'

@@ -137,6 +137,23 @@ def cuts_off?(map_id, tiles, a, b, void_tile: nil)
   return !seen[b]
 end
 
+# How many tiles are reachable from `from` with `tile` blocked.
+def floor_size_without(map_id, from, tile)
+  m = kmap(map_id)
+  seen = { from => true, tile => true }
+  q = [from]
+  until q.empty?
+    c = q.shift
+    [[1, 0], [-1, 0], [0, 1], [0, -1]].each do |dx, dy|
+      n = [c[0] + dx, c[1] + dy]
+      next if seen[n] || !passable_tile?(m, *n)
+      seen[n] = true
+      q << n
+    end
+  end
+  seen.size - 1
+end
+
 # A free tile reachable from `from`, near (x, y).
 def spot_near(map_id, x, y, from, avoid: [])
   free_spot(kmap(map_id), x, y, reach: reachable_from(kmap(map_id), *from), avoid: avoid)
@@ -201,7 +218,10 @@ end
 def k_blocker(map_id, x, y, tile_from)
   m = kmap(map_id)
   pg = new_page(trigger: 0, list: EventList.build {})
-  pg.graphic.tile_id = m.data[*tile_from, 1].to_i > 0 ? m.data[*tile_from, 1] : m.data[*tile_from, 0]
+  ts = TILESETS[m.tileset_id]
+  tile = [2, 1, 0].map { |z| m.data[*tile_from, z] }.find { |t| t.to_i > 0 && ts.passages[t] & 0x0f == 0x0f }
+  raise "Kanto: no solid tile at #{tile_from} on map #{map_id} to copy" if !tile
+  pg.graphic.tile_id = tile
   new_event(m, 'FP: Blocker', x, y, [pg])
 end
 
@@ -332,7 +352,7 @@ def kanto_story
   # Vermilion Harbor -> S.S. Anne (1F corridor) -> 2F (rival) -> Captain
   harbor = beside(179, 45, 257)
   hr = reachable_from(kmap(179), *harbor)
-  sailor = free_spot(kmap(179), 45, 250, reach: hr)
+  sailor = free_spot(kmap(179), 45, 260, reach: hr)   # at the end of the pier
   ship = 345
   ship1 = [85, 128]                 # 1F corridor, by the gangway
   deck2 = [90, 52]                  # 2F corridor
@@ -352,7 +372,9 @@ def kanto_story
   k_trainer(ship, *standing_spot(ship, 94, 124, ship1, [up1, gang]), :kanto_ssanne_t2, sight: 3, dir: 4)
   k_trainer(ship, *standing_spot(ship, 78, 53, deck2, [[90, 46], down2]), :kanto_ssanne_t3, sight: 3, dir: 6)
   rival = FullPoke::Teams.get(:kanto_rival_ssanne)
-  fp_trainer(kmap(ship), *standing_spot(ship, 90, 48, deck2, [[90, 46]]), 4, "trainer_#{rival[:tr_type]}", 2, rival[:tr_type],
+  # beside the three-wide passage to the cabin, facing across it
+  rx, ry = standing_spot(ship, 89, 48, deck2, [[90, 46]])
+  fp_trainer(kmap(ship), rx, ry, 2, "trainer_#{rival[:tr_type]}", rx < 90 ? 6 : (rx > 90 ? 4 : 2), rival[:tr_type],
              "Bonjour! Fancy meeting you here. Let's see how your Pokémon are doing!",
              'FullPoke::Circuit.extra_battle(:kanto, :kanto_rival_ssanne)', 'Humph! At least you\'re raising your Pokémon!')
   k_story_npc(ship, *spot_near(ship, 57, 33, [57, 36]), 'Captain', 'NPC 01', 'captain', done: 'Fair winds to you!')
@@ -375,12 +397,15 @@ def kanto_story
   must_reach(29, [37, 27], [37, 26], 'Game Corner door')
   hide = 375
   b1 = beside(hide, 11, 4)
-  poster = spot_near(gc, 16, 2, [9, 13])
+  # the poster hangs on the back wall, above the floor tile nearest (16, 2)
+  fx, fy = spot_near(gc, 16, 2, [9, 13])
+  poster = [fx, fy - 1]
+  raise 'Kanto: Game Corner poster spot is walkable' if passable_tile?(kmap(gc), *poster)
   new_event(kmap(gc), 'FP: Poster', *poster, [new_page(trigger: 0, list: EventList.build {
     if_script('FullPoke::KantoStory.poster') { play_se('Door exit'); transfer(hide, b1[0], b1[1], 2) }
   })])
-  k_trainer(gc, *standing_spot(gc, poster[0] - 1, poster[1] + 2, [9, 13], [beside(gc, *poster)]),
-            :kanto_rocket_gamecorner, sight: 2, dir: 6, intro: "I'm guarding this poster! Get lost!")
+  k_trainer(gc, *standing_spot(gc, fx - 1, fy + 1, [9, 13], [[fx, fy]]),
+            :kanto_rocket_gamecorner, sight: 3, dir: 2, intro: "I'm guarding this poster! Get lost!")
   one_way([hide, 11, 4], [gc, 9, 13], name: 'FP: Stairs', dir: 2)
   # B2F is a maze of spin tiles (not supported here), so the way down skips it:
   # B1F -> B3F -> B4F, with B2F's two halves as side rooms.
@@ -444,9 +469,13 @@ def kanto_story
   floors = { '1F' => [9, 19], '7F' => [90, 105], '11F' => [82, 175] }
   spots = floors.transform_values { |(x, y)| free_spot(kmap(silph), x, y) }
   spots.each do |fl, (x, y)|
-    lift = free_spot(kmap(silph), x + 1, y, reach: reachable_from(kmap(silph), x, y), avoid: [[x, y]])
+    # stepping on the elevator opens its menu, so it mustn't stand in the way
+    whole = reachable_from(kmap(silph), x, y)
+    lift = whole.keys.reject { |p| p == [x, y] || event_at?(kmap(silph), *p) }
+                .sort_by { |px, py| (px - x).abs + (py - y).abs }
+                .find { |p| floor_size_without(silph, [x, y], p) == whole.size - 1 }
     others = floors.keys - [fl]
-    new_event(kmap(silph), 'FP: Elevator', *lift, [new_page(trigger: 0, list: EventList.build {
+    new_event(kmap(silph), 'FP: Elevator', *lift, [new_page(trigger: 1, list: EventList.build {
       text('This is the Silph Co. elevator. Which floor?')
       choices(others + ['Stay here'], cancel: others.length + 1) do |i|
         if i < others.length
@@ -468,10 +497,12 @@ def kanto_story
   pres = spot_near(silph, f11[0] - 6, f11[1] + 12, f11)
   k_story_npc(silph, *pres, 'President', 'NPC 18', 'president', done: 'Silph Co. will never forget your help.')
   gs = FullPoke::Teams.get(:kanto_giovanni_silph)
-  k_story_npc(silph, *spot_near(silph, f11[0] - 2, f11[1] + 10, f11, avoid: [beside(silph, *pres)]), 'Giovanni',
-              "trainer_#{gs[:tr_type]}", 'giovanni_silph', gone: true)
-  k_trainer(silph, *standing_spot(silph, f11[0] - 4, f11[1] + 4, f11, [beside(silph, *pres)]), :kanto_rocket_silph1, sight: 2)
-  k_trainer(silph, *standing_spot(silph, f11[0] + 2, f11[1] + 6, f11, [beside(silph, *pres)]), :kanto_rocket_silph2, sight: 2)
+  gio11 = spot_near(silph, f11[0] - 2, f11[1] + 10, f11, avoid: [beside(silph, *pres)])
+  k_story_npc(silph, *gio11, 'Giovanni', "trainer_#{gs[:tr_type]}", 'giovanni_silph', gone: true)
+  must_reach(silph, f11, beside(silph, *gio11), 'Silph Co. 11F')
+  # the grunts must leave a way to Giovanni (who then leaves the President free)
+  k_trainer(silph, *standing_spot(silph, f11[0] - 4, f11[1] + 4, f11, [beside(silph, *gio11)]), :kanto_rocket_silph1, sight: 2)
+  k_trainer(silph, *standing_spot(silph, f11[0] + 2, f11[1] + 6, f11, [beside(silph, *gio11)]), :kanto_rocket_silph2, sight: 2)
   # HMs: Flash (Oak's aide, Route 2 gate), Fly (Route 16), Surf and Strength (Safari Zone gate)
   aide = spot_near(12, 35, 10, beside(12, 37, 5))
   new_event(kmap(12), 'FP: Oak\'s aide', *aide, [new_page(trigger: 0, graphic: 'NPC 09', list: EventList.build {
@@ -492,7 +523,6 @@ end
 # 4. Gym trainers (Gyms 2-8): between the Gym's entrance and its Leader
 #-------------------------------------------------------------------------------
 def kanto_gym_trainers(rooms, leaders)
-  gm = kmap(177)
   rooms.each do |n, (ax, ay)|
     lx, ly = leaders[n]
     keys = (1..3).map { |i| :"kanto_gym#{n}_t#{i}" }.select { |k| FullPoke::Teams.get(k) }
