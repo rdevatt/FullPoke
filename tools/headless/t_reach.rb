@@ -236,13 +236,29 @@ if ENV['AUDIT']
         (-1..1).each { |dx| (-1..1).each { |dy| near_ev[[e.x + dx, e.y + dy]] = true } }
       end
       sealed = 0
+      as_event = []
       pockets.flatten(1).each do |x, y|
         next if near_ev[[x, y]]
-        next if (0..2).any? { |z| (t = m.data[x, y, z]) && t > 0 && [1, BridgeLib::TAG].include?(ts.terrain_tags[t]) }
-        # (only on a free top layer, so the next build can take it off)
-        next if m.data[x, y, 2] != 0
+        # (on a free top layer, so the next build can take it off; bridges,
+        # ledges and cells whose top layer is drawn get an invisible event
+        # showing the tile instead: Game_Map#passable? blocks on it)
+        if m.data[x, y, 2] != 0 || (0..2).any? { |z| (t = m.data[x, y, z]) && t > 0 && [1, BridgeLib::TAG].include?(ts.terrain_tags[t]) }
+          as_event << [x, y]
+          next
+        end
         m.data[x, y, 2] = inv
         sealed += 1
+      end
+      # (few per map: every event costs a sprite in the game)
+      if as_event.size <= 60
+        as_event.each do |x, y|
+          ev = RPG::Event.new(x, y)
+          ev.id = (m.events.keys.max || 0) + 1
+          ev.name = 'FP: Seal'
+          ev.pages[0].graphic.tile_id = inv
+          m.events[ev.id] = ev
+          sealed += 1
+        end
       end
       if sealed > 0
         File.binwrite(File.join(ENV['GAME_DIR'] || '/game', format('Data/Map%03d.rxdata', am)), Marshal.dump(m))

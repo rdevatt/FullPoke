@@ -274,7 +274,7 @@ the forest with every field move):
 | | Walkable tiles | Unreached in areas (10+) | Unreached in pockets |
 | --- | --- | --- | --- |
 | Before the traversal work | about 1,030,000 | 326,650 | 12,286 |
-| Now | 882,196 | 32,452 | 2,685 |
+| Now | 880,862 | 32,452 | 1,347 |
 
 - **Areas left:** all of them are the pack's unused interior rooms, except a
   17-tile bridge deck on Hoenn's Route 120. The rooms are Poké Centers,
@@ -285,8 +285,9 @@ the forest with every field move):
   - It puts each tileset's invisible solid tile (`invisible.rb`) on every
     pocket tile nothing reaches. These are cliff edges, treetops and corners
     drawn walkable.
-  - It leaves alone tiles beside an event that moves or can be pushed,
-    bridges, ledges, and cells whose top layer is drawn.
+  - Cells whose top layer is drawn, bridges and ledges get an invisible event
+    showing that tile instead, at most 60 per map.
+  - It leaves alone tiles beside an event that moves or can be pushed.
   - The build takes the seal off again when it loads a map, so rebuilding
     gives the same result.
 - **Bridges:** the audit, the build's area linking and the walkthrough planner
