@@ -81,20 +81,21 @@ def events_of(id)
       # Smash rocks and whoever leaves later (a page that hides them) give way
       field = SURF && (e.name =~ /cut ?tree|rock ?smash|smash ?rock/i ||
                        e.pages[1..].any? { |p| p.through || (p.graphic.character_name == '' && p.graphic.tile_id == 0) })
-      if pg.graphic.character_name != '' && !pg.through && pg.trigger != 1 && !field
+      # (an event showing a solid tile blocks like the tile: invisible walls)
+      shown = pg.graphic.character_name != '' || (pg.graphic.tile_id > 0 && TS[m.tileset_id].passages[pg.graphic.tile_id] & 0x0f == 0x0f)
+      if shown && !pg.through && pg.trigger != 1 && !field
         solid[[e.x, e.y]] = true
       end
+      # every transfer on the page (an elevator's floor menu has one per floor)
+      dests = []
       pg.list.each do |c|
-        if c.code == 201 && c.parameters[0] == 0
-          warps[[e.x, e.y]] = [c.parameters[1], c.parameters[2], c.parameters[3]]
-          break
-        end
+        dests << [c.parameters[1], c.parameters[2], c.parameters[3]] if c.code == 201 && c.parameters[0] == 0
         if c.code == 355 && c.parameters[0] =~ /FullPoke\.(forest_gate|gate_to_forest)\(:(\w+)\)/
           dest = ($1 == 'forest_gate') ? FullPoke::World.arrival($2.to_sym) : FullPoke::World.forest_exit($2.to_sym)
-          warps[[e.x, e.y]] = dest[0, 3] if dest
-          break
+          dests << dest[0, 3] if dest
         end
       end
+      warps[[e.x, e.y]] = dests.uniq if !dests.empty?
     end
     [solid, warps]
   end
@@ -121,7 +122,8 @@ until queue.empty?
   next if !m
   ts = TS[m.tileset_id]
   solid, warps = events_of(id)
-  if (w = warps[[x, y]]) && rx_map(w[0]) && rule_ok?(w[0])
+  (warps[[x, y]] || []).each do |w|
+    next if !rx_map(w[0]) || !rule_ok?(w[0])
     reached[w[0]] ||= [w[1], w[2]]
     wm = rx_map(w[0])
     visit.([w[0], w[1], w[2], BridgeLib.arrival_level(TS[wm.tileset_id], wm, w[1], w[2], lv)])
@@ -142,10 +144,13 @@ until queue.empty?
     end
     d = dy == 1 ? 2 : dy == -1 ? 8 : dx == -1 ? 4 : 6
     # Doors and gates on solid tiles trigger when walked into
-    if (w = warps[[nx, ny]]) && !tile_ok?(m, nx, ny, lv) && rx_map(w[0]) && rule_ok?(w[0])
-      reached[w[0]] ||= [w[1], w[2]]
-      wm = rx_map(w[0])
-      visit.([w[0], w[1], w[2], BridgeLib.arrival_level(TS[wm.tileset_id], wm, w[1], w[2], lv)])
+    if warps[[nx, ny]] && !tile_ok?(m, nx, ny, lv)
+      warps[[nx, ny]].each do |w|
+        next if !rx_map(w[0]) || !rule_ok?(w[0])
+        reached[w[0]] ||= [w[1], w[2]]
+        wm = rx_map(w[0])
+        visit.([w[0], w[1], w[2], BridgeLib.arrival_level(TS[wm.tileset_id], wm, w[1], w[2], lv)])
+      end
       next
     end
     next if solid[[nx, ny]] && !warps[[nx, ny]]

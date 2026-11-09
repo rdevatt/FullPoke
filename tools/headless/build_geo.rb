@@ -150,8 +150,14 @@ class GeoRegion
   #-----------------------------------------------------------------------------
   def wall_area(m, sx, sy, box = nil)
     ts = TILESETS[m.tileset_id]
+    # A seed on water drawn on an upper layer (a moat, a pond's shore) covers
+    # just the cells drawn over water (some under treetops), never dry land
+    pond = top_water?(m, sx, sy) && !passable_tile?(m, sx, sy)
+    wet = ->(x, y) { (0..2).any? { |z| (t = m.data[x, y, z]) > 0 && [5, 6, 7].include?(ts.terrain_tags[t]) } }
     open = lambda do |x, y|
-      next false if !(passable_tile?(m, x, y) || Geo.water_tile?(m, x, y))
+      next false if x < 0 || y < 0 || x >= m.width || y >= m.height
+      next false if !(passable_tile?(m, x, y) || Geo.water_tile?(m, x, y) || (pond && top_water?(m, x, y)))
+      next false if pond && !wet.(x, y)
       (0..2).none? { |z| (t = m.data[x, y, z]) > 0 && [1, 15].include?(ts.terrain_tags[t]) }
     end
     raise "#{@region}: wall seed #{sx},#{sy} on map #{m.width}x#{m.height} isn't open ground or water" if !open.(sx, sy)
@@ -170,14 +176,44 @@ class GeoRegion
     seen
   end
 
+  # Water drawn on an upper layer (a moat or pond over plain ground), as the
+  # engine sees it: the topmost tile that decides is water.
+  def top_water?(m, x, y)
+    return false if x < 0 || y < 0 || x >= m.width || y >= m.height
+    ts = TILESETS[m.tileset_id]
+    [2, 1].each do |z|
+      t = m.data[x, y, z]
+      next if t == 0
+      return true if [5, 6, 7].include?(ts.terrain_tags[t])
+      return false if ts.passages[t] & 0x0f == 0x0f || ts.priorities[t] == 0
+    end
+    false
+  end
+
   def build_walls
+    wt = @spec[:wall_tile]
     (@spec[:walls] || {}).each do |key, seeds|
       m = map(key)
       seeds.each do |sx, sy, *box|
         area = wall_area(m, sx, sy, box.empty? ? nil : box)
         puts "#{@region} #{key}: wall at #{sx},#{sy} covers #{area.size} tiles" if ENV['VERBOSE']
-        # (on the top layer where it's free, so the next build can take it off)
-        area.each_key { |x, y| m.data[x, y, 2] = @spec[:wall_tile] if m.data[x, y, 2] == 0 && !event_at?(m, x, y) }
+        # On the top layer, so the next build can take it off. A tile already
+        # there (a treetop's edge over a stream) moves down to layer 1 if that's
+        # free; where every layer is drawn, an invisible event with the wall
+        # tile blocks the cell instead (events named FP: are rebuilt each run).
+        area.each_key do |x, y|
+          next if event_at?(m, x, y) || m.data[x, y, 2] == wt
+          if m.data[x, y, 2] == 0
+            m.data[x, y, 2] = wt
+          elsif m.data[x, y, 1] == 0
+            m.data[x, y, 1] = m.data[x, y, 2]
+            m.data[x, y, 2] = wt
+          else
+            pg = new_page(trigger: 0, list: EventList.build {})
+            pg.graphic.tile_id = wt
+            new_event(m, 'FP: Wall', x, y, [pg])
+          end
+        end
       end
     end
   end

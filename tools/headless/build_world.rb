@@ -900,7 +900,10 @@ end
 # Tall grass that the map pack's tilesets never tagged, so wild Pokémon can appear in it.
 GRASS_TAGS = { 23 => [390, 391] }
 # The cave tileset's black filler between cave areas was walkable.
-SOLID_TILES = { 27 => [391], 26 => [7460, 896] }   # 26: the snow around Seafoam's floors; an unused empty tile (kanto_story.rb)
+# 26: the snow around Seafoam's floors; an unused empty tile (kanto_story.rb).
+# 23: 4710, the empty tile kanto_story.rb walls off with (only Johto's building
+# fix made it solid, and that fix skips tiles Kanto's maps use).
+SOLID_TILES = { 27 => [391], 26 => [7460, 896], 23 => [4710] }
 def tag_grass
   GRASS_TAGS.each { |ts, tiles| tiles.each { |t| TILESETS[ts].terrain_tags[t] = 2 } }
   SOLID_TILES.each { |ts, tiles| tiles.each { |t| TILESETS[ts].passages[t] = 0x0f } }

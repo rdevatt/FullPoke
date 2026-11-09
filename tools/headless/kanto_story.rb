@@ -709,6 +709,8 @@ def kanto_traversal
   [[146, 77], [246, 75], [358, 95], [442, 94]].each { |x, y| k_touchable(12, x, y) }
   # S.S. Anne: the deck, from the stairs at the end of the lower corridor
   k_link_near([345, 58, 126], [349, 9, 9])
+  # ... and that corridor from the stairs drawn at the west end of 1F's corridor
+  link([345, 71, 126], [345, 59, 126])
   # Underground Path Route 7 <-> Route 8: entrance houses, stairs, tunnel
   link([40, 7, 28], [369, 60, 52], name: 'FP: Door')
   link([41, 13, 9], [369, 181, 52], name: 'FP: Door')
@@ -805,9 +807,10 @@ K_DECOR = [
   [57, 0, 0, 764], [57, 36, 16, 50], [57, 17, 16, 14], [57, 34, 29, 78],   # Route 24
   [58, 39, 23, 510], [58, 0, 0, 407], [58, 99, 0, 128], [58, 104, 0, 60], [58, 121, 14, 42],  # Route 25
   [25, 0, 0, 475], [25, 46, 36, 70], [25, 11, 0, 52], [25, 44, 34, 22], [25, 3, 7, 16], [25, 16, 12, 10],  # Pewter
+  [25, 45, 12, 11],                                                        # Pewter: between the two cliff faces
   [26, 0, 0, 22], [26, 30, 0, 72],                                         # Cerulean
   [52, 2, 0, 10], [52, 0, 6, 59],                                          # Route 19
-  [30, 10, 27, 24], [30, 19, 37, 18], [30, 36, 39, 12],                    # Fuchsia
+  [30, 10, 27, 24], [30, 19, 37, 18], [30, 36, 39, 12], [30, 14, 19, 21],  # Fuchsia (the last: the flowerbed in the hedge)
   [33, 20, 18, 14], [33, 18, 13, 12], [33, 0, 18, 12], [33, 0, 13, 10],    # Indigo Plateau
   [53, 0, 0, 4418], [46, 70, 0, 3384],                                     # Routes 20 and 13: open sea
   [45, 19, 1, 1394], [45, 0, 2, 161], [45, 0, 0, 10], [45, 6, 19, 10],     # Route 12

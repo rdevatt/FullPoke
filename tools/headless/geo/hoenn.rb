@@ -149,7 +149,10 @@ GEO_SPEC[:hoenn] = {
       open: [48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67,
              72, 73, 74, 75, 76, 77, 78, 79, 80, 86, 87, 88, 89, 92],
       tags: { 2381 => 7, 2389 => 7, **(48..95).to_h { |t| [t, 7] } }      # cave pools and sea
-    }
+    },
+    # Outside2WATERSEA: the rim of Sootopolis' crater on Route 126, drawn over
+    # the sea on every layer (so no blocker fits); no other map uses these tiles
+    28 => { solid: [4822, 4823, 4827, 4829] }
   },
   # Invisible solid tiles (fully transparent, unused anywhere): 428 is made
   # solid above; 896 already is in tilesets 1 and 28
@@ -170,7 +173,8 @@ GEO_SPEC[:hoenn] = {
     # (Route 131), and rocks in the sea: drawn as walkable ground, but rock
     r126: [[43, 31], [40, 41], [38, 37], [52, 18], [41, 43], [10, 0], [33, 45], [29, 43], [59, 43], [55, 51],
            [3, 50], [35, 56], [50, 40], [20, 69]],
-    r131: [[30, 11], [35, 5], [30, 5]]
+    r131: [[30, 11], [35, 5], [30, 5]],
+    r117: [[58, 85]]                               # the sea drawn behind the trees along the south edge
   },
   # Areas the paths, doors and boats don't reach (cliff tops, ledges, islets,
   # chambers of the caves) get ladders from the reached parts (see
