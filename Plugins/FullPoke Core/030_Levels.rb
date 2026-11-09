@@ -45,11 +45,19 @@ module FullPoke
       orig   = (((2 * orig_foe) + 10.0) / (orig_gainer + orig_foe + 10.0))**2.5
       mult *= orig / scaled
     end
-    span_now  = growth_rate.minimum_exp_for_level(gainer_level + 1) - growth_rate.minimum_exp_for_level(gainer_level)
-    span_orig = growth_rate.minimum_exp_for_level(orig_gainer + 1) - growth_rate.minimum_exp_for_level(orig_gainer)
-    mult *= span_now.to_f / span_orig if span_orig > 0 && span_now > 0
-    mult = mult.clamp(0.01, 1000.0)
-    return [(amount * mult).round, 1].max
+    # The battle's Exp. at the unscaled levels, added at the unscaled level and
+    # carried back up: the Pokémon ends the same number of levels (and the same
+    # fraction of a level) further on as it would in the unscaled region.
+    orig_amount = amount * mult.clamp(0.0, 1000.0)
+    span = ->(lv) { growth_rate.minimum_exp_for_level(lv + 1) - growth_rate.minimum_exp_for_level(lv) }
+    frac = (gainer_exp - growth_rate.minimum_exp_for_level(gainer_level)).to_f / [span.(gainer_level), 1].max
+    pos = growth_rate.minimum_exp_for_level(orig_gainer) + frac * span.(orig_gainer) + orig_amount
+    new_orig = growth_rate.level_from_exp(pos.floor)
+    new_frac = (pos - growth_rate.minimum_exp_for_level(new_orig)) / [span.(new_orig), 1].max
+    new_level = new_orig + offset
+    return amount if new_level >= GameData::GrowthRate.max_level
+    target = growth_rate.minimum_exp_for_level(new_level) + new_frac.clamp(0.0, 0.999) * span.(new_level)
+    return [(target - gainer_exp).round, 1].max
   end
 end
 
@@ -106,3 +114,15 @@ class Battle
     end
   end
 end
+
+#===============================================================================
+# The whole party gains experience from every battle, as in Generation 6 and
+# later (Essentials' "Exp. All": Pokémon that didn't battle get half). Long
+# regions and level scaling would otherwise mean heavy grinding for the back
+# of the team.
+#===============================================================================
+EventHandlers.add(:on_enter_map, :fullpoke_exp_share,
+  proc { |_old_map_id|
+    $player.has_exp_all = true if $player && !$player.has_exp_all
+  }
+)

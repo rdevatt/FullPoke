@@ -24,6 +24,11 @@ module FullPoke
     defn = Teams.get(key)
     raise ArgumentError, "No FullPoke trainer #{key}" if !defn
     name = defn[:name]
+    # Rivals named by the player (Settings::RIVAL_NAMES, e.g. Kanto's rival)
+    if !name && (rv = Settings::RIVAL_NAMES.find { |tt, _| tt == defn[:tr_type] })
+      v = $game_variables ? $game_variables[rv[1]] : nil
+      name = v if v.is_a?(String) && !v.empty?
+    end
     if !name && defn[:region]
       name = FullPoke.region(defn[:region])&.rival_name
     end
@@ -65,6 +70,9 @@ module FullPoke
     end
     trainer = build_trainer(key)
     setBattleRule("canLose") if can_lose
-    return TrainerBattle.start(trainer)
+    # start_core, not start: start can put this trainer on hold to join a
+    # double battle with another trainer who spotted the player at the same
+    # time, and then this trainer's own win is never recorded.
+    return TrainerBattle.start_core(trainer) == 1
   end
 end

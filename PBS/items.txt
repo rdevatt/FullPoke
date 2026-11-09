@@ -6590,3 +6590,11 @@ Price = 0
 FieldUse = Direct
 Flags = KeyItem
 Description = A compass whose needle always points to the Interregional Forest. Use it to return to the forest gate of the region you're in.
+#-------------------------------
+[SSTICKET]
+Name = S.S. Ticket
+NamePlural = S.S. Tickets
+Pocket = 8
+Price = 0
+Flags = KeyItem
+Description = The ticket required for sailing on the ship S.S. Anne. It has a drawing of the ship on it.
