@@ -50,7 +50,10 @@ GEO_SPEC[:hoenn] = {
   gates: [
     [:r120, [[32, 77], [32, 78]], [33, 78, 6], :r120, [[23, 77], [23, 78]], [22, 78, 4]],
     # Larousse City's gatehouse up to the hills east of town
-    [:larousse, [[47, 43]], [47, 44, 2], :larousse, [[47, 38]], [47, 37, 8]]
+    [:larousse, [[47, 43]], [47, 44, 2], :larousse, [[44, 36]], [44, 34, 8]],
+    # Sootopolis (an unfinished map in the pack): the crater's inner town to
+    # the houses on its outer rim
+    [:sootopolis, [[32, 19]], [33, 19, 6], :sootopolis, [[32, 18]], [31, 19, 4]]
   ],
   # Petalburg Woods sits between Route 104's two halves
   warps: [
@@ -62,7 +65,7 @@ GEO_SPEC[:hoenn] = {
     # floor; ladders join it to the floor above (laid out 35 rows higher on the
     # map), which climbs to the top floor; the back passage leads to the small
     # chamber at the bottom of the map
-    [:r106, [48, 16], :granite, [20, 83], { out_a: 2, out_b: 8 }],
+    [:r106, [48, 16], :granite, [10, 81], { out_a: 2, out_b: 8 }],
     [:granite, [29, 26], :granite, [29, 61]], [:granite, [12, 27], :granite, [12, 62]],
     [:granite, [8, 29], :granite, [8, 64]], [:granite, [29, 37], :granite, [29, 72]],
     [:granite, [28, 45], :granite, [28, 80]], [:granite, [4, 45], :granite, [17, 11]],
@@ -77,6 +80,11 @@ GEO_SPEC[:hoenn] = {
     [:meteor, [10, 3], :meteor, { near: [60, 30], pick: :bottom }, { out_a: 2, out_b: 8 }],
     [:meteor, [5, 4], :meteor, [102, 8]], [:meteor, [49, 18], :meteor, [100, 25]],
     [:meteor, [52, 24], :meteor, [115, 17]], [:meteor, [66, 27], :meteor, { near: [157, 28], pick: :bottom }],
+    # Rusturf Tunnel from Route 116's east end to the top of Verdanturf
+    [:r116, [65, 20], :rusturf, { near: [5, 20], pick: :bottom }, { out_a: 2, out_b: 8 }],
+    [:verdanturf, [88, 1], :rusturf, { near: [30, 22], pick: :bottom }, { out_a: 2, out_b: 8 }],
+    # The Battle Frontier's little caves
+    [:frontier, { near: [35, 98], pick: :left }, :small_caves, { near: [7, 50], pick: :bottom }, { out_b: 8 }],
     # Mirage Tower in Route 111's desert, its four floors side by side on the map
     [:r111, [20, 56], :mirage, { near: [10, 15], pick: :bottom }, { out_a: 2, out_b: 8 }],
     [:mirage, [16, 5], :mirage, [47, 5]], [:mirage, [35, 16], :mirage, [66, 16]], [:mirage, [78, 5], :mirage, [97, 5]],
@@ -112,8 +120,8 @@ GEO_SPEC[:hoenn] = {
     [:r126, [10, 62], :underwater, [100, 100], 7]
   ],
   # The pack's unfinished sketch of Hoenn's special interiors (labels drawn
-  # on a black floor)
-  blank: [206],
+  # on a black floor) and its empty Gym placeholder (one floor tile everywhere)
+  blank: [206, 509],
   # Cave tileset (Cavetiles Extended1): the Hoenn caves' walls, rocks, ledges
   # of rock plateaus, lava, signs and the cable car station were never given
   # passability (the plateau tops share the floor tile, which stays open)
@@ -136,7 +144,11 @@ GEO_SPEC[:hoenn] = {
               2051, 2052, 2053, 2054, 2055, 2066, 2072, 2073, 2074, 2080, 2081, 2082,
               428],                                                        # blocker (see blockers)
       above: [2323, 2326, 2327, 2334, 2335, 2350, 2351, 2366, 2367, 2374, 2375],  # treetops
-      tags: { 2381 => 7, 2389 => 7 }                                       # cave pools
+      # Cave sea ("Sea deep" autotile): its edges were solid and none of it was
+      # water, so Meteor Falls' pools couldn't be surfed
+      open: [48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67,
+             72, 73, 74, 75, 76, 77, 78, 79, 80, 86, 87, 88, 89, 92],
+      tags: { 2381 => 7, 2389 => 7, **(48..95).to_h { |t| [t, 7] } }      # cave pools and sea
     }
   },
   # Invisible solid tiles (fully transparent, unused anywhere): 428 is made
@@ -147,7 +159,34 @@ GEO_SPEC[:hoenn] = {
     underpass: [[16, 0], [88, 29], [2, 22], [0, 0], [62, 33]],
     fiery: [2305],                                 # Fiery Path's rock between its tunnels
     legendary_caves: [2206, 2385, [50, 0]],        # the bare rock around its chambers
-    pyre: [[2, 2]]                                 # the sea drawn behind Mt. Pyre's summit
+    pyre: [[2, 2]],                                # the sea drawn behind Mt. Pyre's summit
+    meteor: [[35, 0]],                             # the rock around Meteor Falls' chambers
+    sootopolis: [[1, 2], [2, 4], [0, 91], [0, 95], [0, 99]],  # frame lines around the unfinished map
+    # The tops of Sootopolis' crater (Route 126) and of the Sky Pillar's rock
+    # (Route 131), and rocks in the sea: drawn as walkable ground, but rock
+    r126: [[43, 31], [40, 41], [38, 37], [52, 18], [41, 43], [10, 0], [33, 45], [29, 43], [59, 43], [55, 51],
+           [3, 50], [35, 56], [50, 40], [20, 69]],
+    r131: [[30, 11], [35, 5], [30, 5]]
+  },
+  # Areas the paths, doors and boats don't reach (cliff tops, ledges, islets,
+  # chambers of the caves) get ladders from the reached parts (see
+  # GeoRegion#link_areas); the points are on the reached parts
+  link_areas: {
+    littleroot: [17, 11], petalburg: [13, 74], slateport: [24, 38], mauville: [26, 8],
+    rustboro: [[52, 36], [18, 15], [28, 29], [45, 0]], fortree: [35, 27], lilycove: [38, 51],
+    mossdeep: [[31, 16], [70, 38], [4, 38]], sootopolis: [85, 37], ever_grande: [[20, 82], [17, 60]],
+    lavaridge: [[4, 54], [43, 49], [48, 45]], fallarbor: [10, 34], dewford: [[26, 7], [58, 12], [78, 6]],
+    r101: [62, 10], r103: [[23, 34], [37, 52]], r104: [[20, 58], [53, 23], [66, 73]],
+    r110: [[8, 56], [37, 11], [0, 53]], r111: [12, 75], r112: [[13, 47], [35, 7]], r113: [55, 23],
+    r116: [38, 20], r117: [36, 17], r118: [[10, 32], [72, 35]], r119: [[62, 98], [58, 145]],
+    r121: [[69, 26], [58, 5], [105, 9], [35, 0]], r122: [[56, 26], [101, 25]], r126: [10, 67],
+    r105: [[34, 62], [70, 37], [65, 0], [40, 4]], r107: [[44, 2], [22, 46]], r123: [80, 5], r125: [51, 18],
+    r131: [34, 52], r132: [[31, 20], [9, 48], [33, 6], [73, 49]], r135: [52, 10],
+    granite: [10, 80], meteor: [[19, 22], [65, 21], [112, 22], [156, 23]], jagged: [[22, 92], [26, 38]],
+    underpass: [34, 14], mirage: [[15, 6], [78, 6], [34, 15], [103, 6]], shoal: [26, 15],
+    southern_island: [43, 13], pyre: [24, 50], frontier: [73, 66], larousse: [[22, 56], [43, 33]],
+    legendary_caves: [[86, 68], [120, 27], [120, 69], [154, 69]], underwater: [48, 114],
+    rusturf: [[5, 20], [30, 22]], small_caves: [7, 50]
   },
   # Boatmen: walk up to one to sail (if you have the badges)
   ferries: [

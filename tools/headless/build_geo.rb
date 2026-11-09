@@ -286,7 +286,9 @@ class GeoRegion
         end
         true
       end
-      land = ->(x, y) { kind.(x, y) == :land && !event_at?(m, x, y) }
+      # Victory Road's entrance is placed later, by build_league
+      reserved = (@spec.dig(:victory_road, :from) == key ? @spec[:victory_road][:at] : []).to_h { |t| [t, true] }
+      land = ->(x, y) { kind.(x, y) == :land && !event_at?(m, x, y) && !reserved[[x, y]] }
       walk = lambda do |starts|
         warp = {}
         solid = {}
@@ -369,7 +371,7 @@ class GeoRegion
         break if groups.empty?
         # Walls between an area and reached ground (or water, for a lagoon:
         # surfing through the rocks)
-        wall_ok = ->(w) { inside.(*w) && !kind.(*w) && !event_at?(m, *w) }
+        wall_ok = ->(w) { inside.(*w) && !kind.(*w) && !event_at?(m, *w) && !reserved[w] }
         same = ->(t, k) { kind.(*t) == k && !event_at?(m, *t) }
         linked = groups.select do |g|
           in_g = g.to_h { |t| [t, true] }
