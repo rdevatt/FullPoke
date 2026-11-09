@@ -27,7 +27,7 @@ def talk_to_event(ev)
     raise "can't reach #{ev.name} at (#{ev.x},#{ev.y}) from #{where}"
   go_to(spot[0], spot[1])
   $game_player.turn_generic(spot[2])
-  press_use(60000)   # long battles run inside
+  press_use(400000)   # long battles run inside
   settle(20000)
 end
 

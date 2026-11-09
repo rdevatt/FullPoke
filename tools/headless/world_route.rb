@@ -102,7 +102,11 @@ module Route
   end
 
   # Areas the player isn't allowed into yet (badges, starter) are avoided.
-  def allowed?(id) = FullPoke::World.map_rule_ok?(id)
+  def allowed?(id) = FullPoke::World.map_rule_ok?(id) && !avoided.include?(id)
+
+  # Maps a travel found it can't cross the planned way (entering them again is
+  # avoided until the travel ends; moving within the current map still works)
+  def avoided = (@avoided ||= [])
 
   def neighbour_map(id, nx, ny)
     res = $map_factory.getNewMap(nx, ny, id) rescue nil
@@ -169,13 +173,21 @@ def surf_ready? = $PokemonGlobal.surfing || !$player.get_pokemon_with_move(:SURF
 
 # Walks (and surfs) to a map / tile. Raises if there's no way there.
 def travel_to(map_id, x = nil, y = nil, tries: 6)
+  Route.avoided.clear
   tries.times do |t|
     return true if $game_map.map_id == map_id && (x.nil? || ($game_player.x == x && $game_player.y == y))
     # Strict plan first; if per-direction blocking (which bridges and ladders make
     # approximate) leaves no way, let the real movement decide
     steps = Route.plan(map_id, x, y, surf: surf_ready?) || Route.plan(map_id, x, y, surf: surf_ready?, directional: false) or
       raise "no route to map #{map_id} #{x},#{y} from #{where}"
+    before = [$game_map.map_id, $game_player.x, $game_player.y]
     ok = (follow(steps) rescue (log("follow: #{$!.message}"); false))
+    # The plan crossed this map a way that doesn't work in the game (one-way
+    # slopes, bridges): plan around it next time
+    if !ok && [$game_map.map_id, $game_player.x, $game_player.y] == before
+      log "no progress through map #{$game_map.map_id}; planning around it"
+      Route.avoided << $game_map.map_id
+    end
     return true if ok && $game_map.map_id == map_id && (x.nil? || ($game_player.x - x).abs + ($game_player.y - y).abs <= 1)
     # Didn't get there: let things settle and step aside before planning again
     settle(600)
