@@ -96,6 +96,8 @@ def walk(*dirs)
     started = Graphics.frame_count
     $input_script = [code] * 12
     play_until("step #{d}", frames: 900) do
+      # A transfer (door, boat) ends the step: don't keep walking on the new map
+      $input_script.clear if $game_temp.player_transferring || $game_map.map_id != start[2]
       pos = [$game_player.x, $game_player.y, $game_map.map_id]
       done_moving = !$game_player.moving? && !$game_temp.player_transferring && !pbMapInterpreterRunning?
       (pos != start && done_moving) || (Graphics.frame_count - started > 30 && $input_script.empty? && done_moving)

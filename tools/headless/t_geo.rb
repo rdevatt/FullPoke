@@ -95,26 +95,40 @@ check("trainers on routes (none on: #{no_tr.join(', ')})", no_tr.length <= 3)
 gym_map = FullPoke::World.region_data(REGION)[:league][0]
 (1..8).each do |n|
   stage = FullPoke::Circuit.stage(REGION, n)
-  # Story battles that belong to this town
-  SPEC[:story].select { |s| s[:kind] == :battle && (stage[:extras] || []).include?(s[:key]) }.each do |s|
-    train_party(leader_top(s[:key]) + 15)
-    if s[:interior]
-      town = s[:interior][0]
-      travel_to(ID.(town))
-      ev = (events_named('FP: Door', $game_map).find { |e| (e.x - s[:interior][1]).abs <= 2 && (e.y - s[:interior][2]).abs <= 3 }) or raise "no door for #{s[:interior]}"
-      go_to(ev.x, ev.y); settle(4000)
-      foe = events_named('FP: ').find { |e| e.character_name.start_with?('trainer_') }
-      talk_to_event(foe)
-    else
-      defn = FullPoke::Teams.get(s[:key])
-      visit_and_talk(ID.(s[:at][0]), "FP: #{defn[:name] || FullPoke.region(REGION).rival_name}")
+  # Story battles that belong to this stage: before the Leader, or after it
+  # when they need this stage's badge (e.g. Po Town after Acerola's trial)
+  stage_story = SPEC[:story].select { |st| st[:kind] == :battle && (stage[:extras] || []).include?(st[:key]) }
+  before, after = stage_story.partition { |st| (st[:requires] || 0) < n }
+  play_story = lambda do |list|
+    list.each do |s|
+     3.times do |attempt|   # losing blacks out to a Pokémon Center; walk back and try again
+      break if FullPoke.flag?(REGION, :"beat_#{s[:key]}")
+      train_party(leader_top(s[:key]) + 15 + attempt * 8)
+      if s[:interior]
+        town = s[:interior][0]
+        travel_to(ID.(town))
+        ev = (events_named('FP: Door', $game_map).find { |e| (e.x - s[:interior][1]).abs <= 2 && (e.y - s[:interior][2]).abs <= 3 }) or raise "no door for #{s[:interior]}"
+        go_to(ev.x, ev.y); settle(4000)
+        nm = FullPoke::Teams.get(s[:key])[:name] || FullPoke.region(REGION).rival_name
+        foe = events_named("FP: #{nm}").min_by { |e| (e.x - $game_player.x).abs + (e.y - $game_player.y).abs }
+        talk_to_event(foe)
+      else
+        defn = FullPoke::Teams.get(s[:key])
+        visit_and_talk(ID.(s[:at][0]), "FP: #{defn[:name] || FullPoke.region(REGION).rival_name}")
+      end
+     end
+      check("stage #{n}: story battle #{s[:key]} won", FullPoke.flag?(REGION, :"beat_#{s[:key]}"))
     end
-    check("stage #{n}: story battle #{s[:key]} won", FullPoke.flag?(REGION, :"beat_#{s[:key]}"))
   end
+  play_story.(before)
   leader = FullPoke::Teams.get(stage[:leader])
-  train_party(leader_top(stage[:leader]) + 12)
-  visit_and_talk(gym_map, "FP: Leader #{leader[:name]}")
+  3.times do |attempt|
+    break if FullPoke.badge?(REGION, n - 1)
+    train_party(leader_top(stage[:leader]) + 12 + attempt * 8)
+    visit_and_talk(gym_map, "FP: Leader #{leader[:name]}")
+  end
   check("stage #{n}: #{stage[:badge]} from #{leader[:name]} in #{stage[:town]}", FullPoke.badge?(REGION, n - 1))
+  play_story.(after)
   if n == 1
     # Badge-gated areas push the player back until earned
     gated = SPEC[:requires].find { |_, r| (r.is_a?(Integer) ? r : r[:badges].to_i) == 2 }&.first
@@ -131,7 +145,7 @@ end
 
 vr = FullPoke::World.region_data(REGION)[:league]
 train_party(leader_top(FullPoke::Circuit.get(REGION)[:champion]) + 15)
-vr_map = load_data('Data/MapInfos.rxdata').find { |id, info| info.name == "#{FullPoke.region(REGION).name} Victory Road" }&.first
+vr_map = FullPoke::World.region_data(REGION)[:victory_road]
 travel_to(vr_map)
 check("Victory Road reached on foot (#{where})", $game_map.map_id == vr_map)
 if (rv = events_named('FP: ').find { |e| e.character_name.start_with?('trainer_') && e.name !~ /Trainer\(/ })
@@ -144,7 +158,14 @@ count = FullPoke::Circuit.league_count(REGION)
 count.times do |i|
   train_party(leader_top(FullPoke::Circuit.get(REGION)[:champion]) + 15)
   target = (i == 5) ? events_named('FP: Final').first : events_named('FP: League battle').min_by { |e| (e.x - $game_player.x).abs + (e.y - $game_player.y).abs }
+  league_map = $game_map.map_id
   talk_to_event(target)
+  2.times do |attempt|   # a loss sends the player to a Pokémon Center: walk back and try again
+    break if FullPoke::Circuit.league_cleared?(REGION, i)
+    train_party(leader_top(FullPoke::Circuit.get(REGION)[:champion]) + 23 + attempt * 8)
+    travel_to(league_map, target.x, target.y)
+    talk_to_event($game_map.events[target.id])
+  end
   check("League battle #{i + 1}/#{count} (#{target.name.sub('FP: League battle ', '')})", FullPoke::Circuit.league_cleared?(REGION, i))
   next if i >= 4
   door = events_named('FP: League door').min_by { |e| (e.x - $game_player.x).abs + (e.y - $game_player.y).abs }
@@ -155,6 +176,6 @@ check("#{REGION} completed", FullPoke.completed?(REGION))
 hof = events_named('FP: Hall of Fame').first
 go_to(hof.x, hof.y)
 settle(4000)
-check("Hall of Fame -> home (#{where})", $game_map.map_id == FullPoke::World.arrival(REGION)[0])
+check("Hall of Fame -> home (#{where})", [FullPoke::World.arrival(REGION)[0], FullPoke::World.home(REGION)[0]].include?($game_map.map_id))
 check("no duplicated Pokémon", FullPoke.duplicate_pokemon.empty?)
 finish

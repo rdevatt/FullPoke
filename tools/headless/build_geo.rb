@@ -6,7 +6,8 @@
 # League. Loaded by build_world.rb, which calls build_geo_region for regions in
 # GEO_SPEC instead of generating a compact circuit.
 require_relative 'geo_lib'
-Dir[File.join(__dir__, 'geo', '*.rb')].sort.each { |f| require f }
+# (geo/gen_*.rb are written by the build for the tests and aren't loaded here)
+Dir[File.join(__dir__, 'geo', '*.rb')].sort.reject { |f| File.basename(f).start_with?('gen_') }.each { |f| require f }
 
 # Room templates on Kanto's composite interior map 179 (tileset 2): [map, x, y, w, h]
 ROOM_TPL = {
@@ -89,6 +90,7 @@ class GeoRegion
     build_gates
     build_warps
     build_docks
+    build_ferries
     build_towns
     build_start
     build_routes
@@ -227,6 +229,31 @@ class GeoRegion
     end
   end
 
+  # Boatmen who sail the player to another map (once they have enough of the
+  # region's badges): { name:, at: [map, [x, y]], to: [map, [x, y]], badges:, dest_name: }.
+  # Walking into them starts the trip, so route planners treat them as warps.
+  def build_ferries
+    (@spec[:ferries] || []).each do |f|
+      key, (x, y) = f[:at]
+      m = map(key)
+      x, y = free_spot(m, x, y)
+      dkey, (dx, dy) = f[:to]
+      # Land beside the other boatman, not in front of him (one more step up
+      # would sail straight back)
+      ax, ay = free_spot(map(dkey), dx + 2, dy + 1, avoid: [[dx, dy], [dx, dy + 1], [dx - 1, dy], [dx + 1, dy]])
+      region = @region
+      dest_id = id(dkey)
+      list = EventList.build do
+        if_script("FullPoke.region_badge_count(:#{region}) >= #{f[:badges]}",
+                  otherwise: proc { text("#{f[:name]}: I'll sail you to #{f[:dest_name]} once you've earned #{f[:badges]} badges here.") }) do
+          text("#{f[:name]}: All aboard for #{f[:dest_name]}!")
+          transfer(dest_id, ax, ay, 2)
+        end
+      end
+      new_event(m, "FP: Ferry to #{dkey}", x, y, [new_page(trigger: 1, graphic: f[:graphic] || 'trainer_SAILOR', list: list)])
+    end
+  end
+
   #-----------------------------------------------------------------------------
   # Towns: doors, Poké Centers, Marts, Gyms, houses
   #-----------------------------------------------------------------------------
@@ -235,12 +262,19 @@ class GeoRegion
       m = map(town)
       stage = t[:stage] || 0
       t[:doors].each_with_index do |d, di|
-        kind, gx, gy, label, lines = d
+        kind, gx, gy, label, lines, exact = d
         begin
-          dx, dy = Geo.snap_door(m, gx, gy)
+          dx, dy = exact ? [gx, gy] : Geo.snap_door(m, gx, gy)
         rescue RuntimeError => e
-          GEO_WARNINGS << "#{@region} #{town}: door #{kind} #{gx},#{gy} skipped (#{e.message})"
-          next
+          # Tilesets with no blocking set at all (the pack's tileset 26/30
+          # towns): the door is a tile you step onto, at the given spot
+          if [1, 2].any? { |z| m.data[gx, gy, z].to_i >= 384 } && passable_tile?(m, gx, gy + 1) && !event_at?(m, gx, gy)
+            dx, dy = gx, gy
+            GEO_WARNINGS << "#{@region} #{town}: door #{kind} #{gx},#{gy} placed without a building front (#{e.message})"
+          else
+            GEO_WARNINGS << "#{@region} #{town}: door #{kind} #{gx},#{gy} skipped (#{e.message})"
+            next
+          end
         end
         clear_door_approach(m, dx, dy)
         out = step_out(m, dx, dy, 2)
@@ -476,6 +510,20 @@ class GeoRegion
         ])
       when :npc
         ev_npc(m, x, y, "FP: #{s[:name]}", s[:graphic] || 'NPC 07', s[:lines], dir: s[:dir] || 2)
+      when :ferry
+        # A sailor who takes the player to another town (between islands).
+        # Walking up to them is enough (player touch).
+        dm = map(s[:to])
+        tx, ty = free_spot(dm, dm.width / 2, dm.height / 2 + 2)
+        to_name = @spec.dig(:names, s[:to]) || INFO_NAME.call(id(s[:to]))
+        req = s[:requires] || 0
+        dest = id(s[:to])
+        new_event(m, "FP: Ferry to #{s[:to]}", x, y, [new_page(trigger: 1, graphic: s[:graphic] || 'NPC 18', list: EventList.build {
+          if_script("FullPoke.region_badge_count(:#{region}) >= #{req}", otherwise: proc { text(s[:early] || "Sailor: The ferry to #{to_name} isn't running for you yet. Finish your trials here first!") }) do
+            text("Sailor: All aboard for #{to_name}!")
+            transfer(dest, tx, ty, 2)
+          end
+        })])
       when :gift
         item = s[:item]
         new_event(m, "FP: #{s[:name]}", x, y, [
@@ -513,6 +561,7 @@ class GeoRegion
     })])
     save_map(vid, vmap)
     WORLD[:regions][@region][:league] = league_entry
+    WORLD[:regions][@region][:victory_road] = vid
   end
 
   #-----------------------------------------------------------------------------
@@ -535,6 +584,8 @@ end
 # tileset, and anything also used as ground) are never changed. Tileset 1 is
 # Kanto's and is left alone.
 FIX_PASSAGES_MIN_ID = 3000
+# Tileset 1 is Kanto's; 26 already has hand-set passability in the base tilesets
+FIX_PASSAGES_SKIP = [1, 26]
 FIXED_TILES = {}
 
 # Doormats, carpets, steps and curbs around a door look like building parts to
@@ -571,11 +622,25 @@ def clear_door_approach(map, x, y)
     c = prev[c]
   end
 end
+# Tiles that Kanto's maps use are left alone (Kanto's own fixes are in the
+# tileset base and its paths are tested), so a fix for another region can't
+# block a Kanto path. { tileset => { tile => true } }
+def kanto_tiles
+  @kanto_tiles ||= begin
+    used = Hash.new { |h, k| h[k] = {} }
+    FullPoke.maps_of_region(:kanto).each do |mid|
+      m = (WG.load_map(mid) rescue nil) or next
+      m.height.times { |y| m.width.times { |x| [1, 2].each { |z| used[m.tileset_id][m.data[x, y, z]] = true } } }
+    end
+    used
+  end
+end
+
 def fix_building_passages(map_ids)
   by_ts = Hash.new { |h, k| h[k] = [] }
   map_ids.each { |mid| m = WG.load_map(mid); by_ts[m.tileset_id] << m }
   by_ts.each do |ts_id, maps|
-    next if ts_id == 1
+    next if FIX_PASSAGES_SKIP.include?(ts_id)
     ts = TILESETS[ts_id]
     seen = Hash.new(0); hit = Hash.new(0); ground = {}
     maps.each do |m|
@@ -592,7 +657,7 @@ def fix_building_passages(map_ids)
         end
       end
     end
-    fix = seen.keys.select { |t| !ground[t] && hit[t] * 10 >= seen[t] * 7 }
+    fix = seen.keys.select { |t| !ground[t] && !kanto_tiles[ts_id][t] && hit[t] * 10 >= seen[t] * 7 }
     fix.each { |t| ts.passages[t] = 0x0f; FIXED_TILES[[ts_id, t]] = true }
     puts "Tileset #{ts_id}: #{fix.length} building tiles made solid"
   end
@@ -626,7 +691,30 @@ def populate_gym(region, n, gyms)
   end
 end
 
+# Tiles a tileset left unset but another tileset draws identically and does set
+# up (geo/tileset_inherit.json, made by tileset_inherit.rb): e.g. the forest
+# and water tiles of Outside2WATERSEA, a copy of Kanto's outdoor image.
+TILESET_INHERIT = File.join(__dir__, 'geo', 'tileset_inherit.json')
+def inherit_tileset_settings
+  return if $tileset_inherited || !File.exist?(TILESET_INHERIT)
+  $tileset_inherited = true
+  JSON.parse(File.read(TILESET_INHERIT)).each do |ts_id, d|
+    ts = TILESETS[ts_id.to_i]
+    d['tiles'].each do |t, (pass, prio, tag)|
+      t = t.to_i
+      next if ts.passages[t] != 0 || ts.priorities[t] != 0 || ts.terrain_tags[t] != 0
+      ts.passages[t] = pass; ts.priorities[t] = prio; ts.terrain_tags[t] = tag
+    end
+    # Hand corrections of the pack's own settings (documented in the JSON's maker)
+    (d['overrides'] || {}).each do |t, (pass, prio, tag)|
+      ts.passages[t.to_i] = pass; ts.priorities[t.to_i] = prio; ts.terrain_tags[t.to_i] = tag
+    end
+    puts "Tileset #{ts_id}: #{d['tiles'].length} tiles set up like tileset #{d['from']}"
+  end
+end
+
 def build_geo_region(region)
+  inherit_tileset_settings
   fix_building_passages(GEO_SPEC[region][:maps].values)
   GeoRegion.new(region).build
 end

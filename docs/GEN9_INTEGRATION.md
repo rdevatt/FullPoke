@@ -1,7 +1,55 @@
-# Generation 9 Pack: review and install plan
+# Generation 9 Pack: review, install plan and install record
 
-_Reviewed 2026-11-08. Nothing in this document has been run: the pack's code
-stays in `git stash` until you approve installing it._
+_Reviewed 2026-11-08 and installed the same day after approval, with
+Generation 9 battle rules and the pack's "Champions" rules off. The original
+stash (`stash@{0}`) is kept untouched as a reference._
+
+## Installed
+
+- **Plugins:** `Plugins/v21.1 Hotfixes` (1.0.9) and `Plugins/Generation 9 Pack Scripts`
+  (3.3.8) are installed exactly as downloaded, except that `Settings.rb` has
+  `CHAMPIONS_MECHANICS = false`. `MECHANICS_GENERATION` stays 9, which is the
+  pack's default and was your choice.
+- **Load order:** Hotfixes, then the Gen 9 Pack, then FullPoke Core
+  (confirmed in the compile log).
+- **PBS:**
+  - The pack's updated `abilities.txt`, `moves.txt`, `pokemon.txt`,
+    `pokemon_forms.txt` and `items.txt`, plus its six `*_Gen_9_Pack.txt`
+    files, all converted to LF line endings.
+  - `[GROVECOMPASS]` and `[SSTICKET]` re-added to `items.txt`;
+    `[OAKSPACKAGE]` and `[JOESMAIL]` are kept.
+  - The pack has no evolution data for two Pokémon, so these were added to
+    `pokemon.txt` using the pack's own methods:
+    `PRIMEAPE → ANNIHILAPE` (LevelUseMoveCount, Rage Fist ×20) and
+    `BISHARP → KINGAMBIT` (LevelDefeatItsKindWithItem, Leader's Crest).
+  - Regional Pokédex 8 (Paldea) lists the 120 Generation 9 species, and
+    "Paldea Pokédex" is added to `Settings.pokedex_names`
+    (`tools/headless/patch_settings_paldea_dex.rb`).
+- **Graphics:** the pack's `Graphics/UI/statuses.png` and
+  `Graphics/UI/Battle/icon_statuses.png` are copied in, adding the Drowsy and
+  Frostbite icons. 7,258 new sprite, icon, cry and animation files are added;
+  none overwrites an existing file.
+- **Credits:** each plugin's `meta.txt` credits are shown in Essentials'
+  credits screen automatically. The full list is in
+  `docs/third_party/Gen9Pack_Credits.txt`.
+- **Still missing:** 1,845 back, back-shiny and icon sprites for alternate
+  forms (not in the pack download or the project). Those forms show
+  placeholder graphics.
+- **No Terastallization:** the pack doesn't include it.
+
+**Verification:** `tools/headless/t_gen9.rb` checks:
+- species, forms, evolutions, moves, abilities and items, including the
+  custom ones;
+- that the battle rules are as configured;
+- real battles with Generation 9 moves and abilities at levels 50, 60 and 150;
+- a wild battle;
+- Skeledirge at level 250;
+- save/load;
+- Paldea unlocked, with its Pokédex pool, encounter tables, trainers and
+  forest gate.
+
+The other tests were re-run with the pack installed; results are in
+`FULL_GAME_ROADMAP.md`.
 
 ## What's in the stash
 
@@ -82,7 +130,7 @@ handlers).
    Sprigatito, Fuecoco and Quaxly). The pack's 22 Paradox Pokémon are already
    excluded from enhanced teams.
 
-## Install plan (after approval)
+## Install plan (as planned before approval; followed above)
 
 1. Restore the stash's new files without popping it:
    `git checkout 'stash@{0}^3' -- Plugins docs/third_party PBS/*_Gen_9_Pack.txt Graphics Audio`.
