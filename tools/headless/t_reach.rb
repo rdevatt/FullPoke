@@ -222,7 +222,10 @@ if ENV['AUDIT']
     # move, so no path is lost. Skipped: tiles beside an event that moves or
     # can be pushed (NPCs that walk, Strength boulders) or that has a move
     # route, bridges and ledges, and cells whose top layer is drawn.
-    if ENV['SEAL'] && !pockets.empty? && (inv = INVISIBLE_TILES[m.tileset_id])
+    # (an unreached area that is all bridge deck is scenery too: nothing can be
+    # up on a bridge no switch path leads onto)
+    decks = ENV['SEAL'] ? areas.select { |g| g.all? { |x, y| BridgeLib.tile(TS[m.tileset_id], m, x, y) } } : []
+    if ENV['SEAL'] && !(pockets.empty? && decks.empty?) && (inv = INVISIBLE_TILES[m.tileset_id])
       ts = TS[m.tileset_id]
       near_ev = {}
       # (events any event's move route moves: 0 is the event itself, -1 the player)
@@ -237,7 +240,7 @@ if ENV['AUDIT']
       end
       sealed = 0
       as_event = []
-      pockets.flatten(1).each do |x, y|
+      (pockets + decks).flatten(1).each do |x, y|
         next if near_ev[[x, y]]
         # (on a free top layer, so the next build can take it off; bridges,
         # ledges and cells whose top layer is drawn get an invisible event
