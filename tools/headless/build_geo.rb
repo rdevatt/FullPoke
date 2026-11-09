@@ -943,7 +943,7 @@ def fix_building_passages(map_ids)
         end
       end
     end
-    fix = seen.keys.select { |t| !ground[t] && !kanto_tiles[ts_id][t] && hit[t] * 10 >= seen[t] * 7 }
+    fix = seen.keys.select { |t| !ground[t] && !kanto_tiles[ts_id][t] && !KEPT_OPEN[[ts_id, t]] && hit[t] * 10 >= seen[t] * 7 }
     fix.each { |t| ts.passages[t] = 0x0f; FIXED_TILES[[ts_id, t]] = true }
     puts "Tileset #{ts_id}: #{fix.length} building tiles made solid"
   end
@@ -1002,11 +1002,14 @@ end
 # A region's own corrections to the shared tilesets, kept as data in its spec:
 # `tile_fixes: { tileset => { solid: [tiles], open: [tiles], above: [tiles], tags: { tile => terrain tag } } }`.
 # Tilesets are rebuilt from the base every run, so fixes never compound.
+# Opened tiles stay open: the building fix leaves them alone (stairs drawn
+# over cliffs sit next to solid tiles and would look like walls to it).
+KEPT_OPEN = {}
 def apply_tile_fixes(region)
   (GEO_SPEC[region][:tile_fixes] || {}).each do |ts_id, fx|
     ts = TILESETS[ts_id]
     (fx[:solid] || []).each { |t| ts.passages[t] |= 0x0f }
-    (fx[:open] || []).each { |t| ts.passages[t] &= ~0x0f }
+    (fx[:open] || []).each { |t| ts.passages[t] &= ~0x0f; KEPT_OPEN[[ts_id, t]] = true }
     (fx[:above] || []).each { |t| ts.priorities[t] = 1 }   # drawn over the player, like treetops
     (fx[:tags] || {}).each { |t, tag| ts.terrain_tags[t] = tag }
   end
