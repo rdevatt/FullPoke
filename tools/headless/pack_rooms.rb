@@ -14,6 +14,9 @@
 #     rooms) and checks that every library room was handed out.
 # Events added here are "FP: " events, replaced on every build. Pack warps on
 # a room's exit tile are re-pointed in place.
+# A room used by another region than its map's (Johto's Pokémon Centers on
+# Kanto's 182) is recorded in World.room_regions, so FullPoke.region_at
+# treats it as that region's ground.
 
 module PackRooms
   module_function

@@ -39,6 +39,7 @@ REGIONS=sinnoh MODE=continuous PRIOR=kanto,johto,hoenn tools/headless/run.sh t_b
 MODE=continuous tools/headless/run.sh t_kanto.rb   # Kanto Gyms 2-8, Route 23, Victory Road, League
 tools/headless/run.sh t_kanto_reach.rb             # every Kanto location reachable at the right point
 tools/headless/run.sh t_kanto_story.rb             # S.S. Anne, Pokémon Tower, Rocket Hideout, Silph Co., Snorlax
+tools/headless/run.sh t_pack_rooms.rb             # the pack's own interiors as buildings (region of a shared room, elevator)
 tools/headless/run.sh t_reach.rb 23 13 9 33 292   # which maps are reachable on foot from Pallet Town
 RULES=johto:3 SURF=1 tools/headless/run.sh t_reach.rb 7 11 25 85 90   # ... with 3 Johto badges, surfing
 GRID=59 tools/headless/run.sh t_reach.rb 7 11 25 59                  # print which tiles of map 59 were reached
@@ -114,6 +115,7 @@ docker build -t fullpoke-ruby tools/headless/docker && tools/headless/render.sh 
 | `build_geo.rb`, `geo_lib.rb`, `geo/*.rb` | Regions built from the map pack's real maps |
 | `gen_region.rb`, `plans/*.rb` | Regions generated as separate maps in their real order |
 | `kanto_story.rb`, `fix_tileset_passability.rb`, `t_kanto_*.rb` | Kanto story events, the cave tileset fix, their tests |
+| `pack_rooms.rb`, `t_pack_rooms.rb` | The map pack's composite interior maps (179, 181, 182, 22, 12; Hoenn's 10, 498, 501, 503): their rooms handed to buildings, the decoration between them walled off |
 | `world_route.rb` | Multi-map routing for tests |
 | `pass_grid.rb`, `geo_probe.rb`, `room_list.rb` | Inspection for geo specs |
 | `test_lib.rb` | `check`/`section`/`on_map` helpers for the newer tests; evolution without the animation |
