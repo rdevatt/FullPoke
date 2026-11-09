@@ -15,7 +15,11 @@ $plugins_ran = true
 GameData.load_all rescue nil
 
 IDS = WG::Ids.new(File.join(__dir__, 'world_ids.json'))
-TILESETS = load_data('Data/Tilesets.rxdata')
+# The builder fixes tileset data (grass tags, building passability) on top of
+# the map pack's own tilesets, kept in tilesets_base.rxdata, so rebuilding
+# gives the same result instead of piling fixes on fixes.
+TILESETS_BASE = File.join(__dir__, 'tilesets_base.rxdata')
+TILESETS = load_data(File.exist?(TILESETS_BASE) ? TILESETS_BASE : 'Data/Tilesets.rxdata')
 WORLD = { roots: {}, regions: {}, forest_exits: {}, forest_maps: [], encounters: [] }
 METADATA = {}      # map id => lines for map_metadata.txt
 CONNECTIONS = []   # lines for map_connections.txt

@@ -32,6 +32,7 @@ module Route
       t = m.data[x, y, z]
       next if t.nil? || t == 0
       tag = ts.terrain_tags[t]
+      return (ts.passages[t] & 0x0f != 0x0f ? :land : nil) if tag == 15   # bridge
       return :water if [5, 6, 7].include?(tag)
       return nil if ts.passages[t] & 0x0f == 0x0f
       return :land if ts.priorities[t] == 0

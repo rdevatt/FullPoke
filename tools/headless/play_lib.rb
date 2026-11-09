@@ -149,7 +149,8 @@ def find_path(gx, gy)
   avoid = {}
   $game_map.events.each_value do |e|
     next if e.x == gx && e.y == gy
-    avoid[[e.x, e.y]] = true if [1, 2].include?(e.trigger) && e.list && e.list.length > 1
+    # Touch events are avoided, except the map pack's bridge switches (BridgeOn/BridgeOff), which must be walked over
+    avoid[[e.x, e.y]] = true if [1, 2].include?(e.trigger) && e.list && e.list.length > 1 && e.name !~ /^Bridge(On|Off)/i
   end
   prev = { [sx, sy] => nil }
   queue = [[sx, sy]]

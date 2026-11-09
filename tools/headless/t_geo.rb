@@ -9,7 +9,7 @@
 require_relative 'play_lib'
 require_relative 'test_lib'
 require_relative 'world_route'
-require_relative 'geo/johto'
+Dir[File.join(__dir__, 'geo', '*.rb')].sort.each { |f| require f }
 
 $stdout.sync = true
 $SHOW_BATTLE = ENV['VERBOSE']
