@@ -158,7 +158,14 @@ count = FullPoke::Circuit.league_count(REGION)
 count.times do |i|
   train_party(leader_top(FullPoke::Circuit.get(REGION)[:champion]) + 15)
   target = (i == 5) ? events_named('FP: Final').first : events_named('FP: League battle').min_by { |e| (e.x - $game_player.x).abs + (e.y - $game_player.y).abs }
+  league_map = $game_map.map_id
   talk_to_event(target)
+  2.times do |attempt|   # a loss sends the player to a Pokémon Center: walk back and try again
+    break if FullPoke::Circuit.league_cleared?(REGION, i)
+    train_party(leader_top(FullPoke::Circuit.get(REGION)[:champion]) + 23 + attempt * 8)
+    travel_to(league_map, target.x, target.y)
+    talk_to_event($game_map.events[target.id])
+  end
   check("League battle #{i + 1}/#{count} (#{target.name.sub('FP: League battle ', '')})", FullPoke::Circuit.league_cleared?(REGION, i))
   next if i >= 4
   door = events_named('FP: League door').min_by { |e| (e.x - $game_player.x).abs + (e.y - $game_player.y).abs }

@@ -28,6 +28,11 @@ GEO_SPEC[:hoenn] = {
     [:r124, 'East', :mossdeep], [:r124, 'South', :r126]
   ],
   offsets: { [:mauville, :r118] => 0 },
+  # Route 120's bridge over the pond: nothing in the pack puts the player on
+  # the bridge layer, so walking onto it is a crossing from end to end.
+  gates: [
+    [:r120, [[32, 77], [32, 78]], [22, 78, 4], :r120, [[23, 77], [23, 78]], [33, 78, 6]]
+  ],
   # Petalburg Woods sits between Route 104's two halves
   warps: [
     [:r104, [40, 30], :woods, { near: [40, 8], pick: :top }, { out_a: 8 }],

@@ -33,7 +33,8 @@ The regions are built in three ways:
 | **Map pack maps with story** | Kanto | The pack's FireRed/LeafGreen-style maps, repaired, with story events (`kanto_story.rb`, plugin 105). |
 | **Map pack maps, wired** | Johto | The pack's HeartGold/SoulSilver-style maps, connected and populated from `tools/headless/geo/johto.rb` by `build_geo.rb`. |
 | **Generated, real layout** | Kalos, Alola, Galar, Unova, Paldea | Every real location is its own generated map, joined in the real order (`plans/<region>.rb`, `gen_region.rb`), then populated by the same builder. |
-| **Generated circuit (old)** | Hoenn, Sinnoh, until their real maps are merged | One route plus one town per Gym (the previous phase's placeholder). Real-map versions are being built from the pack's Hoenn and Sinnoh maps (see [Hoenn and Sinnoh](#hoenn-and-sinnoh)). |
+| **Map pack maps, wired** | Hoenn | The pack's Hoenn maps, wired from `geo/hoenn.rb` (see [Hoenn and Sinnoh](#hoenn-and-sinnoh)). |
+| **Generated circuit (old)** | Sinnoh, until its real maps are merged | One route plus one town per Gym (the previous phase's placeholder). |
 
 | Piece | Where |
 | --- | --- |
@@ -196,10 +197,31 @@ What the generated maps look like:
   "(generated)" in the map tree.
 
 ### Hoenn and Sinnoh
-Two parallel efforts are building Hoenn and Sinnoh from the pack's real maps
-with the Johto pipeline. Until they're merged, both regions stay on the old
-one-route-per-Gym circuit, which still plays start to finish (`t_regions.rb`).
-_See the status line in the final report of this phase._
+**Hoenn on its real maps: partial (merged).**
+- **Maps:** the pack's maps from Littleroot to Ever Grande, with Petalburg
+  Woods between Route 104's halves.
+- **Towns:** doors for 16 towns, with Gyms, route trainers, encounters and
+  badge rules.
+- **Story battles:** May on Routes 110 and 119, Maxie above Route 112.
+- **Stand-ins:**
+  - Mr. Briney sails Route 104 ↔ Dewford ↔ Slateport.
+  - Sailors replace Dive into Sootopolis and the surf to Ever Grande.
+  - A Weather Institute guide crosses Route 119's north half, where the
+    pack's river and bridges block every way through.
+  - Victory Road is the generated one.
+- **Fixes:** the pack's sea tileset (28) gets passability from Kanto's tileset
+  where the tiles are pixel-identical.
+- **Tests:**
+  - The badge-rule check opens exactly the next town at each badge count.
+  - The walkthrough wins Gyms 1–6 on foot. In the helper's runs it stalled on
+    Route 120 heading for Mossdeep; see the latest result under
+    [Testing](#testing).
+- **Not wired:** Granite Cave, Meteor Falls, Mt. Pyre, Jagged Pass,
+  Pacifidlog, the Battle Frontier and several sea routes.
+
+**Sinnoh on its real maps: in progress** in a parallel branch. Until it's
+merged, Sinnoh stays on the old circuit, which plays start to finish
+(`t_regions.rb`).
 
 ### 9. Balance (no level boosts): measured
 `t_balance.rb` plays a region's battles in order and grants no levels. The
@@ -208,23 +230,24 @@ Leaders and League, plus wild battles when it has to train. The AI plays both
 sides, which is weaker than a careful player, so training counts are an upper
 bound.
 
-**Johto, independent, from level 5** (448 battles, 367 of them training).
-Party levels are lowest–highest:
+**Johto, independent, from level 5.** The final run, with 6 route trainers
+per stage and the Victory Road band raised, took 286 battles, 187 of them
+training. Party levels are lowest–highest:
 
 | Battle | Ace | Party | Training battles |
 | --- | --- | --- | --- |
-| Falkner | 13 | 11–12 | 25 |
-| Bugsy | 17 | 15–19 | 60 (grindy) |
-| Whitney | 19 | 15–24 | 26 |
-| Morty | 25 | 21–28 | 52 (grindy) |
-| Chuck / Jasmine / Pryce / Clair | 30–40 | 24–42 | 0 |
-| Final rival | 38 | 37–43 | 26 |
-| Will | 42 | 42–48 | 48 |
-| Lance | 50 | 50–57 | 59 (grindy) |
+| Falkner | 13 | 10–14 | 27 |
+| Bugsy | 17 | 13–19 | 27 |
+| Whitney, Morty, Chuck, Jasmine | 19–35 | 16–36 | 0 |
+| Archer | 40 | 34–38 | 19 |
+| Pryce, Clair, final rival, Will, Bruno, Karen | 34–47 | 36–47 | 0 |
+| Koga | 44 | 40–45 | 8 |
+| Lance | 50 | 43–47 | 45 (won on the 4th try) |
 
-That run fought 3 route trainers per stage; the real Johto routes have about
-9 per Gym. The simulation now fights 6. Bugsy's Scyther, Morty's Gengar and
-the League were the hardest points for the AI.
+The first run (3 route trainers per stage, Victory Road at 38–44) needed 367
+training battles and gave up on Lance. Falkner and Bugsy remain the early
+spikes for an AI that leads with a Grass starter; a player who catches a
+Geodude or Mareep has an easier time.
 
 **Sinnoh, continuous, after Kanto → Johto → Hoenn** (offset 165, levels
 170–282):
@@ -239,22 +262,27 @@ Next balance steps: rerun Johto with 6 trainers per stage; ease Bugsy and
 Morty if they still need 50+ training battles; then measure Kanto, a
 generated region, and continuous play after 6 or more regions.
 
-## Generation 9
+## Generation 9: installed (with your approval)
 
-The community **Generation 9 Pack** 3.3.8 and Maruno's **v21.1 Hotfixes**
-1.0.9 are kept in `stash@{0}`, unrun.
+The community **Generation 9 Pack** 3.3.8 and Maruno's **v21.1 Hotfixes** 1.0.9
+are installed:
+- Generation 9 battle rules, with the pack's "Champions" rules off.
+- The Grove Compass and S.S. Ticket kept.
+- Two evolutions the pack lacked added: Primeape → Annihilape and
+  Bisharp → Kingambit.
+- A Paldea Pokédex (number 8) added.
+- The pack's status icons copied in.
 
-The full review and plan are in [GEN9_INTEGRATION.md](GEN9_INTEGRATION.md).
-In short:
-- The plugins were read in full and nothing harmful was found.
-- The stashed `items.txt` would delete the Grove Compass. The install plan
-  re-adds it.
-- The pack switches battle mechanics to "Champions" rules, which should be
-  turned off.
-- The pack's status-icon sheets need copying in.
+The review, the plan and an exact record of what was installed are in
+[GEN9_INTEGRATION.md](GEN9_INTEGRATION.md). `t_gen9.rb` verifies:
+- species, forms and evolutions;
+- moves, abilities and items;
+- battles with Generation 9 moves and abilities up to level 150;
+- levels past 100 and save/load;
+- Paldea's encounters, trainers and gate.
 
-**Waiting for your approval.** Paldea's maps, story and trainers are built
-and unlock automatically once Generation 9 data is installed.
+**Still missing:** 1,845 alternate-form back/icon sprites, and
+Terastallization (the pack doesn't include it).
 
 ## Windows (Game.exe)
 

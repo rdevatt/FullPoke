@@ -25,6 +25,7 @@ GRIND_WARN = 25       # more training battles than this before a Gym: too grindy
 @total_battles = 0
 @grind_total = 0
 @rows = []
+@deferred = []
 
 def heal = $player.heal_party
 
@@ -137,7 +138,15 @@ record('Rival 1', rival1, 1) if rival1
       battle_trainer(key)
     end
   end
-  (stage[:extras] || []).each { |k| record("Stage #{n} story: #{FullPoke::Teams.get(k)[:name] || 'rival'}", k, n) }
+  # Story battles well above this Gym's level are optional for now (Paldea's
+  # Team Star bases can be taken in any order); they're fought before the League
+  (stage[:extras] || []).each do |k|
+    if FullPoke::Circuit.leader_top_level(k) > FullPoke::Circuit.leader_top_level(stage[:leader]) + 2 && circuit[:require_extras]
+      @deferred << [n, k]
+    else
+      record("Stage #{n} story: #{FullPoke::Teams.get(k)[:name] || 'rival'}", k, n)
+    end
+  end
   2.times do |i|
     k = :"#{REGION}_gym#{n}_t#{i}"
     battle_trainer(k) if FullPoke::Teams.get(k)
@@ -146,6 +155,7 @@ record('Rival 1', rival1, 1) if rival1
   record("Gym #{n}: #{FullPoke::Teams.get(stage[:leader])[:name]}", stage[:leader], n)
   FullPoke.badge!(REGION, n - 1)
 end
+@deferred.each { |n, k| record("Stage #{n} story (later): #{FullPoke::Teams.get(k)[:name]}", k, 9) }
 rival_last = circuit[:rivals][9]
 record('Final rival', rival_last, 9) if rival_last
 keys = circuit[:league] + [circuit[:champion]]
