@@ -142,49 +142,64 @@ end
 $battle_results = []
 EventHandlers.add(:on_end_battle, :headless_record, proc { |outcome, _canLose| $battle_results << outcome })
 
-# A step onto or along a bridge, which is walkable once the bridge's BridgeOn
-# switch (at its end) has been stepped on; planned as if the bridge were on.
-def bridge_step?(cx, cy, nx, ny, d)
-  return false if !$game_map.valid?(nx, ny)
-  return false if !$game_map.terrain_tag(nx, ny, true).bridge && !$game_map.terrain_tag(cx, cy, true).bridge
-  old = $PokemonGlobal.bridge
-  $PokemonGlobal.bridge = 1
-  ok = $game_player.passable?(cx, cy, d)
-  $PokemonGlobal.bridge = old
-  ok
-end
-
 # Breadth-first path on the current map using the engine's own passability checks.
 # Tiles holding other events' touch triggers are avoided (except the goal).
 def find_path(gx, gy)
   sx, sy = $game_player.x, $game_player.y
   avoid = {}
+  switch = {}   # the map pack's bridge switches: [x, y] => 1 (BridgeOn) or 0 (BridgeOff)
   $game_map.events.each_value do |e|
+    if e.name =~ /^Bridge(On|Off)/i
+      switch[[e.x, e.y]] = ($1.downcase == 'on') ? 1 : 0
+      next
+    end
     next if e.x == gx && e.y == gy
-    # Touch events are avoided, except the map pack's bridge switches (BridgeOn/BridgeOff), which must be walked over
-    avoid[[e.x, e.y]] = true if [1, 2].include?(e.trigger) && e.list && e.list.length > 1 && e.name !~ /^Bridge(On|Off)/i
+    # Touch events (warps, trainers) are avoided except at the goal
+    avoid[[e.x, e.y]] = true if [1, 2].include?(e.trigger) && e.list && e.list.length > 1
   end
-  prev = { [sx, sy] => nil }
-  queue = [[sx, sy]]
+  # States include whether the player is on a bridge, which changes what's
+  # passable: BridgeOn/BridgeOff switches set it, and FullPoke turns it off on
+  # land away from bridges (Plugins/FullPoke Core/090_World.rb).
+  start = [sx, sy, $PokemonGlobal.bridge > 0 ? 1 : 0]
+  prev = { start => nil }
+  queue = [start]
   dirs = { 2 => [0, 1, :down], 4 => [-1, 0, :left], 6 => [1, 0, :right], 8 => [0, -1, :up] }
+  found = nil
+  saved_bridge = $PokemonGlobal.bridge
   until queue.empty?
-    cx, cy = queue.shift
-    break if cx == gx && cy == gy
+    cur = queue.shift
+    cx, cy, cb = cur
+    if cx == gx && cy == gy
+      found = cur
+      break
+    end
     dirs.each do |d, (ox, oy, _)|
       nx, ny = cx + ox, cy + oy
-      next if prev.key?([nx, ny]) || avoid[[nx, ny]]
+      next if avoid[[nx, ny]]
       # An event on the goal tile (a door, an NPC) is reached by walking into it.
       goal_event = nx == gx && ny == gy && $game_map.events.values.any? { |e| e.x == gx && e.y == gy }
-      next unless $game_player.passable?(cx, cy, d) || bridge_step?(cx, cy, nx, ny, d) || (goal_event && $game_map.valid?(nx, ny))
-      prev[[nx, ny]] = [cx, cy, d]
-      queue << [nx, ny]
+      $PokemonGlobal.bridge = cb * 2
+      ok = $game_player.passable?(cx, cy, d)
+      next unless ok || (goal_event && $game_map.valid?(nx, ny))
+      nb = cb
+      nb = switch[[nx, ny]] if switch.key?([nx, ny])
+      if nb == 1 && !FullPoke::World.bridge_tile?(nx, ny) && !switch.key?([nx, ny]) &&
+         [[0, 1], [0, -1], [1, 0], [-1, 0]].none? { |dx, dy| FullPoke::World.bridge_tile?(nx + dx, ny + dy) }
+        nb = 0
+      end
+      nxt = [nx, ny, nb]
+      next if prev.key?(nxt)
+      prev[nxt] = [cur, d]
+      queue << nxt
     end
   end
-  return nil unless prev.key?([gx, gy])
+  $PokemonGlobal.bridge = saved_bridge
+  return nil if !found
   path = []
-  cur = [gx, gy]
+  cur = found
   while (p = prev[cur])
-    path.unshift(dirs[p[2]][2]); cur = [p[0], p[1]]
+    path.unshift(dirs[p[1]][2])
+    cur = p[0]
   end
   path
 end

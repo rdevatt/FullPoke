@@ -32,6 +32,8 @@ GEO_SPEC[:sinnoh] = {
     # Hearthome's south stairs and Route 212's north gatehouse
     [:hearthome, [[7, 53], [8, 53], [9, 53], [10, 53]], [8, 51, 8], :r212, [[17, 3], [18, 3], [19, 3], [20, 3]], [18, 5, 2]],
     # Veilstone's south exit and Route 214's gatehouse
+    # Oreburgh's east end and Route 207 (the map pack walls them apart)
+    [:oreburgh, [[67, 18]], [66, 18, 4], :r207, [[2, 3], [2, 4], [2, 5]], [3, 4, 6]],
     # Eterna's south gatehouse and the top of the Cycling Road (Route 206)
     [:eterna, [[15, 56], [16, 56], [17, 56], [18, 56]], [16, 54, 8], :r206, [[15, 4], [16, 4], [17, 4], [18, 4]], [16, 6, 2]],
     # Route 213: the gatehouse between the hotel meadow and Valor Lakefront
