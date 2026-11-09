@@ -393,11 +393,8 @@
 # Route 219 (246) - Route 220 (247)
 246,South,0,247,North,11
 # Route 205 (231) - Eterna City (214)
-231,East,8,214,West,0
 # Route 206 (232) - Eterna City (214)
-232,North,0,214,South,0
 # Route 211 West (238) - Eterna City (214)
-238,West,0,214,East,0
 # Route 225 (253) - Survival Area (225)
 253,East,0,225,West,0
 # Route 230 (259) - Survival Area (225)
@@ -409,43 +406,26 @@
 # Route 229 (257) - Survival Area (225)
 257,North,0,225,South,132
 # Hearthome City (215) - Route 209 (236)
-215,East,0,236,West,4
 # Solaceon Town (216) - Route 209 (236)
-216,South,0,236,North,30
 # Route 212 (239) - Route 209 (236)
-239,North,74,236,South,0
 # Route 218 (245) - Canalave City (220)
-245,West,1,220,East,0
 # Sandgem Town (210) - Twinleaf Town (209)
-210,West,29,209,East,0
 # Route 201 (227) - Twinleaf Town (209)
-227,South,4,209,North,0
 # Route 219 (246) - Twinleaf Town (209)
-246,West,0,209,East,4
 # Route 206 (232) - Route 205 (231)
-232,West,0,231,East,68
 # Route 207 (233) - Route 205 (231)
-233,West,0,231,East,193
 # Fuego Ironworks EXT (899) - Route 205 (231)
-899,East,0,231,West,70
 # Floaroma Town (213) - Route 205 (231)
-213,East,0,231,West,114
 # Route 204 (230) - Route 205 (231)
-230,East,0,231,West,167
 # Fight Area (224) - Route 225 (253)
 224,North,0,253,South,8
 # Route 229 (257) - Route 225 (253)
 257,North,0,253,South,172
 # Route 210 (237) - Route 215 (242)
-237,East,0,242,West,4
 # Solaceon Town (216) - Route 215 (242)
-216,North,34,242,South,0
 # Veilstone City (217) - Route 215 (242)
-217,West,0,242,East,66
 # Route 214 (241) - Route 215 (242)
-241,North,0,242,South,122
 # Route 216 (243) - Resort Area (226)
-243,South,617,226,North,0
 # Route 229 (257) - Resort Area (226)
 257,South,22,226,North,0
 # Route 228 (256) - Route 230 (259)
@@ -455,43 +435,25 @@
 # Route 229 (257) - Route 230 (259)
 257,West,0,259,East,8
 # Route 212 (239) - Hearthome City (215)
-239,North,10,215,South,0
 # Route 208 (234) - Hearthome City (215)
-234,East,0,215,West,23
 # Solaceon Town (216) - Route 210 (237)
-216,North,0,237,South,63
 # Celestic Town (219) - Route 210 (237)
-219,East,2,237,West,0
 # Route 214 (241) - Route 210 (237)
-241,North,0,237,South,219
 # Route 217 (244) - Snowpoint City (221)
-244,East,0,221,West,4
 # Mt Coronet Wilds (892) - Route 216 (243)
-892,North,0,243,South,101
 # Route 217 (244) - Route 216 (243)
-244,South,2,243,North,0
 # Route 201 (227) - Sandgem Town (210)
-227,East,0,210,West,0
 # Route 202 (228) - Sandgem Town (210)
-228,South,28,210,North,0
 # Route 219 (246) - Sandgem Town (210)
-246,North,0,210,South,0
 # Mt Coronet Wilds (892) - Route 206 (232)
-892,West,117,232,East,0
 # Route 211 West (238) - Route 206 (232)
-238,South,0,232,North,63
 # Route 207 (233) - Route 206 (232)
-233,North,0,232,South,0
 # Route 211 West (238) - Mt Coronet Wilds (892)
-238,East,0,892,West,57
 # Route 207 (233) - Mt Coronet Wilds (892)
-233,East,0,892,West,242
 # Alamos Town (888) - Mt Coronet Wilds (892)
 888,West,0,892,East,104
 # Route 208 (234) - Mt Coronet Wilds (892)
-234,West,0,892,East,245
 # Route 211 East (900) - Mt Coronet Wilds (892)
-900,West,0,892,East,54
 # Route 229 (257) - Mt Coronet Wilds (892)
 257,South,0,892,North,494
 # Route 227 (255) - Route 226 (254)
@@ -503,63 +465,37 @@
 # Route 229 (257) - Route 226 (254)
 257,West,0,254,East,102
 # Route 202 (228) - Route 201 (227)
-228,South,0,227,North,62
 # Route 219 (246) - Route 201 (227)
-246,West,0,227,East,33
 # Veilstone City (217) - Solaceon Town (216)
-217,South,0,216,North,130
 # Route 202 (228) - Jubilife City (211)
-228,North,0,211,South,6
 # Route 218 (245) - Jubilife City (211)
-245,East,32,211,West,0
 # Route 203 (229) - Jubilife City (211)
-229,West,3,211,East,0
 # Route 204 (230) - Jubilife City (211)
-230,South,0,211,North,28
 # Oreburgh City (212) - Route 207 (233)
-212,North,38,233,South,0
 # Route 203 (229) - Route 207 (233)
-229,North,96,233,South,0
 # Route 228 (256) - Route 227 (255)
 256,North,0,255,South,40
 # Route 214 (241) - Route 227 (255)
-241,East,0,255,West,406
 # Route 222 (250) - Sunyshore City (222)
-250,East,0,222,West,1
 # Route 223 (251) - Sunyshore City (222)
-251,South,12,222,North,0
 # Route 214 (241) - Veilstone City (217)
-241,North,0,217,South,26
 # Route 211 East (900) - Alamos Town (888)
-900,South,0,888,North,0
 # Celestic Town (219) - Alamos Town (888)
-219,South,0,888,North,35
 # Floaroma Town (213) - Fuego Ironworks EXT (899)
-213,North,0,899,South,0
 # Route 213 (240) - Route 222 (250)
-240,East,21,250,West,0
 # Pastoria City (218) - Route 212 (239)
-218,West,0,239,East,48
 # Route 203 (229) - Oreburgh City (212)
-229,East,0,212,West,0
 # Fight Area (224) - Route 228 (256)
 224,North,164,256,South,0
 # Route 229 (257) - Route 228 (256)
 257,North,0,256,South,0
 # Route 223 (251) - Lily of the Valley Conference (223)
-251,North,5,223,South,0
 # Route 224 (252) - Lily of the Valley Conference (223)
-252,West,220,223,East,0
 # Celestic Town (219) - Route 211 East (900)
-219,West,0,900,East,0
 # Route 224 (252) - Route 223 (251)
-252,South,0,251,North,43
 # Pastoria City (218) - Route 213 (240)
-218,East,0,240,West,54
 # Route 214 (241) - Route 213 (240)
-241,South,0,240,North,62
 # Route 204 (230) - Floaroma Town (213)
-230,North,0,213,South,7
 # Tellur Town (315) - Blue Dome (313)
 315,South,0,313,North,2
 # Thalia Beach (310) - Blue Dome (313)
@@ -710,6 +646,38 @@
 118,East,0,152,West,0
 152,East,49,119,West,0
 152,South,0,154,North,0
+209,North,0,227,South,4
+227,East,0,210,West,0
+210,North,0,228,South,28
+228,North,0,211,South,6
+211,East,0,229,West,3
+211,North,26,230,South,0
+230,North,0,213,South,7
+213,East,0,231,West,114
+231,East,5,214,West,0
+214,South,0,232,North,0
+232,South,0,233,North,0
+212,East,0,233,West,0
+234,East,0,215,West,23
+216,South,0,236,North,30
+237,South,63,216,North,0
+237,East,0,242,West,2
+242,East,66,217,West,0
+241,South,0,240,North,62
+240,West,54,218,East,0
+218,West,0,239,East,38
+211,West,0,245,East,31
+245,West,1,220,East,0
+900,East,0,219,West,0
+219,East,0,237,West,14
+214,East,0,238,West,0
+238,East,10,900,West,0
+243,East,0,244,West,152
+244,North,0,221,South,0
+240,East,0,250,West,0
+250,East,0,222,West,1
+222,North,11,251,South,0
+251,North,5,223,South,0
 929,North,3,930,South,0
 930,North,0,953,South,3
 953,East,0,954,West,11

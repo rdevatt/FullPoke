@@ -219,9 +219,21 @@ What the generated maps look like:
 - **Not wired:** Granite Cave, Meteor Falls, Mt. Pyre, Jagged Pass,
   Pacifidlog, the Battle Frontier and several sea routes.
 
-**Sinnoh on its real maps: in progress** in a parallel branch. Until it's
-merged, Sinnoh stays on the old circuit, which plays start to finish
-(`t_regions.rb`).
+**Sinnoh on its real maps: partial (merged).**
+- **Real maps:** Twinleaf, then Rowan's lab in Sandgem, through to Sunyshore.
+- **Badge checks:** each badge opens the next Gym town.
+- **Walkthrough:** five of eight Gyms passed on foot before the merge. It then
+  stuck at the bottom of the Cycling Road; an Oreburgh–Route 207 gate was
+  added as a way west but hasn't been confirmed.
+- **Gaps:** six house doors are missing, Route 216 west isn't reachable, and
+  the Mt. Coronet passes are cave warps.
+- **Bridge fix:** bridges now switch off on a new map, a fix in `090_World.rb`.
+
+**Latest results** (end of session; the final Hoenn and Sinnoh walkthroughs
+were still running):
+- Paldea 31/31, Johto 27/27, Kalos 26/26, Alola 26/26, Galar 26/26 and
+  Unova 26/26 on foot.
+- Hoenn's Route 120 bridge crossing was fixed after its last run.
 
 ### 9. Balance (no level boosts): measured
 `t_balance.rb` plays a region's battles in order and grants no levels. The

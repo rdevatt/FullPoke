@@ -693,6 +693,216 @@ Outdoor = true
 ShowArea = true
 BattleBack = field
 #-------------------------------
+[209]
+Name = Twinleaf Town
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[210]
+Name = Sandgem Town
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[211]
+Name = Jubilife City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[212]
+Name = Oreburgh City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[213]
+Name = Floaroma Town
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[214]
+Name = Eterna City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[215]
+Name = Hearthome City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[216]
+Name = Solaceon Town
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[217]
+Name = Veilstone City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[218]
+Name = Pastoria City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[219]
+Name = Celestic Town
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[220]
+Name = Canalave City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[221]
+Name = Snowpoint City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[222]
+Name = Sunyshore City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[223]
+Name = Pokémon League
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[227]
+Name = Route 201
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[228]
+Name = Route 202
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[229]
+Name = Route 203
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[230]
+Name = Route 204
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[231]
+Name = Route 205
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[232]
+Name = Route 206
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[233]
+Name = Route 207
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[234]
+Name = Route 208
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[236]
+Name = Route 209
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[237]
+Name = Route 210
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[238]
+Name = Route 211
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[239]
+Name = Route 212
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[240]
+Name = Route 213
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[241]
+Name = Route 214
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[242]
+Name = Route 215
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[243]
+Name = Route 216
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[244]
+Name = Route 217
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[245]
+Name = Route 218
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[250]
+Name = Route 222
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[251]
+Name = Route 223
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
 [273]
 Name = Sinnoh Gyms and League
 BattleBack = indoor1
@@ -1368,6 +1578,12 @@ Outdoor = true
 ShowArea = true
 BattleBack = field
 #-------------------------------
+[900]
+Name = Route 211
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
 [907]
 Name = Desert Resort
 Outdoor = true
@@ -1499,55 +1715,7 @@ Name = Hoenn Gyms and League
 BattleBack = indoor1
 #-------------------------------
 [942]
-Name = Sinnoh Pokémon Center
-#-------------------------------
-[943]
-Name = Oreburgh City
-Outdoor = true
-ShowArea = true
-BattleBack = field
-#-------------------------------
-[944]
-Name = Eterna City
-Outdoor = true
-ShowArea = true
-BattleBack = field
-#-------------------------------
-[945]
-Name = Veilstone City
-Outdoor = true
-ShowArea = true
-BattleBack = field
-#-------------------------------
-[946]
-Name = Pastoria City
-Outdoor = true
-ShowArea = true
-BattleBack = field
-#-------------------------------
-[947]
-Name = Hearthome City
-Outdoor = true
-ShowArea = true
-BattleBack = field
-#-------------------------------
-[948]
-Name = Canalave City
-Outdoor = true
-ShowArea = true
-BattleBack = field
-#-------------------------------
-[949]
-Name = Snowpoint City
-Outdoor = true
-ShowArea = true
-BattleBack = field
-#-------------------------------
-[950]
-Name = Sunyshore City
-Outdoor = true
-ShowArea = true
-BattleBack = field
+Name = Sinnoh Interiors
 #-------------------------------
 [951]
 Name = Sinnoh Victory Road
