@@ -262,11 +262,14 @@ foot (27/27): all eight Gyms, Victory Road, the League and the Hall of Fame.
   step and plans around it.
 
 **Latest results (2026-11-09, after merging the Kanto, Sinnoh and Hoenn work):**
-- On foot, on the sealed data: Sinnoh 26/26, Paldea 31/31, Hoenn 27/27, Johto
-  27/27, Kalos 26/26, Alola 26/26, Galar 26/26 and Unova 26/26.
-- Regressions: t_systems 182/182, t_journey9 237/237, Kanto 28/28 in both
-  modes, t_kanto_reach 35/35 and t_kanto_story 60/60. Earlier in the day,
-  before the seal: t_gen9 59/59, and t_journey and t_release passed.
+- On foot, on the final sealed data: Sinnoh 26/26, Paldea 31/31, Hoenn 27/27,
+  Johto 27/27, Kalos 26/26, Alola 26/26, Galar 26/26 and Unova 26/26.
+- Regressions: t_systems 182/182, t_journey9 237/237, t_gen9 59/59,
+  t_pack_rooms 13/13, Kanto 28/28 in both modes, t_kanto_reach 35/35 and
+  t_kanto_story 60/60; t_journey and t_release pass.
+- **Not checked in Game.exe:** the copied nurses and clerks, the reopened
+  Hoenn floors, the invisible walls and seals. All of this was checked
+  headlessly only.
 
 **Whole-game audit** (`SURF=1 AUDIT=@all_ids.txt t_reach.rb 913 2 73`, from
 the forest with every field move):
@@ -274,19 +277,37 @@ the forest with every field move):
 | | Walkable tiles | Unreached in areas (10+) | Unreached in pockets |
 | --- | --- | --- | --- |
 | Before the traversal work | about 1,030,000 | 326,650 | 12,286 |
-| Now | 880,862 | 32,452 | 1,347 |
+| Now | 858,871 | **0** | 923 |
 
-- **Areas left:** all of them are the pack's unused interior rooms, except a
-  17-tile bridge deck on Hoenn's Route 120. The rooms are Poké Centers,
-  Marts, contest halls, Hoenn houses and labs, and gatehouses: maps 182, 181,
-  179, 22, 501, 10, 12, 503 and 498. No door leads to them yet. Wiring them
-  in as the real interiors is in progress.
+- **Areas:** none left. Every walkable place of 10 or more tiles is reachable.
+- **Pack interior rooms** (`tools/headless/pack_rooms.rb`) are now real
+  buildings; before, no door led to them:
+  - **Poké Centers:** the pack's Kanto-style Poké Centers became Johto's and
+    four of Sinnoh's, plus Pastoria's, each with a nurse.
+  - **Marts:** its Marts became Johto's and seven of Sinnoh's.
+  - **Celadon Department Store:** five floors, an elevator and the roof.
+  - **Kanto houses:** Celadon Mansion, Copycat's upstairs, and the houses on
+    Routes 2, 5 and 16.
+  - **Contest halls:** Slateport, Verdanturf, Fallarbor, Lilycove and
+    Hearthome, plus Ecruteak's Dance Theater and a house each in Nimbasa,
+    Lumiose, Hau'oli and Hammerlocke.
+  - **Hoenn:** Birch's Lab, the Littleroot houses, and the Poké Centers and
+    Marts of seven towns.
+  - **Gatehouses:** the League reception gate's west wing.
+  - **Walled off:** the space and labels drawn between rooms.
+  - **Party check:** a room on one region's map that belongs to another
+    region keeps that region's party (`FullPoke.region_at`, tested by
+    `t_pack_rooms.rb`).
 - **Pockets:** `rebuild.sh` ends with a seal pass (`t_reach.rb SEAL=1`).
   - It puts each tileset's invisible solid tile (`invisible.rb`) on every
     pocket tile nothing reaches. These are cliff edges, treetops and corners
     drawn walkable.
   - Cells whose top layer is drawn, bridges and ledges get an invisible event
-    showing that tile instead, at most 60 per map.
+    showing that tile instead, at most 60 per map. Unreached areas made only
+    of bridge deck are sealed too: no switch path leads onto them.
+  - The 923 pocket tiles left are on maps that would need more than 60 such
+    events (Fortree, Route 104 and Rustboro have the most), or beside events
+    that move.
   - It leaves alone tiles beside an event that moves or can be pushed.
   - The build takes the seal off again when it loads a map, so rebuilding
     gives the same result.
