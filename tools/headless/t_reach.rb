@@ -7,7 +7,7 @@
 require_relative 'play_lib'
 
 start_map, sx, sy = (ARGV[0] ? ARGV[0..2].map(&:to_i) : [23, 13, 9])
-SURF = ENV['SURF'] == '1'   # water counts as walkable (the player can Surf)
+SURF = ENV['SURF'] == '1'   # water counts as walkable (the player can Surf, and Cut and Rock Smash)
 targets = ARGV[3..]&.map(&:to_i) || []
 new_game   # sets up $map_factory and the game state the engine's map helpers need
 # RULES=<region>:<badges> respects FullPoke's badge-gated areas with that many of
@@ -35,7 +35,7 @@ def tile_ok?(m, x, y)
     tag = ts.terrain_tags[t]
     return true if tag == 15   # bridge: walkable once a BridgeOn event puts you up on it
     if [5, 6, 7, 16].include?(tag)   # water (needs Surf)
-      return SURF && ts.passages[t] & 0x0f != 0x0f || SURF && z == 0
+      return SURF   # like Game_Map#playerPassable?: any top water tile can be surfed
     end
     return false if ts.passages[t] & 0x0f == 0x0f
     return true if ts.priorities[t] == 0
@@ -56,7 +56,11 @@ def events_of(id)
     m.events.each_value do |e|
       pg = e.pages[0]
       next if !pg
-      if pg.graphic.character_name != '' && !pg.through && pg.trigger != 1
+      # with SURF=1 the player has the HMs and the story done: Cut trees, Rock
+      # Smash rocks and whoever leaves later (a page that hides them) give way
+      field = SURF && (e.name =~ /cut ?tree|rock ?smash|smash ?rock/i ||
+                       e.pages[1..].any? { |p| p.through || (p.graphic.character_name == '' && p.graphic.tile_id == 0) })
+      if pg.graphic.character_name != '' && !pg.through && pg.trigger != 1 && !field
         solid[[e.x, e.y]] = true
       end
       pg.list.each do |c|
@@ -180,6 +184,15 @@ if ENV['AUDIT']
     next if miss.empty?
     puts format('AUDIT %4d %-34s walkable %6d unreached %6d (areas %d: %d tiles; pockets %d: %d tiles) %s', am, INFOS[am]&.name.to_s[0, 34], walk, miss.length,
                 areas.length, areas.sum(&:length), pockets.length, pockets.sum(&:length), areas.max_by(&:length)&.first&.join(','))
+    if ENV['AUDITV']   # every area: size and bounding box
+      areas.sort_by { |g| -g.length }.each do |g|
+        xs = g.map(&:first); ys = g.map(&:last)
+        top = Hash.new(0)
+        g.each { |x, y| t = [2, 1, 0].map { |z| m.data[x, y, z].to_i }.find { |v| v > 0 }; top[t] += 1 }
+        puts format('    area %5d tiles at %s  x %d-%d  y %d-%d  tiles %s', g.length, g.first.join(','), xs.min, xs.max, ys.min, ys.max,
+                    top.sort_by { |_, c| -c }.first(4).map { |t, c| "#{t}:#{c}" }.join(' '))
+      end
+    end
   end
   puts "AUDIT total walkable #{totals[:walk]}, unreached: #{totals[:area]} in areas, #{totals[:pocket]} in small pockets"
 end

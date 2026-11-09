@@ -5,5 +5,5 @@
 #   tools/headless/rb.sh warp_pairs.rb /game/Data           # report unpaired warps
 HERE="$(cd "$(dirname "$0")" && pwd)"
 ROOT="$(cd "$HERE/../.." && pwd)"
-docker run --rm -e APPLY="${APPLY:-0}" -v "$ROOT":/game -v "$HERE":/tools -w /tools \
+docker run --rm -e APPLY="${APPLY:-0}" -e SURF -e SOLID -v "$ROOT":/game -v "$HERE":/tools -w /tools \
   "${FULLPOKE_RUBY_IMAGE:-ruby:3.1-slim}" ruby "/tools/$1" "${@:2}"
