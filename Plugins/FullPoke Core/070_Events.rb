@@ -248,3 +248,36 @@ EventHandlers.add(:on_enter_map, :fullpoke_grove_compass,
     $bag.add(:GROVECOMPASS) if !$bag.has?(:GROVECOMPASS)
   }
 )
+
+#===============================================================================
+# Field skills: outside Kanto (whose story hands out the HMs), a region's badges
+# let the party use Cut, Flash, Rock Smash, Surf, Strength, Waterfall, Dive and
+# Whirlpool without a Pokémon knowing the move, the way Ride Pokémon replace
+# HMs in later games. The badge counts are Essentials' own (Settings::BADGE_FOR_*),
+# counted per region.
+#===============================================================================
+module FullPoke
+  FIELD_SKILLS = {
+    CUT: Settings::BADGE_FOR_CUT, FLASH: Settings::BADGE_FOR_FLASH, ROCKSMASH: Settings::BADGE_FOR_ROCKSMASH,
+    SURF: Settings::BADGE_FOR_SURF, STRENGTH: Settings::BADGE_FOR_STRENGTH, DIVE: Settings::BADGE_FOR_DIVE,
+    WATERFALL: Settings::BADGE_FOR_WATERFALL, WHIRLPOOL: Settings::BADGE_FOR_SURF
+  }
+  NO_FIELD_SKILLS = [:kanto]
+
+  def self.field_skill?(move)
+    badges = FIELD_SKILLS[move]
+    return false if !badges
+    region_id = current_map_region
+    return false if !region_id || region_id == :forest || NO_FIELD_SKILLS.include?(region_id)
+    return region_badge_count(region_id) >= badges
+  end
+end
+
+class Player < Trainer
+  alias __fullpoke__get_pokemon_with_move get_pokemon_with_move unless method_defined?(:__fullpoke__get_pokemon_with_move)
+  def get_pokemon_with_move(move)
+    ret = __fullpoke__get_pokemon_with_move(move)
+    return ret if ret || !FullPoke.field_skill?(move)
+    return pokemon_party.find { |pkmn| !pkmn.fainted? }
+  end
+end

@@ -118,17 +118,49 @@ module FullPoke
       return picks.map { |sp| FullPoke::Evolution.stage_for(sp, max, 0) }.uniq
     end
 
-    def encounter_table(region_id, n)
-      species = route_species(region_id, n)
-      min, max = stage_levels(region_id, n)
-      slots = []
-      species.each_with_index do |sp, i|
-        slots.push([SLOT_CHANCES[i] || 5, sp, min, max])
+    # Types that suit each kind of area, so caves get cave Pokémon and water
+    # routes get water Pokémon.
+    KIND_TYPES = { cave: %i[ROCK GROUND POISON DARK STEEL FIGHTING ICE GHOST],
+                   water: %i[WATER] }
+    KIND_STEPS = { land: [:Land, 21], cave: [:Cave, 8], water: [:Water, 2] }
+
+    # Wild Pokémon for an area of stage n. kinds: :land (tall grass), :cave and/or
+    # :water; water areas also get fishing.
+    def encounter_table(region_id, n, kinds = [:land])
+      ret = {}
+      Array(kinds).each do |kind|
+        species = route_species(region_id, n)
+        if KIND_TYPES[kind]
+          fits = base_species(region_id).select { |sp| (GameData::Species.get(sp).types & KIND_TYPES[kind]).any? }
+          rng = Random.new(Zlib.crc32("#{region_id}/#{kind}/#{n}"))
+          pool = fits.each_slice([fits.length / 4, 1].max).to_a
+          window = (pool[[n * pool.length / 10, pool.length - 1].min] || []) + (pool[[n * pool.length / 10 + 1, pool.length - 1].min] || [])
+          window = fits if window.length < 4
+          _min, max = stage_levels(region_id, n)
+          picked = window.shuffle(random: rng).first(SLOT_CHANCES.length).map { |sp| FullPoke::Evolution.stage_for(sp, max, 0) }.uniq
+          species = picked if !picked.empty?
+        end
+        min, max = stage_levels(region_id, n)
+        slots = []
+        species.each_with_index { |sp, i| slots.push([SLOT_CHANCES[i] || 5, sp, min, max]) }
+        used = slots.sum { |sl| sl[0] }
+        slots[0][0] += 100 - used if slots[0] && used < 100
+        type = KIND_STEPS[kind][0]
+        ret[type] = slots
+        if kind == :water
+          rod = species.first(3)
+          ret[:OldRod] = rod.each_with_index.map { |sp, i| [[70, 20, 10][i], sp, [min - 5, 2].max, [min, 2].max] } if !rod.empty?
+          ret[:GoodRod] = rod.each_with_index.map { |sp, i| [[60, 30, 10][i], sp, [min, 2].max, max] } if !rod.empty?
+        end
       end
-      # Any leftover chance goes to the commonest species
-      used = slots.sum { |s| s[0] }
-      slots[0][0] += 100 - used if slots[0] && used < 100
-      return { Land: slots }
+      return ret
+    end
+
+    def encounter_steps(kinds = [:land])
+      ret = {}
+      Array(kinds).each { |k| ret[KIND_STEPS[k][0]] = KIND_STEPS[k][1] }
+      ret[:OldRod] = ret[:GoodRod] = 100 if Array(kinds).include?(:water)
+      return ret
     end
 
     #---------------------------------------------------------------------------

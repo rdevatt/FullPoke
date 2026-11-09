@@ -283,9 +283,218 @@ BattleBack = cave1
 Environment = Cave
 # >>> FullPoke generated (tools/headless/build_world.rb) >>>
 #-------------------------------
+[007]
+Name = New Bark Town
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[017]
+Name = Cherrygrove City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[018]
+Name = Azalea Town
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[021]
+Name = Violet City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[028]
+Name = Cianwood City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[059]
+Name = Route 26
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[060]
+Name = Route 27
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[085]
+Name = Goldenrod City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[088]
+Name = Olivine City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[089]
+Name = Mahogany Town
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[090]
+Name = Ecruteak City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[092]
+Name = Blackthorn City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[093]
+Name = Route 29
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[097]
+Name = Route 31
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[098]
+Name = Route 32
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[099]
+Name = Route 33
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[100]
+Name = Route 34
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[101]
+Name = Route 35
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[102]
+Name = Route 36
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[103]
+Name = Route 37
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[104]
+Name = Route 38
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[105]
+Name = Route 39
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[106]
+Name = Route 40
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[107]
+Name = Route 41
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[108]
+Name = Route 42
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[109]
+Name = Route 43
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[110]
+Name = Route 44
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[111]
+Name = Route 45
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[112]
+Name = Route 46
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[178]
+Name = Route 47
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[180]
+Name = Route 48
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[187]
+Name = Ice Path
+BattleBack = cave1
+DarkMap = false
+#-------------------------------
 [191]
 Name = Johto Gyms and League
 BattleBack = indoor1
+#-------------------------------
+[192]
+Name = National Park
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[196]
+Name = Ilex Forest
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[201]
+Name = Lake Of Rage
+Outdoor = true
+ShowArea = true
+BattleBack = field
 #-------------------------------
 [273]
 Name = Sinnoh Gyms and League
@@ -296,6 +505,11 @@ Name = Hoenn Victory Road
 Outdoor = true
 ShowArea = true
 BattleBack = field
+#-------------------------------
+[397]
+Name = Union Cave
+BattleBack = cave1
+DarkMap = false
 #-------------------------------
 [469]
 Name = Nimbasa City
@@ -516,6 +730,12 @@ Outdoor = true
 ShowArea = true
 BattleBack = field
 #-------------------------------
+[891]
+Name = Route 30
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
 [913]
 Name = Interregional Forest - Kanto Path
 Outdoor = true
@@ -571,55 +791,7 @@ ShowArea = true
 BattleBack = forest
 #-------------------------------
 [922]
-Name = Johto Pokémon Center
-#-------------------------------
-[923]
-Name = Violet City
-Outdoor = true
-ShowArea = true
-BattleBack = field
-#-------------------------------
-[924]
-Name = Azalea Town
-Outdoor = true
-ShowArea = true
-BattleBack = field
-#-------------------------------
-[925]
-Name = Goldenrod City
-Outdoor = true
-ShowArea = true
-BattleBack = field
-#-------------------------------
-[926]
-Name = Ecruteak City
-Outdoor = true
-ShowArea = true
-BattleBack = field
-#-------------------------------
-[927]
-Name = Cianwood City
-Outdoor = true
-ShowArea = true
-BattleBack = field
-#-------------------------------
-[928]
-Name = Olivine City
-Outdoor = true
-ShowArea = true
-BattleBack = field
-#-------------------------------
-[929]
-Name = Mahogany Town
-Outdoor = true
-ShowArea = true
-BattleBack = field
-#-------------------------------
-[930]
-Name = Blackthorn City
-Outdoor = true
-ShowArea = true
-BattleBack = field
+Name = Johto Interiors
 #-------------------------------
 [931]
 Name = Johto Victory Road

@@ -8,6 +8,7 @@
 # Hoenn, Sinnoh and Unova start towns) only get events named "FP: …", which
 # are replaced on each run.
 require_relative 'world_lib'
+require_relative 'build_geo'
 
 PluginManager.runPlugins unless $plugins_ran
 $plugins_ran = true
@@ -446,27 +447,8 @@ def build_stage(region, n, root, data, interiors, gyms, prev_exit)
   g = gyms[:rooms][n]
   ev_warp(map, gym_door[0], gym_door[1], gyms[:id], g[:arrive][0], g[:arrive][1], 8, name: 'FP: Gym door')
   ev_warp(gyms[:map], g[:door][0], g[:door][1], id, gym_door[0], gym_door[1] + 1, 2, name: 'FP: Gym exit')
+  populate_gym(region, n, gyms)
   leader = FullPoke::Teams.get(st[:leader])
-  lgfx = "trainer_#{leader[:tr_type]}"
-  lx, ly = free_spot(gyms[:map], g[:leader][0], g[:leader][1], box: [g[:origin][0], g[:origin][1], 13, 16])
-  new_event(gyms[:map], "FP: Leader #{leader[:name]}", lx, ly, [new_page(trigger: 0, graphic: lgfx, list: EventList.build {
-    text("I'm #{leader[:name]}. Show me what you've got!")
-    if_script("FullPoke::Circuit.challenge(:#{region}, #{n})") { text("That was a great battle. Keep going!") }
-  })])
-  # Two Gym trainers
-  types = leader[:types] || [:NORMAL]
-  2.times do |i|
-    key = :"#{region}_gym#{n}_t#{i}"
-    sp = FullPoke::Teams.candidate_pool(types, region, []).first(6)
-    sp = FullPoke::Circuit.route_species(region, n) if sp.empty?
-    top = FullPoke::Circuit.leader_top_level(st[:leader])
-    GYM_TRAINERS << [key, region, (sp.empty? ? '' : "#{sp[(n + i) % sp.length]}:#{[top - 3, 2].max}"), i]
-    tx, ty = free_spot(gyms[:map], g[:origin][0] + (i == 0 ? 3 : 9), g[:origin][1] + (i == 0 ? 10 : 8),
-                       box: [g[:origin][0], g[:origin][1], 13, 15], avoid: [[g[:arrive][0], g[:arrive][1] - 1]])
-    ev_trainer(gyms[:map], tx, ty, 2, (i == 0 ? 'trainer_COOLTRAINER_M' : 'trainer_COOLTRAINER_F'), (i == 0 ? 6 : 4),
-               (i == 0 ? :COOLTRAINER_M : :COOLTRAINER_F), "You'll have to beat me before you face our Leader!",
-               "FullPoke.trainer_battle(:#{key})", 'Our Leader is waiting.')
-  end
   # Route trainers, items
   [[8, 52, 6], [33, 42, 4], [8, 32, 6]].each_with_index do |(x, y, dir), i|
     tr_type, gfx, = FullPoke::Circuit.route_trainer_class(region, n, i)
@@ -902,13 +884,31 @@ def patch_kanto_starters
   save_map(175, map) if changed
 end
 
+# Tall grass that the map pack's tilesets never tagged, so wild Pokémon can appear in it.
+GRASS_TAGS = { 23 => [390, 391] }
+def tag_grass
+  GRASS_TAGS.each { |ts, tiles| tiles.each { |t| TILESETS[ts].terrain_tags[t] = 2 } }
+end
+
 #-------------------------------------------------------------------------------
 build_forest
 build_kanto_gate
 patch_intro
 patch_kanto_starters
 build_kanto
-FullPoke::Circuit.region_ids.each { |r| build_region(r) if r != :kanto }
+tag_grass
+FullPoke::Circuit.region_ids.each do |r|
+  next if r == :kanto
+  if GEO_SPEC[r]
+    Geo.drop_pack_connections('PBS/map_connections.txt', GEO_SPEC[r][:maps].values)
+    (1..8).each { |n| IDS.release("#{r}/stage#{n}") }
+    IDS.release("#{r}/start")
+    build_geo_region(r)
+  else
+    build_region(r)
+  end
+end
+save_data(TILESETS, 'Data/Tilesets.rxdata')
 SAVED.each { |id, map| save_data(map, WG.map_path(id)) }
 IDS.save
 
@@ -950,4 +950,5 @@ end
 meta_lines = METADATA.sort.map { |id, lines| "#-------------------------------\n[#{format('%03d', id)}]\n#{lines.join("\n")}" }
 replace_block('PBS/map_metadata.txt', meta_lines)
 replace_block('PBS/map_connections.txt', CONNECTIONS)
+GEO_WARNINGS.each { |w| puts "WARNING: #{w}" }
 puts "World built: #{SAVED.size} maps saved, #{WORLD[:encounters].size} encounter tables, IDs in world_ids.json"

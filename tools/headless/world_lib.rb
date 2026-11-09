@@ -125,6 +125,15 @@ module WG
     end
 
     def [](key) = @assign[key]
+
+    # Gives up a generated map that's no longer built. Maps the generator added
+    # (IDs past the map pack's last one, 908) are deleted so the ID is free again.
+    def release(key)
+      id = @assign.delete(key)
+      return if !id || id <= 908
+      @infos.delete(id)
+      File.delete(WG.map_path(id)) if File.exist?(WG.map_path(id))
+    end
   end
 
   #-----------------------------------------------------------------------------
@@ -286,26 +295,26 @@ def ev_sign(map, x, y, name, lines)
   new_event(map, name, x, y, [new_page(trigger: 0, list: list)])
 end
 
-def ev_item_ball(map, x, y, item)
+def ev_item_ball(map, x, y, item, name_prefix: '')
   page1 = new_page(trigger: 0, graphic: 'Object ball', list: EventList.build {
     if_script("pbItemBall(:#{item})") { self_switch('A', true) }
   })
   page2 = new_page(self_switch: 'A')
-  new_event(map, 'Item', x, y, [page1, page2])
+  new_event(map, "#{name_prefix}Item", x, y, [page1, page2])
 end
 
-def ev_hidden_item(map, x, y, item)
+def ev_hidden_item(map, x, y, item, name_prefix: '')
   page1 = new_page(trigger: 0, list: EventList.build {
     if_script("pbItemBall(:#{item})") { self_switch('A', true) }
   })
   page2 = new_page(self_switch: 'A')
-  new_event(map, 'HiddenItem', x, y, [page1, page2])
+  new_event(map, "#{name_prefix}HiddenItem", x, y, [page1, page2])
 end
 
 # A trainer that walks up when it sees the player. battle_script must return true
 # when the player wins (e.g. "FullPoke.route_trainer_battle(:johto, 1, 0)").
 # Mirrors the events Essentials' compiler makes from "Battle:" comments.
-def ev_trainer(map, x, y, sight, graphic, dir, tr_type, intro, battle_script, after)
+def ev_trainer(map, x, y, sight, graphic, dir, tr_type, intro, battle_script, after, name_prefix: '')
   page1 = new_page(trigger: 2, graphic: graphic, direction: dir, list: EventList.build {
     script("pbTrainerIntro(:#{tr_type})")
     script('pbNoticePlayer(get_self)')
@@ -314,5 +323,5 @@ def ev_trainer(map, x, y, sight, graphic, dir, tr_type, intro, battle_script, af
     script('pbTrainerEnd')
   })
   page2 = new_page(trigger: 0, graphic: graphic, direction: dir, self_switch: 'A', list: EventList.build { text(after) })
-  new_event(map, "Trainer(#{sight})", x, y, [page1, page2])
+  new_event(map, "#{name_prefix}Trainer(#{sight})", x, y, [page1, page2])
 end

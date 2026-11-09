@@ -7,8 +7,19 @@
 require_relative 'play_lib'
 
 start_map, sx, sy = (ARGV[0] ? ARGV[0..2].map(&:to_i) : [23, 13, 9])
+SURF = ENV['SURF'] == '1'   # water counts as walkable (the player can Surf)
 targets = ARGV[3..]&.map(&:to_i) || []
 new_game   # sets up $map_factory and the game state the engine's map helpers need
+# RULES=<region>:<badges> respects FullPoke's badge-gated areas with that many of
+# the region's badges (and its story battles done), e.g. RULES=johto:3
+RULES = ENV['RULES'] && ENV['RULES'].split(':').then { |r, b| [r.to_sym, b.to_i] }
+if RULES
+  FullPoke.begin_region(RULES[0], :continuous)
+  FullPoke.state(RULES[0]).starter = FullPoke.region(RULES[0]).starters[0]
+  RULES[1].times { |i| FullPoke.badge!(RULES[0], i) }
+  FullPoke::Circuit.get(RULES[0])[:stages].each { |st| (st[:extras] || []).each { |k| FullPoke.set_flag(RULES[0], :"beat_#{k}") } }
+end
+def rule_ok?(id) = !RULES || FullPoke::World.map_rule_ok?(id)
 
 TS = load_data('Data/Tilesets.rxdata')
 INFOS = load_data('Data/MapInfos.rxdata')
@@ -22,7 +33,9 @@ def tile_ok?(m, x, y)
     t = m.data[x, y, z]
     next if t.nil? || t == 0
     tag = ts.terrain_tags[t]
-    return false if [5, 6, 7, 16].include?(tag)   # water (needs Surf)
+    if [5, 6, 7, 16].include?(tag)   # water (needs Surf)
+      return SURF && ts.passages[t] & 0x0f != 0x0f || SURF && z == 0
+    end
     return false if ts.passages[t] & 0x0f == 0x0f
     return true if ts.priorities[t] == 0
   end
@@ -70,7 +83,7 @@ until queue.empty?
   m = rx_map(id)
   next if !m
   solid, warps = events_of(id)
-  if (w = warps[[x, y]]) && rx_map(w[0])
+  if (w = warps[[x, y]]) && rx_map(w[0]) && rule_ok?(w[0])
     st = [w[0], w[1], w[2]]
     if !seen[st]
       seen[st] = true
@@ -84,11 +97,22 @@ until queue.empty?
       res = $map_factory.getNewMap(nx, ny, id) rescue nil
       next if !res
       nm = res[0].map_id
+      next if !rule_ok?(nm)
       st = [nm, res[1], res[2]]
       next if seen[st] || !tile_ok?(rx_map(nm), res[1], res[2])
       seen[st] = true
       reached[nm] ||= [res[1], res[2]]
       queue << st
+      next
+    end
+    # Doors and gates on solid tiles trigger when walked into
+    if (w = warps[[nx, ny]]) && !tile_ok?(m, nx, ny) && rx_map(w[0]) && rule_ok?(w[0])
+      st = [w[0], w[1], w[2]]
+      if !seen[st]
+        seen[st] = true
+        reached[w[0]] ||= [w[1], w[2]]
+        queue << st
+      end
       next
     end
     next if solid[[nx, ny]] && !warps[[nx, ny]]
@@ -108,5 +132,14 @@ if !targets.empty?
     ext = tiles.empty? ? '' : format('x %d-%d, y %d-%d (%d tiles)', tiles.map { |k| k[1] }.min, tiles.map { |k| k[1] }.max,
                                      tiles.map { |k| k[2] }.min, tiles.map { |k| k[2] }.max, tiles.size)
     puts format('  %-4s %4d %-28s %s', reached[t] ? 'OK' : 'NO', t, INFOS[t]&.name, ext)
+  end
+end
+
+# GRID=<map> prints which tiles of that map were reached ('o') over its walkable tiles ('.')
+if ENV['GRID']
+  gm = ENV['GRID'].to_i
+  m = rx_map(gm)
+  m.height.times do |y|
+    puts format('%4d ', y) + (0...m.width).map { |x| seen[[gm, x, y]] ? 'o' : (tile_ok?(m, x, y) ? '.' : '#') }.join
   end
 end
