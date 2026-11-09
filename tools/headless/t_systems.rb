@@ -254,6 +254,13 @@ check("While surfing: allowed (#{reason.inspect})", reason.nil?)
 check("Surfing stops on arrival", FullPoke.transfer(*FullPoke::World.forest_exit(:kanto)) && !$PokemonGlobal.surfing)
 $game_temp.player_transferring = false
 
+section "Bridges switch off on a new map"
+on_map(232, 16, 6)   # Sinnoh's Cycling Road (a bridge)
+$PokemonGlobal.bridge = 2
+on_map(233, 20, 6)   # Route 207, reached without walking over a BridgeOff switch
+settle
+check("Leaving a bridge by another map turns it off (bridge #{$PokemonGlobal.bridge})", $PokemonGlobal.bridge == 0)
+
 section "Save and load keep regions and party sets"
 $fullpoke = FullPoke::Progress.new
 on_map(34)

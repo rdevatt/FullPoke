@@ -414,7 +414,14 @@ class GeoRegion
     picks.first(count).each_with_index do |(x, y), i|
       idx = 10 + (Zlib.crc32(key.to_s) % 50) + i   # distinct per route within the stage's level band
       tr_type, gfx, = FullPoke::Circuit.route_trainer_class(@region, n, idx)
-      ev_trainer(m, x, y, 3, gfx, [2, 4, 6, 8][rng.rand(4)], tr_type, 'Hey! You look like a Trainer!',
+      # Face a way whose line of sight stays in open ground, so a trainer who
+      # walks up to the player never ends up blocking a narrow path
+      open = spots.to_h { |s| [s, true] }
+      steps = { 2 => [0, 1], 4 => [-1, 0], 6 => [1, 0], 8 => [0, -1] }
+      dirs = [2, 4, 6, 8].shuffle(random: rng)
+      dir = dirs.find { |d| (1..3).all? { |k| open[[x + steps[d][0] * k, y + steps[d][1] * k]] } } || dirs.first
+      sight = (1..3).take_while { |k| open[[x + steps[dir][0] * k, y + steps[dir][1] * k]] }.length
+      ev_trainer(m, x, y, [sight, 1].max, gfx, dir, tr_type, 'Hey! You look like a Trainer!',
                  "FullPoke.route_trainer_battle(:#{@region}, #{n}, #{idx})", 'Good luck out there!', name_prefix: 'FP: ')
     end
     rest = picks.drop(count)

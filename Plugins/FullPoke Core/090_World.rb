@@ -160,3 +160,26 @@ end
 
 EventHandlers.add(:on_player_step_taken, :fullpoke_map_rules, proc { FullPoke::World.check_position })
 EventHandlers.add(:on_enter_map, :fullpoke_map_rules, proc { |_old| FullPoke::World.check_position })
+
+# Essentials only turns a bridge off when the player walks over its BridgeOff
+# switch. Leaving a bridge some other way (a map edge, a warp, the Grove
+# Compass) left it on, and the next map's paths under bridges were blocked.
+# On reaching a different map, the bridge is off unless the player is on one.
+module FullPoke
+  module World
+    @bridge_map = nil
+
+    def self.reset_bridge_on_new_map
+      return if !$game_map || !$PokemonGlobal
+      map_id = $game_map.map_id
+      changed = @bridge_map && @bridge_map != map_id
+      @bridge_map = map_id
+      return if !changed || $PokemonGlobal.bridge == 0
+      return if $game_map.terrain_tag($game_player.x, $game_player.y, true).bridge
+      $PokemonGlobal.bridge = 0
+    end
+  end
+end
+
+EventHandlers.add(:on_player_step_taken, :fullpoke_bridge_reset, proc { FullPoke::World.reset_bridge_on_new_map })
+EventHandlers.add(:on_enter_map, :fullpoke_bridge_reset, proc { |_old| FullPoke::World.reset_bridge_on_new_map })
