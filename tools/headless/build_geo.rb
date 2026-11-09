@@ -88,6 +88,8 @@ class GeoRegion
     root = region_root(@region)
     @root = root
     generate_maps
+    blank_maps
+    build_blockers
     build_rooms
     gmap, gid, grooms, lrooms = build_gyms(@region, root)
     @gyms = { map: gmap, id: gid, rooms: grooms }
@@ -96,6 +98,7 @@ class GeoRegion
     connect_maps
     build_gates
     build_warps
+    build_dives
     build_docks
     build_ferries
     build_towns
@@ -344,7 +347,12 @@ class GeoRegion
         end
         true
       end
-      land = ->(x, y) { kind.(x, y) == :land && !event_at?(m, x, y) }
+      # Victory Road's entrance (placed later, by build_league) and the way up to it
+      reserved = {}
+      (@spec.dig(:victory_road, :from) == key ? @spec[:victory_road][:at] : []).each do |vx, vy|
+        [[0, 0], [0, 1], [0, -1], [1, 0], [-1, 0]].each { |dx, dy| reserved[[vx + dx, vy + dy]] = true }
+      end
+      land = ->(x, y) { kind.(x, y) == :land && !event_at?(m, x, y) && !reserved[[x, y]] }
       walk = lambda do |starts|
         warp = {}
         solid = {}
@@ -427,7 +435,7 @@ class GeoRegion
         break if groups.empty?
         # Walls between an area and reached ground (or water, for a lagoon:
         # surfing through the rocks)
-        wall_ok = ->(w) { inside.(*w) && !kind.(*w) && !event_at?(m, *w) }
+        wall_ok = ->(w) { inside.(*w) && !kind.(*w) && !event_at?(m, *w) && !reserved[w] }
         same = ->(t, k) { kind.(*t) == k && !event_at?(m, *t) }
         linked = groups.select do |g|
           in_g = g.to_h { |t| [t, true] }
@@ -477,6 +485,83 @@ class GeoRegion
         ladder.(a, ob[0..1], ob[2], b, oa[0..1], oa[2])
       end
     end
+  end
+
+  # Dive spots: surfing onto the spot (with enough of the region's badges)
+  # dives to the map below; its partner there surfaces again.
+  # [map, [x, y], underwater map, [x, y], badges]
+  def build_dives
+    region = @region
+    (@spec[:dives] || []).each do |a, (ax, ay), b, (bx, by), badges|
+      ma = map(a); mb = map(b)
+      raise "#{@region}: dive spot #{ax},#{ay} isn't water" if !Geo.water_tile?(ma, ax, ay)
+      ux, uy = free_spot(mb, bx, by + 1, avoid: [[bx, by]])
+      wx, wy = [[0, 1], [0, -1], [1, 0], [-1, 0]].map { |dx, dy| [ax + dx, ay + dy] }
+                                                  .find { |x, y| Geo.water_tile?(ma, x, y) && !event_at?(ma, x, y) }
+      raise "#{@region}: no water beside #{ax},#{ay}" if !wx
+      down = id(b); up = id(a)
+      new_event(ma, "FP: Dive to #{b}", ax, ay, [new_page(trigger: 1, list: EventList.build {
+        if_script("FullPoke.region_badge_count(:#{region}) >= #{badges}",
+                  otherwise: proc { text('The sea is deep here. A Pokémon may be able to go underwater.') }) do
+          script('$PokemonGlobal.surfing = false; $PokemonGlobal.diving = true; pbUpdateVehicle')
+          transfer(down, ux, uy, 2)
+        end
+      })])
+      new_event(mb, "FP: Surface to #{a}", bx, by, [new_page(trigger: 1, list: EventList.build {
+        script('$PokemonGlobal.diving = false; $PokemonGlobal.surfing = true; pbUpdateVehicle')
+        transfer(up, wx, wy, 2)
+      })])
+    end
+  end
+
+  # Unfinished sketches in the pack (labels drawn on a void floor, nothing to
+  # explore) are cleared so they don't pass for walkable ground. [map ids]
+  def blank_maps
+    (@spec[:blank] || []).each do |mid|
+      m = WG.load_map(mid)
+      m.width.times { |x| m.height.times { |y| 3.times { |z| m.data[x, y, z] = 0 } } }
+      save_map(mid, m)
+    end
+  end
+
+  # Ground (or backdrop sea) the pack drew outside a map's real paths, like the
+  # rock around a cave's chambers: it gets the tileset's invisible solid tile on
+  # a free upper layer. { map => [seed [x, y] (its whole open area) or tile id
+  # (every cell showing that tile on top), ...] }, with blocker_tiles: { tileset => tile }
+  def build_blockers
+    (@spec[:blockers] || {}).each do |key, seeds|
+      m = map(key)
+      tile = @spec[:blocker_tiles][m.tileset_id] or raise "#{@region}: no blocker tile for tileset #{m.tileset_id}"
+      seeds.each do |seed|
+        cells = seed.is_a?(Integer) ? blocker_cells_showing(m, seed) : blocker_area(m, *seed)
+        cells.each { |x, y| z = [2, 1].find { |l| m.data[x, y, l] == 0 } and m.data[x, y, z] = tile }
+        puts "#{@region}: #{cells.length} tiles of #{key} blocked from #{seed.inspect}" if !cells.empty?
+      end
+    end
+  end
+
+  def blocker_cells_showing(m, t)
+    cells = []
+    m.height.times do |y|
+      m.width.times { |x| cells << [x, y] if [2, 1, 0].map { |z| m.data[x, y, z] }.find(&:positive?) == t && Geo.open_tile?(m, x, y) }
+    end
+    cells
+  end
+
+  def blocker_area(m, sx, sy)
+    return [] if !Geo.open_tile?(m, sx, sy)   # covered by an earlier build
+    seen = { [sx, sy] => true }
+    queue = [[sx, sy]]
+    until queue.empty?
+      cx, cy = queue.shift
+      [[1, 0], [-1, 0], [0, 1], [0, -1]].each do |dx, dy|
+        n = [cx + dx, cy + dy]
+        next if seen[n] || !Geo.open_tile?(m, *n)
+        seen[n] = true
+        queue << n
+      end
+    end
+    seen.keys
   end
 
   # The top- or bottom-most walkable tile of the area around `near`, or
@@ -697,6 +782,17 @@ class GeoRegion
     end
   end
 
+  # Open sea (water all around) away from the map's edges
+  def open_water_spots(m)
+    spots = []
+    (3...m.height - 3).each do |y|
+      (3...m.width - 3).each do |x|
+        spots << [x, y] if !event_at?(m, x, y) && (-1..1).all? { |dy| (-1..1).all? { |dx| Geo.water_tile?(m, x + dx, y + dy) } }
+      end
+    end
+    spots
+  end
+
   def spread(spots, count, rng, min_dist)
     picked = []
     spots.shuffle(random: rng).each do |s|
@@ -710,11 +806,14 @@ class GeoRegion
   def place_route_content(key, m, n, count)
     rng = Random.new(Zlib.crc32("geo/#{@region}/#{key}"))
     spots = open_spots(m)
+    swim = spots.empty?   # a route that's all sea: Swimmers out on the water
+    spots = open_water_spots(m) if swim
     return if spots.empty?
     picks = spread(spots, count + 2, rng, 10)
     picks.first(count).each_with_index do |(x, y), i|
       idx = 10 + (Zlib.crc32(key.to_s) % 50) + i   # distinct per route within the stage's level band
       tr_type, gfx, = FullPoke::Circuit.route_trainer_class(@region, n, idx)
+      gfx = i.even? ? 'trainer_SWIMMER_M' : 'trainer_SWIMMER_F' if swim
       # Face a way whose line of sight stays in open ground, so a trainer who
       # walks up to the player never ends up blocking a narrow path
       open = spots.to_h { |s| [s, true] }
@@ -725,7 +824,7 @@ class GeoRegion
       ev_trainer(m, x, y, [sight, 1].max, gfx, dir, tr_type, 'Hey! You look like a Trainer!',
                  "FullPoke.route_trainer_battle(:#{@region}, #{n}, #{idx})", 'Good luck out there!', name_prefix: 'FP: ')
     end
-    rest = picks.drop(count)
+    rest = swim ? [] : picks.drop(count)
     ev_item_ball(m, *rest[0], %i[POTION POKEBALL SUPERPOTION GREATBALL HYPERPOTION ULTRABALL REVIVE FULLRESTORE MAXREVIVE][n - 1], name_prefix: 'FP: ') if rest[0]
     ev_hidden_item(m, *rest[1], %i[ETHER RARECANDY PPUP NUGGET RARECANDY MAXETHER PPMAX RARECANDY PPMAX][n - 1], name_prefix: 'FP: ') if rest[1]
   end
@@ -981,7 +1080,7 @@ def inherit_tileset_settings
 end
 
 # A region's own corrections to the shared tilesets, kept as data in its spec:
-# `tile_fixes: { tileset => { solid: [tiles], open: [tiles], tags: { tile => terrain tag } } }`.
+# `tile_fixes: { tileset => { solid: [tiles], open: [tiles], above: [tiles], tags: { tile => terrain tag } } }`.
 # Tilesets are rebuilt from the base every run, so fixes never compound.
 # Opened tiles stay open: the building fix leaves them alone (stairs drawn
 # over cliffs sit next to solid tiles and would look like walls to it).
@@ -991,6 +1090,7 @@ def apply_tile_fixes(region)
     ts = TILESETS[ts_id]
     (fx[:solid] || []).each { |t| ts.passages[t] |= 0x0f }
     (fx[:open] || []).each { |t| ts.passages[t] &= ~0x0f; KEPT_OPEN[[ts_id, t]] = true }
+    (fx[:above] || []).each { |t| ts.priorities[t] = 1 }   # drawn over the player, like treetops
     (fx[:tags] || {}).each { |t, tag| ts.terrain_tags[t] = tag }
   end
 end
