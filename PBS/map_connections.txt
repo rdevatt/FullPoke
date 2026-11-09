@@ -524,21 +524,13 @@
 # Citadark Isle (386) - West Desert (391)
 386,North,80,391,South,0
 # Striaton City (465) - Route 303 (495)
-465,West,0,495,East,6
 # Nacrene City (466) - Route 303 (495)
-466,East,0,495,West,24
 # Route 302 (494) - Route 303 (495)
-494,West,0,495,East,70
 # Nacrene City (466) - Castelia City (468)
-466,West,0,468,East,74
 # Nuvema Town (463) - Route 301 (490)
-463,North,0,490,South,0
 # Accumula Town (464) - Route 301 (490)
-464,South,6,490,North,0
 # Route 302 (494) - Accumula Town (464)
-494,South,0,464,North,4
 # Route 302 (494) - Striaton City (465)
-494,North,0,465,South,0
 # >>> FullPoke generated (tools/headless/build_world.rb) >>>
 913,East,0,914,West,0
 913,South,0,917,North,0
@@ -690,16 +682,13 @@
 250,East,0,222,West,1
 222,North,11,251,South,0
 251,North,5,223,South,0
-929,North,3,930,South,0
-930,North,0,953,South,3
-953,East,0,954,West,11
-954,East,11,955,West,0
-955,North,3,973,South,0
-973,North,0,522,South,6
-522,North,3,974,South,0
-974,East,0,908,West,4
-908,East,0,975,West,0
-975,North,9,496,South,0
+463,North,0,490,South,0
+490,North,0,464,South,6
+464,North,4,494,South,0
+494,North,0,465,South,0
+465,West,0,495,East,6
+495,West,24,466,East,0
+466,East,48,908,West,0
 496,North,0,907,South,0
 907,North,0,469,South,9
 469,West,6,497,East,0

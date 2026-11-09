@@ -1004,6 +1004,36 @@ Name = Union Cave
 BattleBack = cave1
 DarkMap = false
 #-------------------------------
+[463]
+Name = Nuvema Town
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[464]
+Name = Accumula Town
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[465]
+Name = Striaton City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[466]
+Name = Nacrene City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[468]
+Name = Castelia City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
 [469]
 Name = Nimbasa City
 Outdoor = true
@@ -1037,6 +1067,24 @@ BattleBack = field
 [486]
 Name = Unova Gyms and League
 BattleBack = indoor1
+#-------------------------------
+[490]
+Name = Route 1
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[494]
+Name = Route 2
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[495]
+Name = Route 3
+Outdoor = true
+ShowArea = true
+BattleBack = field
 #-------------------------------
 [496]
 Name = Route 4
@@ -1780,18 +1828,6 @@ Outdoor = true
 ShowArea = true
 BattleBack = field
 #-------------------------------
-[929]
-Name = Nuvema Town
-Outdoor = true
-ShowArea = true
-BattleBack = field
-#-------------------------------
-[930]
-Name = Route 1
-Outdoor = true
-ShowArea = true
-BattleBack = field
-#-------------------------------
 [931]
 Name = Johto Victory Road
 Outdoor = true
@@ -1816,24 +1852,6 @@ BattleBack = field
 #-------------------------------
 [952]
 Name = Unova Interiors
-#-------------------------------
-[953]
-Name = Accumula Town
-Outdoor = true
-ShowArea = true
-BattleBack = field
-#-------------------------------
-[954]
-Name = Route 2
-Outdoor = true
-ShowArea = true
-BattleBack = field
-#-------------------------------
-[955]
-Name = Striaton City
-Outdoor = true
-ShowArea = true
-BattleBack = field
 #-------------------------------
 [956]
 Name = Unova Victory Road
@@ -1920,24 +1938,6 @@ BattleBack = field
 #-------------------------------
 [972]
 Name = Artazon
-Outdoor = true
-ShowArea = true
-BattleBack = field
-#-------------------------------
-[973]
-Name = Route 3
-Outdoor = true
-ShowArea = true
-BattleBack = field
-#-------------------------------
-[974]
-Name = Nacrene City
-Outdoor = true
-ShowArea = true
-BattleBack = field
-#-------------------------------
-[975]
-Name = Castelia City
 Outdoor = true
 ShowArea = true
 BattleBack = field

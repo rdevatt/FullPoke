@@ -249,19 +249,39 @@ module Gen
     plan = REGION_PLANS[region]
     root = region_root(region)
     ports = Hash.new { |h, k| h[k] = [] }
+    # A link's 4th element: where along the edge the ports open (0..1), or for
+    # links with a real map { at: its opening's centre along the edge } or
+    # { d: offset } between two real maps
+    fr = ->(f) { f.is_a?(Hash) ? (f[:frac] || 0.5) : (f || 0.5) }
     plan[:links].each do |a, side, b, frac|
-      ports[a] << [side, frac || 0.5]
-      ports[b] << [Geo::OPPOSITE[side], frac || 0.5]
+      ports[a] << [side, fr.(frac)]
+      ports[b] << [Geo::OPPOSITE[side], fr.(frac)]
     end
-    ports.each { |key, list| sides = list.map(&:first); dup = sides.select { |sd| sides.count(sd) > 1 }.uniq
+    real = plan[:nodes].select { |_, kind, _, _| kind == :real }.map(&:first)
+    ports.each { |key, list| next if real.include?(key); sides = list.map(&:first); dup = sides.select { |sd| sides.count(sd) > 1 }.uniq
                               raise "#{region}: #{key} has more than one neighbour on its #{dup.join('/')} side" if !dup.empty? }
     st = plan[:start]; vr = plan[:victory_road]
-    ports[st[:town]] << [st[:gate_side], 0.5]
+    ports[st[:town]] << [st[:gate_side], 0.5] if st[:gate_side]
     ports[vr[:from]] << [vr[:side], 0.5]
-    spec = { maps: {}, links: plan[:links].map { |a, s, b, _| [a, s, b] }, towns: {}, stages: {}, caves: [],
+    # Gates from a real (map pack) map to a generated one open a port on the generated side
+    (plan[:real_gates] || []).each { |_, _, _, gen, side| ports[gen] << [side, 0.5] }
+    # Side areas reached only by a warp (a cave off a route): one port for the way in
+    plan[:nodes].each { |key, _, _, o| ports[key] << [o[:entrance], 0.5] if o && o[:entrance] }
+    # More openings onto a real neighbour's edge: [[side, frac], ...]
+    plan[:nodes].each { |key, _, _, o| (o && o[:extra_ports] || []).each { |sd, f| ports[key] << [sd, f] } }
+    spec = { maps: {}, links: plan[:links].map { |a, s, b, _| [a, s, b] }, towns: {}, stages: {}, caves: [], tile_fixes: plan[:tile_fixes] || {},
              requires: plan[:requires] || {}, story: plan[:story] || [], names: {}, trainers: plan[:trainers] || {} }
     plan[:nodes].each do |key, kind, name, opts|
       opts ||= {}
+      if kind == :real
+        # A map pack map used as it is: doors are snapped to building fronts
+        spec[:maps][key] = opts[:map]
+        spec[:names][key] = name
+        spec[:stages][key] = opts[:stage_band] if opts[:stage_band]
+        spec[:caves] << key if opts[:cave]
+        spec[:towns][key] = { stage: opts[:stage] || 0, doors: opts[:doors] } if opts[:doors]
+        next
+      end
       placeholder = opts[:placeholder] || name
       mid = IDS.get("#{region}/#{key}", name: placeholder, parent: root, placeholder: placeholder)
       IDS.infos[mid].name = placeholder
@@ -306,18 +326,48 @@ module Gen
       mid = tiles[tiles.length / 2]
       [tiles, [mid[0] - dx * 2, mid[1] - dy * 2]]
     end
-    gate_tiles, arrival = edge.(st[:town], st[:gate_side])
-    # Map connections line up the generated exits exactly (not by matching)
+    gate_tiles, arrival = st[:forest_gate] ? [st[:forest_gate], st[:arrival]] : edge.(st[:town], st[:gate_side])
+    # Map connections line up the generated exits exactly (not by matching);
+    # links with a real map are lined up on its open ground by GeoRegion
     spec[:offsets] = {}
     plan[:links].each do |a, side, b, frac|
-      ma = WG.load_map(spec[:maps][a]); mb = WG.load_map(spec[:maps][b])
-      ca = port_center(ma.width, ma.height, side, frac || 0.5)
-      cb = port_center(mb.width, mb.height, Geo::OPPOSITE[side], frac || 0.5)
       along = %w[North South].include?(side) ? 0 : 1
+      ra = real.include?(a); rb = real.include?(b)
+      if ra || rb
+        next if !frac.is_a?(Hash)
+        next spec[:offsets][[a, b]] = frac[:d] if frac[:d]
+        if ra
+          mb = WG.load_map(spec[:maps][b])
+          spec[:offsets][[a, b]] = frac[:at] - port_center(mb.width, mb.height, Geo::OPPOSITE[side], fr.(frac))[along]
+        else
+          ma = WG.load_map(spec[:maps][a])
+          spec[:offsets][[a, b]] = port_center(ma.width, ma.height, side, fr.(frac))[along] - frac[:at]
+        end
+        next
+      end
+      ma = WG.load_map(spec[:maps][a]); mb = WG.load_map(spec[:maps][b])
+      ca = port_center(ma.width, ma.height, side, fr.(frac))
+      cb = port_center(mb.width, mb.height, Geo::OPPOSITE[side], fr.(frac))
       spec[:offsets][[a, b]] = ca[along] - cb[along]
     end
-    spec[:start] = { town: st[:town], forest_gate: gate_tiles, arrival: arrival, gate_dir: st[:gate_side],
-                     arrival_dir: { 'West' => 6, 'East' => 4, 'North' => 2, 'South' => 8 }[st[:gate_side]] }
+    spec[:start] = { town: st[:town], forest_gate: gate_tiles, arrival: arrival, gate_dir: st[:gate_dir] || st[:gate_side],
+                     arrival_dir: st[:arrival_dir] || { 'West' => 6, 'East' => 4, 'North' => 2, 'South' => 8 }[st[:gate_side]] }
+    inward = { 'West' => 6, 'East' => 4, 'North' => 2, 'South' => 8 }
+    spec[:gates] = (plan[:real_gates] || []).map do |rkey, rtiles, rarrive, gen, side|
+      gtiles, garrive = edge.(gen, side)
+      [rkey, rtiles, rarrive, gen, gtiles, garrive + [inward[side]]]
+    end
+    # :entrance in a warp is the middle of a side area's entrance port
+    entrance = lambda do |key|
+      side = plan[:nodes].find { |k, *| k == key }[3][:entrance]
+      tiles, = edge.(key, side)
+      dx, dy = side_vec(side)
+      t = tiles[tiles.length / 2]
+      [t[0] - dx, t[1] - dy]
+    end
+    spec[:warps] = (plan[:warps] || []).map do |a, pa, b, pb, o|
+      [a, pa == :entrance ? entrance.(a) : pa, b, pb == :entrance ? entrance.(b) : pb, o]
+    end
     vr_tiles, = edge.(vr[:from], vr[:side])
     spec[:victory_road] = { from: vr[:from], at: vr_tiles }
     spec
@@ -325,6 +375,29 @@ module Gen
 end
 
 def build_generated_region(region)
+  # The map pack's own (often wrong) links for real maps used by the plan
+  real = REGION_PLANS[region][:nodes].select { |_, k, _, _| k == :real }
+  real_ids = real.map { |_, _, _, o| o[:map] }
+  Geo.drop_pack_connections('PBS/map_connections.txt', real_ids) if !real_ids.empty?
+  # Generated maps that real maps replace (and others no longer planned)
+  (real.map(&:first) + (REGION_PLANS[region][:retired] || [])).each { |k| IDS.release("#{region}/#{k}") }
+  # Trees planted over pockets of real maps that are walkable but closed in:
+  # forest_fill: { key => [[x0, y0, x1, y1], ...] }, forest_tiles: [[even row
+  # tiles by x parity], [odd row tiles]] (the tileset's dense forest)
+  (REGION_PLANS[region][:forest_fill] || {}).each do |key, rects|
+    mid = real.find { |k, *| k == key }[3][:map]
+    m = WG.load_map(mid)
+    pattern = REGION_PLANS[region][:forest_tiles]
+    # In step with the map's own forest
+    fx, fy = (0...m.height).lazy.flat_map { |y| (0...m.width).map { |x| [x, y] } }
+                           .find { |x, y| pattern.flatten.include?(m.data[x, y, 1]) }
+    r = pattern.index { |row| row.include?(m.data[fx, fy, 1]) }
+    px = (fx - pattern[r].index(m.data[fx, fy, 1])) % 2; py = (fy - r) % 2
+    rects.each do |x0, y0, x1, y1|
+      (y0..y1).each { |y| (x0..x1).each { |x| m.data[x, y, 1] = pattern[(y - py) % 2][(x - px) % 2]; m.data[x, y, 2] = 0 } }
+    end
+    save_data(m, WG.map_path(mid))
+  end
   GEO_SPEC[region] = Gen.build(region)
   build_geo_region(region)
   # Saved for the tests (t_geo.rb), which walk the region like a hand-made one
