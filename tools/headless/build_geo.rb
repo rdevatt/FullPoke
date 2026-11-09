@@ -88,6 +88,7 @@ class GeoRegion
     connect_maps
     build_gates
     build_warps
+    build_docks
     build_towns
     build_start
     build_routes
@@ -180,6 +181,22 @@ class GeoRegion
       [[ma, ta, b, ob], [mb, tb, a, oa]].each do |m, tiles, dest, out|
         raise "#{@region}: #{dest} arrival #{out.inspect} isn't walkable" if !passable_tile?(map(dest), out[0], out[1])
         tiles.each { |x, y| ev_warp(m, x, y, id(dest), out[0], out[1], out[2], name: "FP: Gate to #{dest}", se: false) }
+      end
+    end
+  end
+
+  # Docks: surfing into a shore's solid tiles lands the player on dry ground at
+  # the arrival point. [map, tiles, [x, y, facing]]
+  def build_docks
+    (@spec[:docks] || []).each do |key, tiles, (ax, ay, dir)|
+      m = map(key)
+      raise "#{@region}: dock arrival #{ax},#{ay} isn't walkable" if !passable_tile?(m, ax, ay)
+      dest = id(key)
+      tiles.each do |x, y|
+        new_event(m, 'FP: Dock', x, y, [new_page(trigger: 1, list: EventList.build {
+          script('pbCancelVehicles')   # step off the water Pokémon onto the dock
+          transfer(dest, ax, ay, dir)
+        })])
       end
     end
   end

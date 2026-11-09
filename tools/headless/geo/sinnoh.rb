@@ -32,6 +32,8 @@ GEO_SPEC[:sinnoh] = {
     # Hearthome's south stairs and Route 212's north gatehouse
     [:hearthome, [[7, 53], [8, 53], [9, 53], [10, 53]], [8, 51, 8], :r212, [[17, 3], [18, 3], [19, 3], [20, 3]], [18, 5, 2]],
     # Veilstone's south exit and Route 214's gatehouse
+    # Route 213: the gatehouse between the hotel meadow and Valor Lakefront
+    [:r213, [[57, 58]], [56, 58, 4], :r213, [[59, 58]], [60, 58, 6]],
     [:veilstone, [[34, 67], [35, 67], [36, 67], [37, 67], [38, 67], [39, 67]], [36, 64, 8], :r214, [[15, 3], [16, 3], [17, 3], [18, 3]], [16, 5, 2]]
   ],
   # Mt. Coronet: Route 207's cave mouth comes out below Route 208's cliffs
@@ -40,8 +42,11 @@ GEO_SPEC[:sinnoh] = {
     [:r203, [49, 11], :oreburgh, [8, 12], { out_a: 2, out_b: 6 }],
     [:r207, [58, 7], :r208, [8, 12], { out_a: 4, out_b: 2 }],
     # Mt. Coronet's northern passage: Route 211's cave to the snowfields of Route 216
-    [:r211e, [2, 9], :r216, [106, 37], { out_a: 2, out_b: 6 }]
+    [:r211e, [2, 9], :r216, [150, 30], { out_a: 2, out_b: 2 }]
   ],
+  # The League island's dock: surf up to its south shore to land (one way; the
+  # Grove Compass or the Hall of Fame takes you back)
+  docks: [[:league_isle, (15..30).map { |x| [x, 77] }, [22, 68, 8]]],
   start: { town: :twinleaf, forest_gate: [[27, 26], [28, 26], [29, 26]], arrival: [28, 25], gate_dir: 'South' },
   towns: {
     twinleaf: { stage: 0, doors: [[:home, 30, 9], [:house, 40, 9], [:house, 30, 18], [:house, 40, 18]] },
@@ -98,5 +103,5 @@ GEO_SPEC[:sinnoh] = {
     { kind: :wild, species: [:DRIFLOON, 22], flag: :valley_drifloon, at: [:r205, [55, 145]], name: 'Valley Windworks Drifloon',
       graphic: '', intro: "A Drifloon floats over from the Valley Windworks!" }
   ],
-  victory_road: { from: :league_isle, at: [[22, 17]] }
+  victory_road: { from: :league_isle, at: [[22, 66]] }
 }

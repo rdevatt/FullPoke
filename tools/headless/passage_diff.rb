@@ -5,7 +5,7 @@ require_relative 'rpg_classes'
 L = ->(p) { File.open(p, 'rb') { |f| Marshal.load(f) } }
 id, x0, y0, w, h = ARGV.map(&:to_i)
 m = L.(format('/game/Data/Map%03d.rxdata', id))
-base = L.('/tools/tilesets_base.rxdata')[m.tileset_id]
+base = L.('/tools/data/Tilesets_base.rxdata')[m.tileset_id]
 built = L.('/game/Data/Tilesets.rxdata')[m.tileset_id]
 puts '     ' + (x0...x0 + w).map { |x| (x % 10).to_s }.join
 (y0...y0 + h).each do |y|
