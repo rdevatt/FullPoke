@@ -83,12 +83,15 @@ class GeoRegion
   def build
     root = region_root(@region)
     @root = root
+    blank_maps
+    build_blockers
     build_rooms
     gmap, gid, grooms, lrooms = build_gyms(@region, root)
     @gyms = { map: gmap, id: gid, rooms: grooms }
     connect_maps
     build_gates
     build_warps
+    build_dives
     build_docks
     build_ferries
     build_towns
@@ -215,6 +218,83 @@ class GeoRegion
       ev_warp(ma, pa[0], pa[1], id(b), ob[0], ob[1], ob[2], name: "FP: Way to #{b}", se: !opts[:quiet])
       ev_warp(mb, pb[0], pb[1], id(a), oa[0], oa[1], oa[2], name: "FP: Way to #{a}", se: !opts[:quiet]) unless opts[:one_way]
     end
+  end
+
+  # Dive spots: surfing onto the spot (with enough of the region's badges)
+  # dives to the map below; its partner there surfaces again.
+  # [map, [x, y], underwater map, [x, y], badges]
+  def build_dives
+    region = @region
+    (@spec[:dives] || []).each do |a, (ax, ay), b, (bx, by), badges|
+      ma = map(a); mb = map(b)
+      raise "#{@region}: dive spot #{ax},#{ay} isn't water" if !Geo.water_tile?(ma, ax, ay)
+      ux, uy = free_spot(mb, bx, by + 1, avoid: [[bx, by]])
+      wx, wy = [[0, 1], [0, -1], [1, 0], [-1, 0]].map { |dx, dy| [ax + dx, ay + dy] }
+                                                  .find { |x, y| Geo.water_tile?(ma, x, y) && !event_at?(ma, x, y) }
+      raise "#{@region}: no water beside #{ax},#{ay}" if !wx
+      down = id(b); up = id(a)
+      new_event(ma, "FP: Dive to #{b}", ax, ay, [new_page(trigger: 1, list: EventList.build {
+        if_script("FullPoke.region_badge_count(:#{region}) >= #{badges}",
+                  otherwise: proc { text('The sea is deep here. A Pokémon may be able to go underwater.') }) do
+          script('$PokemonGlobal.surfing = false; $PokemonGlobal.diving = true; pbUpdateVehicle')
+          transfer(down, ux, uy, 2)
+        end
+      })])
+      new_event(mb, "FP: Surface to #{a}", bx, by, [new_page(trigger: 1, list: EventList.build {
+        script('$PokemonGlobal.diving = false; $PokemonGlobal.surfing = true; pbUpdateVehicle')
+        transfer(up, wx, wy, 2)
+      })])
+    end
+  end
+
+  # Unfinished sketches in the pack (labels drawn on a void floor, nothing to
+  # explore) are cleared so they don't pass for walkable ground. [map ids]
+  def blank_maps
+    (@spec[:blank] || []).each do |mid|
+      m = WG.load_map(mid)
+      m.width.times { |x| m.height.times { |y| 3.times { |z| m.data[x, y, z] = 0 } } }
+      save_map(mid, m)
+    end
+  end
+
+  # Ground (or backdrop sea) the pack drew outside a map's real paths, like the
+  # rock around a cave's chambers: it gets the tileset's invisible solid tile on
+  # a free upper layer. { map => [seed [x, y] (its whole open area) or tile id
+  # (every cell showing that tile on top), ...] }, with blocker_tiles: { tileset => tile }
+  def build_blockers
+    (@spec[:blockers] || {}).each do |key, seeds|
+      m = map(key)
+      tile = @spec[:blocker_tiles][m.tileset_id] or raise "#{@region}: no blocker tile for tileset #{m.tileset_id}"
+      seeds.each do |seed|
+        cells = seed.is_a?(Integer) ? blocker_cells_showing(m, seed) : blocker_area(m, *seed)
+        cells.each { |x, y| z = [2, 1].find { |l| m.data[x, y, l] == 0 } and m.data[x, y, z] = tile }
+        puts "#{@region}: #{cells.length} tiles of #{key} blocked from #{seed.inspect}" if !cells.empty?
+      end
+    end
+  end
+
+  def blocker_cells_showing(m, t)
+    cells = []
+    m.height.times do |y|
+      m.width.times { |x| cells << [x, y] if [2, 1, 0].map { |z| m.data[x, y, z] }.find(&:positive?) == t && Geo.open_tile?(m, x, y) }
+    end
+    cells
+  end
+
+  def blocker_area(m, sx, sy)
+    return [] if !Geo.open_tile?(m, sx, sy)   # covered by an earlier build
+    seen = { [sx, sy] => true }
+    queue = [[sx, sy]]
+    until queue.empty?
+      cx, cy = queue.shift
+      [[1, 0], [-1, 0], [0, 1], [0, -1]].each do |dx, dy|
+        n = [cx + dx, cy + dy]
+        next if seen[n] || !Geo.open_tile?(m, *n)
+        seen[n] = true
+        queue << n
+      end
+    end
+    seen.keys
   end
 
   # The top- or bottom-most walkable tile of the area around `near`.
@@ -713,8 +793,26 @@ def inherit_tileset_settings
   end
 end
 
+# A region's corrections to the pack's tilesets: tile_fixes: { tileset =>
+# { solid: [tiles], open: [tiles], above: [tiles drawn over the player, like
+# treetops], tags: { tile => terrain tag } } }. A tile Kanto's maps use is
+# never made solid.
+def apply_tile_fixes(region)
+  (GEO_SPEC[region][:tile_fixes] || {}).each do |ts_id, f|
+    ts = TILESETS[ts_id]
+    (f[:solid] || []).each do |t|
+      raise "#{region}: tile #{t} of tileset #{ts_id} is used by Kanto" if kanto_tiles[ts_id][t]
+      ts.passages[t] = 0x0f
+    end
+    (f[:open] || []).each { |t| ts.passages[t] = 0 }
+    (f[:above] || []).each { |t| ts.priorities[t] = 1 }
+    (f[:tags] || {}).each { |t, tag| ts.terrain_tags[t] = tag }
+  end
+end
+
 def build_geo_region(region)
   inherit_tileset_settings
+  apply_tile_fixes(region)
   fix_building_passages(GEO_SPEC[region][:maps].values)
   GeoRegion.new(region).build
 end
