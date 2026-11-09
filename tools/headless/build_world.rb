@@ -12,6 +12,7 @@ require_relative 'build_geo'
 require_relative 'gen_region'
 require_relative 'forest_maze'
 require_relative 'kanto_story'
+require_relative 'pack_rooms'
 
 PluginManager.runPlugins unless $plugins_ran
 $plugins_ran = true
@@ -933,6 +934,7 @@ build_kanto_gate
 patch_intro
 patch_kanto_starters
 build_kanto
+pack_rooms_kanto
 tag_grass
 FullPoke::Circuit.region_ids.each do |r|
   next if r == :kanto
@@ -951,6 +953,7 @@ FullPoke::Circuit.region_ids.each do |r|
     build_region(r)
   end
 end
+pack_rooms_finish
 save_data(TILESETS, 'Data/Tilesets.rxdata')
 SAVED.each { |id, map| save_data(map, WG.map_path(id)) }
 IDS.save

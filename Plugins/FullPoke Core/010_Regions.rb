@@ -118,9 +118,31 @@ module FullPoke
     return pbLoadMapInfos.keys.select { |id| region_of_map(id) == region_id }.sort
   end
 
+  # The map pack drew its interiors as composite maps, many rooms on one map.
+  # A room on one region's composite map can be a building of another region
+  # (World.room_regions: map => [[x0, y0, x1, y1, region], ...]).
+  def region_at(map_id, x, y)
+    if x && y
+      World.room_regions[map_id]&.each do |x0, y0, x1, y1, region|
+        return region if x >= x0 && y >= y0 && x <= x1 && y <= y1
+      end
+    end
+    return region_of_map(map_id)
+  end
+
+  # The player's tile on the current map (while a transfer to it is under
+  # way, the tile they arrive on: :on_enter_map runs before the move)
+  def player_tile
+    return [nil, nil] if !$game_player
+    if $game_temp && $game_temp.player_new_map_id == $game_map&.map_id
+      return [$game_temp.player_new_x, $game_temp.player_new_y]
+    end
+    return [$game_player.x, $game_player.y]
+  end
+
   def current_map_region
     return nil if !$game_map
-    return region_of_map($game_map.map_id)
+    return region_at($game_map.map_id, *player_tile)
   end
 
   def in_forest?
