@@ -389,22 +389,15 @@
 # Kumquat Island (290) - Route 51 (279)
 290,West,0,279,East,90
 # Route 221 (248) - Route 220 (247)
-248,West,3,247,East,0
 # Route 219 (246) - Route 220 (247)
-246,South,0,247,North,11
 # Route 205 (231) - Eterna City (214)
 # Route 206 (232) - Eterna City (214)
 # Route 211 West (238) - Eterna City (214)
 # Route 225 (253) - Survival Area (225)
-253,East,0,225,West,0
 # Route 230 (259) - Survival Area (225)
-259,West,0,225,East,96
 # Route 226 (254) - Survival Area (225)
-254,West,0,225,East,2
 # Fight Area (224) - Survival Area (225)
-224,North,32,225,South,0
 # Route 229 (257) - Survival Area (225)
-257,North,0,225,South,132
 # Hearthome City (215) - Route 209 (236)
 # Solaceon Town (216) - Route 209 (236)
 # Route 212 (239) - Route 209 (236)
@@ -418,22 +411,16 @@
 # Floaroma Town (213) - Route 205 (231)
 # Route 204 (230) - Route 205 (231)
 # Fight Area (224) - Route 225 (253)
-224,North,0,253,South,8
 # Route 229 (257) - Route 225 (253)
-257,North,0,253,South,172
 # Route 210 (237) - Route 215 (242)
 # Solaceon Town (216) - Route 215 (242)
 # Veilstone City (217) - Route 215 (242)
 # Route 214 (241) - Route 215 (242)
 # Route 216 (243) - Resort Area (226)
 # Route 229 (257) - Resort Area (226)
-257,South,22,226,North,0
 # Route 228 (256) - Route 230 (259)
-256,West,94,259,East,0
 # Fight Area (224) - Route 230 (259)
-224,East,0,259,West,8
 # Route 229 (257) - Route 230 (259)
-257,West,0,259,East,8
 # Route 212 (239) - Hearthome City (215)
 # Route 208 (234) - Hearthome City (215)
 # Solaceon Town (216) - Route 210 (237)
@@ -451,19 +438,13 @@
 # Route 211 West (238) - Mt Coronet Wilds (892)
 # Route 207 (233) - Mt Coronet Wilds (892)
 # Alamos Town (888) - Mt Coronet Wilds (892)
-888,West,0,892,East,104
 # Route 208 (234) - Mt Coronet Wilds (892)
 # Route 211 East (900) - Mt Coronet Wilds (892)
 # Route 229 (257) - Mt Coronet Wilds (892)
-257,South,0,892,North,494
 # Route 227 (255) - Route 226 (254)
-255,South,0,254,North,60
 # Route 228 (256) - Route 226 (254)
-256,West,0,254,East,0
 # Fight Area (224) - Route 226 (254)
-224,East,0,254,West,102
 # Route 229 (257) - Route 226 (254)
-257,West,0,254,East,102
 # Route 202 (228) - Route 201 (227)
 # Route 219 (246) - Route 201 (227)
 # Veilstone City (217) - Solaceon Town (216)
@@ -474,7 +455,6 @@
 # Oreburgh City (212) - Route 207 (233)
 # Route 203 (229) - Route 207 (233)
 # Route 228 (256) - Route 227 (255)
-256,North,0,255,South,40
 # Route 214 (241) - Route 227 (255)
 # Route 222 (250) - Sunyshore City (222)
 # Route 223 (251) - Sunyshore City (222)
@@ -486,9 +466,7 @@
 # Pastoria City (218) - Route 212 (239)
 # Route 203 (229) - Oreburgh City (212)
 # Fight Area (224) - Route 228 (256)
-224,North,164,256,South,0
 # Route 229 (257) - Route 228 (256)
-257,North,0,256,South,0
 # Route 223 (251) - Lily of the Valley Conference (223)
 # Route 224 (252) - Lily of the Valley Conference (223)
 # Celestic Town (219) - Route 211 East (900)
@@ -683,13 +661,32 @@
 900,East,0,219,West,0
 219,East,0,237,West,14
 214,East,0,238,West,0
-238,East,10,900,West,0
 243,East,0,244,West,152
 244,North,0,221,South,0
 240,East,0,250,West,0
 250,East,0,222,West,1
 222,North,11,251,South,0
 251,North,5,223,South,0
+243,South,101,892,North,0
+892,East,54,900,West,0
+892,West,242,233,East,0
+234,West,0,892,East,245
+892,East,104,888,West,0
+231,West,70,899,East,0
+213,North,0,899,South,0
+210,South,0,246,North,0
+246,South,0,247,North,11
+247,East,0,248,West,3
+223,East,0,252,West,220
+224,East,0,259,West,8
+253,East,0,225,West,0
+225,East,0,254,West,0
+254,North,60,255,South,0
+254,East,0,256,West,0
+254,South,0,259,North,0
+256,South,0,257,North,0
+257,South,22,226,North,0
+257,West,0,259,East,8
 929,North,3,930,South,0
 930,North,0,953,South,3
 953,East,0,954,West,11

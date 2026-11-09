@@ -182,11 +182,28 @@ if ENV['AUDIT']
     next if miss.empty?
     puts format('AUDIT %4d %-34s walkable %6d unreached %6d (areas %d: %d tiles; pockets %d: %d tiles) %s', am, INFOS[am]&.name.to_s[0, 34], walk, miss.length,
                 areas.length, areas.sum(&:length), pockets.length, pockets.sum(&:length), areas.max_by(&:length)&.first&.join(','))
-    # AUDIT_AREAS=1 also lists each area's size, bounds and a tile in it
+    # AUDIT_AREAS=1 also lists each area's size, bounds, a tile in it, its
+    # commonest ground tiles and the closest pair of (area tile, reached tile)
     areas.sort_by { |g| -g.length }.each do |g|
       xs = g.map(&:first); ys = g.map(&:last)
       ground = g.map { |x, y| m.data[x, y, 0] }.tally.max_by(3) { |_, c| c }.map { |t, c| "#{t}x#{c}" }.join(' ')
-      puts format('        area %5d tiles  x %d-%d  y %d-%d  at %-8s ground %s', g.length, xs.min, xs.max, ys.min, ys.max, g.min_by { |x, y| [y, x] }.join(','), ground)
+      # (land tiles only: a passage can't drop the player into water)
+      wet = ->(x, y) { (0..2).any? { |z| (t = m.data[x, y, z]) && t > 0 && [5, 6, 7, 16].include?(TS[m.tileset_id].terrain_tags[t]) } }
+      dry = g.reject { |x, y| wet.(x, y) }
+      from = {}; g.each { |t| from[t] = t }
+      q = dry.dup; near = nil
+      until q.empty? || near
+        c = q.shift
+        [[1, 0], [-1, 0], [0, 1], [0, -1]].each do |dx, dy|
+          n = [c[0] + dx, c[1] + dy]
+          next if from[n] || n[0] < 0 || n[1] < 0 || n[0] >= m.width || n[1] >= m.height
+          from[n] = from[c]
+          (near = n; break) if seen[[am, n[0], n[1]]] && !wet.(*n) && !solid_ev[n] && !warp_ev[n]
+          q << n
+        end
+      end
+      link = near ? "link #{from[near].join(',')} #{near.join(',')}" : (dry.empty? ? 'all water' : '')
+      puts format('        area %5d tiles  x %d-%d  y %d-%d  at %-8s ground %s %s', g.length, xs.min, xs.max, ys.min, ys.max, g.min_by { |x, y| [y, x] }.join(','), ground, link)
     end if ENV['AUDIT_AREAS']
   end
   # AUDIT_TILES=1: per bottom-layer tile, how often it was reached vs left in

@@ -783,6 +783,24 @@ Outdoor = true
 ShowArea = true
 BattleBack = field
 #-------------------------------
+[224]
+Name = Fight Area
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[225]
+Name = Survival Area
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[226]
+Name = Resort Area
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
 [227]
 Name = Route 201
 Outdoor = true
@@ -891,6 +909,24 @@ Outdoor = true
 ShowArea = true
 BattleBack = field
 #-------------------------------
+[246]
+Name = Route 219
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[247]
+Name = Route 220
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[248]
+Name = Route 221
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
 [250]
 Name = Route 222
 Outdoor = true
@@ -899,6 +935,48 @@ BattleBack = field
 #-------------------------------
 [251]
 Name = Route 223
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[252]
+Name = Route 224
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[253]
+Name = Route 225
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[254]
+Name = Route 226
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[255]
+Name = Route 227
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[256]
+Name = Route 228
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[257]
+Name = Route 229
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[259]
+Name = Route 230
 Outdoor = true
 ShowArea = true
 BattleBack = field
@@ -1572,14 +1650,38 @@ Outdoor = true
 ShowArea = true
 BattleBack = field
 #-------------------------------
+[888]
+Name = Alamos Town
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
 [891]
 Name = Route 30
 Outdoor = true
 ShowArea = true
 BattleBack = field
 #-------------------------------
+[892]
+Name = Mt. Coronet
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[899]
+Name = Fuego Ironworks Ext
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
 [900]
 Name = Route 211
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[906]
+Name = Sinnoh Battle Frontier
 Outdoor = true
 ShowArea = true
 BattleBack = field

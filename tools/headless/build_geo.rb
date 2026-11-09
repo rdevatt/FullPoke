@@ -76,6 +76,10 @@ class GeoRegion
       m = WG.load_map(mid)
       remove_fp_events(m)
       m.events.delete_if { |_, e| e.pages.any? { |pg| pg.list.any? { |c| c.code == 201 } } }   # the pack's broken warps
+      # Walls from the last build come off (build_walls puts back the current ones)
+      if (wt = @spec[:wall_tile])
+        m.height.times { |y| m.width.times { |x| m.data[x, y, 2] = 0 if m.data[x, y, 2] == wt } }
+      end
       m
     end
   end
@@ -95,6 +99,7 @@ class GeoRegion
     build_ferries
     build_towns
     build_start
+    build_passages
     build_routes
     build_story
     build_league(gmap, gid, lrooms)
@@ -112,23 +117,65 @@ class GeoRegion
   end
 
   #-----------------------------------------------------------------------------
-  # Scenery drawn with walkable ground that no path leads onto (mountain tops,
-  # plateaus): walls: { map => [[x, y], ...] } covers the area around each tile
-  # with an invisible solid tile (wall_tile, made solid by tile_fixes).
+  # Scenery drawn with walkable ground or open water that no path leads onto
+  # (mountain tops, plateaus, sea beyond a line of rocks): walls: { map =>
+  # [[x, y], ...] } covers the area around each tile (land and water, up to
+  # ledges and bridges) with an invisible solid tile (wall_tile, made solid by
+  # tile_fixes).
   #-----------------------------------------------------------------------------
+  def wall_area(m, sx, sy)
+    ts = TILESETS[m.tileset_id]
+    open = lambda do |x, y|
+      next false if !(passable_tile?(m, x, y) || Geo.water_tile?(m, x, y))
+      (0..2).none? { |z| (t = m.data[x, y, z]) > 0 && [1, 15].include?(ts.terrain_tags[t]) }
+    end
+    raise "#{@region}: wall seed #{sx},#{sy} on map #{m.width}x#{m.height} isn't open ground or water" if !open.(sx, sy)
+    seen = { [sx, sy] => true }
+    queue = [[sx, sy]]
+    until queue.empty?
+      cx, cy = queue.shift
+      [[1, 0], [-1, 0], [0, 1], [0, -1]].each do |dx, dy|
+        n = [cx + dx, cy + dy]
+        next if seen[n] || !open.(*n)
+        seen[n] = true
+        queue << n
+      end
+    end
+    seen
+  end
+
   def build_walls
     (@spec[:walls] || {}).each do |key, seeds|
       m = map(key)
       seeds.each do |sx, sy|
-        raise "#{@region} #{key}: wall seed #{sx},#{sy} isn't walkable" if !passable_tile?(m, sx, sy)
-        reachable_from(m, sx, sy).each_key do |x, y|
-          next if event_at?(m, x, y)
-          if m.data[x, y, 2] != 0
-            next if m.data[x, y, 1] != 0
-            m.data[x, y, 1] = m.data[x, y, 2]
-          end
-          m.data[x, y, 2] = @spec[:wall_tile]
+        area = wall_area(m, sx, sy)
+        puts "#{@region} #{key}: wall at #{sx},#{sy} covers #{area.size} tiles" if ENV['VERBOSE']
+        # (on the top layer where it's free, so the next build can take it off)
+        area.each_key { |x, y| m.data[x, y, 2] = @spec[:wall_tile] if m.data[x, y, 2] == 0 && !event_at?(m, x, y) }
+      end
+    end
+  end
+
+  # Ground the map pack walled off from every path (a missing stair, a fence
+  # with no gap): passages: { map => [[ax, ay, bx, by], ...] } joins tile a to
+  # tile b. Walking into the wall beside one comes out on the other.
+  def build_passages
+    dirs = { 8 => [0, -1], 4 => [-1, 0], 6 => [1, 0], 2 => [0, 1] }
+    (@spec[:passages] || {}).each do |key, pairs|
+      m = map(key)
+      wall_beside = lambda do |x, y|
+        dirs.each do |d, (dx, dy)|
+          wx, wy = x + dx, y + dy
+          next if wx < 0 || wy < 0 || wx >= m.width || wy >= m.height
+          next if passable_tile?(m, wx, wy) || Geo.water_tile?(m, wx, wy) || event_at?(m, wx, wy)
+          return [wx, wy, 10 - d]
         end
+        raise "#{@region} #{key}: no wall beside #{x},#{y} for a passage"
+      end
+      pairs.each do |ax, ay, bx, by|
+        wa = wall_beside.(ax, ay); wb = wall_beside.(bx, by)
+        ev_warp(m, wa[0], wa[1], id(key), bx, by, wb[2], name: "FP: Passage", se: false)
+        ev_warp(m, wb[0], wb[1], id(key), ax, ay, wa[2], name: "FP: Passage", se: false)
       end
     end
   end
@@ -282,9 +329,11 @@ class GeoRegion
       ax, ay = free_spot(map(dkey), dx + 2, dy + 1, avoid: [[dx, dy], [dx, dy + 1], [dx - 1, dy], [dx + 1, dy]])
       region = @region
       dest_id = id(dkey)
+      # completed: true sails only for the region's Champion
+      cond, early = f[:completed] ? ["FullPoke.completed?(:#{region})", "once you're the Champion here"] :
+                                    ["FullPoke.region_badge_count(:#{region}) >= #{f[:badges]}", "once you've earned #{f[:badges]} badges here"]
       list = EventList.build do
-        if_script("FullPoke.region_badge_count(:#{region}) >= #{f[:badges]}",
-                  otherwise: proc { text("#{f[:name]}: I'll sail you to #{f[:dest_name]} once you've earned #{f[:badges]} badges here.") }) do
+        if_script(cond, otherwise: proc { text("#{f[:name]}: I'll sail you to #{f[:dest_name]} #{early}.") }) do
           text("#{f[:name]}: All aboard for #{f[:dest_name]}!")
           transfer(dest_id, ax, ay, 2)
         end
