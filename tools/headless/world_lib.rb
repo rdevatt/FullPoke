@@ -1,3 +1,4 @@
+require_relative 'invisible'
 # Map-generation helpers for build_world.rb (runs inside the headless harness, so the
 # game's Compiler/push_* helpers and RPG classes are available).
 #
@@ -35,7 +36,15 @@ module WG
   module_function
 
   def map_path(id) = format('Data/Map%03d.rxdata', id)
-  def load_map(id) = load_data(map_path(id))
+  # (the pocket seal's invisible tiles come off: the seal runs again after
+  # each build, see rebuild.sh)
+  def load_map(id)
+    m = load_data(map_path(id))
+    if m.is_a?(RPG::Map) && (inv = INVISIBLE_TILES[m.tileset_id])
+      m.height.times { |y| m.width.times { |x| m.data[x, y, 2] = 0 if m.data[x, y, 2] == inv } }
+    end
+    m
+  end
 
   @src_cache = {}
   def src_map(id) = (@src_cache[id] ||= load_map(id))

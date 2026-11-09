@@ -221,7 +221,7 @@ if ENV['AUDIT']
     # pocket tile and save the map. Nothing reaches them even with every field
     # move, so no path is lost. Skipped: tiles beside an event that moves or
     # can be pushed (NPCs that walk, Strength boulders) or that has a move
-    # route, bridges and ledges, and cells drawn on every layer.
+    # route, bridges and ledges, and cells whose top layer is drawn.
     if ENV['SEAL'] && !pockets.empty? && (inv = INVISIBLE_TILES[m.tileset_id])
       ts = TS[m.tileset_id]
       near_ev = {}
@@ -239,14 +239,9 @@ if ENV['AUDIT']
       pockets.flatten(1).each do |x, y|
         next if near_ev[[x, y]]
         next if (0..2).any? { |z| (t = m.data[x, y, z]) && t > 0 && [1, BridgeLib::TAG].include?(ts.terrain_tags[t]) }
-        if m.data[x, y, 2] == 0
-          m.data[x, y, 2] = inv
-        elsif m.data[x, y, 1] == 0
-          m.data[x, y, 1] = m.data[x, y, 2]
-          m.data[x, y, 2] = inv
-        else
-          next
-        end
+        # (only on a free top layer, so the next build can take it off)
+        next if m.data[x, y, 2] != 0
+        m.data[x, y, 2] = inv
         sealed += 1
       end
       if sealed > 0

@@ -262,32 +262,47 @@ foot (27/27): all eight Gyms, Victory Road, the League and the Hall of Fame.
   step and plans around it.
 
 **Latest results (2026-11-09, after merging the Kanto, Sinnoh and Hoenn work):**
-- On foot: Sinnoh 26/26, Paldea 31/31, Hoenn 27/27, Johto 27/27, Kalos 26/26,
-  Alola 26/26, Galar 26/26 and Unova 26/26.
-- Regressions: t_systems 182/182, t_journey9 237/237, t_gen9 59/59, Kanto
-  28/28 in both modes, t_kanto_reach 35/35, t_kanto_story 60/60, and t_journey
-  and t_release pass.
+- On foot, on the sealed data: Sinnoh 26/26, Paldea 31/31, Hoenn 27/27, Johto
+  27/27, Kalos 26/26, Alola 26/26, Galar 26/26 and Unova 26/26.
+- Regressions: t_systems 182/182, t_journey9 237/237, Kanto 28/28 in both
+  modes, t_kanto_reach 35/35 and t_kanto_story 60/60. Earlier in the day,
+  before the seal: t_gen9 59/59, and t_journey and t_release passed.
 
-**Whole-game audit** (`SURF=1 AUDIT=<every map> t_reach.rb 913 2 73`):
-unreached tiles in areas went from 326,650 to 34,329 (13,165 in pockets of
-fewer than 10 tiles).
-- **Unused interior rooms (about 30,000 tiles):** the pack's Poké Center, Mart,
-  contest hall and gatehouse rooms that no door uses yet (maps 182, 181,
-  179, 22, 501, 10, 12, 503 and 498).
-- **Outdoor leftovers (about 2,000 tiles):** S.S. Anne, Vermilion, Silph Co.,
-  Viridian, Route 117, Alamos and a few water strips.
+**Whole-game audit** (`SURF=1 AUDIT=@all_ids.txt t_reach.rb 913 2 73`, from
+the forest with every field move):
+
+| | Walkable tiles | Unreached in areas (10+) | Unreached in pockets |
+| --- | --- | --- | --- |
+| Before the traversal work | about 1,030,000 | 326,650 | 12,286 |
+| Now | 882,196 | 32,452 | 2,685 |
+
+- **Areas left:** all of them are the pack's unused interior rooms, except a
+  17-tile bridge deck on Hoenn's Route 120. The rooms are Poké Centers,
+  Marts, contest halls, Hoenn houses and labs, and gatehouses: maps 182, 181,
+  179, 22, 501, 10, 12, 503 and 498. No door leads to them yet. Wiring them
+  in as the real interiors is in progress.
+- **Pockets:** `rebuild.sh` ends with a seal pass (`t_reach.rb SEAL=1`).
+  - It puts each tileset's invisible solid tile (`invisible.rb`) on every
+    pocket tile nothing reaches. These are cliff edges, treetops and corners
+    drawn walkable.
+  - It leaves alone tiles beside an event that moves or can be pushed,
+    bridges, ledges, and cells whose top layer is drawn.
+  - The build takes the seal off again when it loads a map, so rebuilding
+    gives the same result.
 - **Bridges:** the audit, the build's area linking and the walkthrough planner
-  now share `bridge_lib.rb`, which follows the game's bridge rules:
-  - BridgeOn and BridgeOff switches decide whether the player is up on a
-    bridge, and so do FullPoke's resets on map changes.
-  - Up on a bridge, its rails stop sideways moves.
-  - The old audit counted bridge tiles as walkable from either level. Under
-    the exact rule it found about 1,400 tiles that were really unreachable,
-    on Routes 120 and 121 (Hoenn) and 211, 212 and 227 (Sinnoh).
-  - Walls, blockers and area links for those spots are in the specs but **not
-    yet rebuilt or re-audited**.
-- Regressions: t_systems 182/182, t_journey9 235/235, t_gen9 59/59, Kanto
-  27/27 in both modes, t_kanto_reach 35/35, and t_journey passes.
+  share `bridge_lib.rb`, which follows the game's bridge rules:
+  - BridgeOn and BridgeOff switches, and FullPoke's resets.
+  - Rails while up on a bridge.
+  - On maps with no switches, only the ground counts as walkable.
+  - The old rule counted bridge tiles as walkable from either level. The exact
+    rule found river strips and bridge ends on Routes 120, 121, 211, 212 and
+    227 that nothing reached. They now have walls, blockers, ladders or area
+    links.
+- **Outdoor leftovers fixed:**
+  - Kanto: the S.S. Anne corridor and Pewter's cliff strip.
+  - Hoenn: Route 117's south sea and Sootopolis' crater rim.
+  - Johto: Route 48's pool.
+  - Sinnoh: Alamos' moat and Route 213's pond.
 
 ### 9. Balance (no level boosts): measured
 `t_balance.rb` plays a region's battles in order and grants no levels. The
