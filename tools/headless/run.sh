@@ -9,7 +9,7 @@ ROOT="$(cd "$HERE/../.." && pwd)"
 if [ -n "$RUBY" ]; then
   cd "$HERE" && GAME_DIR="$ROOT" HEADLESS_SAVE_DIR="${HEADLESS_SAVE_DIR:-/tmp/fullpoke_saves}" "$RUBY" boot.rb "$@"
 else
-  docker run --rm -e GAME_DIR=/game -e HEADLESS_DEBUG="${HEADLESS_DEBUG:-1}" -e REGIONS -e MODE -e VERBOSE -e SURF -e ORDER -e GRID -e RULES -e PRIOR -e AUDIT -e AUDITV -e AUDIT_TILES -e AUDIT_AREAS -e BADGES -e FROM -e SURFING \
+  docker run --rm -e GAME_DIR=/game -e HEADLESS_DEBUG="${HEADLESS_DEBUG:-1}" -e REGIONS -e MODE -e VERBOSE -e SURF -e ORDER -e GRID -e RULES -e PRIOR -e AUDIT -e AUDITV -e AUDIT_TILES -e AUDIT_AREAS -e BADGES -e FROM -e SURFING -e DIAG -e PROBE \
     -e HEADLESS_SAVE_DIR=/tmp/fullpoke_saves -v "$ROOT":/game -v "$HERE":/tools -w /tools \
     "${FULLPOKE_RUBY_IMAGE:-ruby:3.1-slim}" ruby /tools/boot.rb "$@"
 fi

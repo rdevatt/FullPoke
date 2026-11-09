@@ -5,6 +5,7 @@
 #   tools/headless/run.sh t_reach.rb [map x y] [target map ids...]
 # Ledges are one-way (the way their tiles let you jump them); NPCs and other solid events block.
 require_relative 'play_lib'
+require_relative 'bridge_lib'
 
 start_map, sx, sy = (ARGV[0] ? ARGV[0..2].map(&:to_i) : [23, 13, 9])
 SURF = ENV['SURF'] == '1'   # water counts as walkable (the player can Surf, and Cut and Rock Smash)
@@ -26,14 +27,19 @@ INFOS = load_data('Data/MapInfos.rxdata')
 @maps = {}
 def rx_map(id) = (@maps[id] ||= (load_data(format('Data/Map%03d.rxdata', id)) rescue nil))
 
-def tile_ok?(m, x, y)
+# level: 0 down, 1 up on a bridge (see bridge_lib.rb), nil either
+def tile_ok?(m, x, y, level = nil)
   return false if x < 0 || y < 0 || x >= m.width || y >= m.height
+  return tile_ok?(m, x, y, 0) || tile_ok?(m, x, y, 1) if level.nil?
   ts = TS[m.tileset_id]
   [2, 1, 0].each do |z|
     t = m.data[x, y, z]
     next if t.nil? || t == 0
     tag = ts.terrain_tags[t]
-    return true if tag == 15   # bridge: walkable once a BridgeOn event puts you up on it
+    if tag == BridgeLib::TAG   # up on a bridge its own flags decide; down it's ignored
+      next if level == 0
+      return ts.passages[t] & 0x0f != 0x0f
+    end
     if [5, 6, 7, 16].include?(tag)   # water (needs Surf; surfing ignores a water tile's passage, as Game_Map#playerPassable? does)
       return SURF && (tag != 16 || ts.passages[t] & 0x0f != 0x0f || z == 0)
     end
@@ -94,22 +100,31 @@ def events_of(id)
   end
 end
 
+# States are [map, x, y, bridge level]; seen[[map, x, y]] marks tiles reached
+# at either level. A new map starts down (level 0).
 seen = {}
-queue = [[start_map, sx, sy]]
-seen[[start_map, sx, sy]] = true
+states = {}
+queue = []
+visit = lambda do |st|
+  next if states[st]
+  states[st] = true
+  seen[st[0, 3]] = true
+  queue << st
+end
+@switches = {}
+def switches_of(id) = (@switches[id] ||= BridgeLib.switches(rx_map(id)))
+visit.([start_map, sx, sy, 0])
 reached = { start_map => [sx, sy] }
 until queue.empty?
-  id, x, y = queue.shift
+  id, x, y, lv = queue.shift
   m = rx_map(id)
   next if !m
+  ts = TS[m.tileset_id]
   solid, warps = events_of(id)
   if (w = warps[[x, y]]) && rx_map(w[0]) && rule_ok?(w[0])
-    st = [w[0], w[1], w[2]]
-    if !seen[st]
-      seen[st] = true
-      reached[w[0]] ||= [w[1], w[2]]
-      queue << st
-    end
+    reached[w[0]] ||= [w[1], w[2]]
+    wm = rx_map(w[0])
+    visit.([w[0], w[1], w[2], BridgeLib.arrival_level(TS[wm.tileset_id], wm, w[1], w[2], lv)])
   end
   [[0, 1], [0, -1], [1, 0], [-1, 0]].each do |dx, dy|
     nx, ny = x + dx, y + dy
@@ -118,30 +133,27 @@ until queue.empty?
       next if !res
       nm = res[0].map_id
       next if !rule_ok?(nm)
-      st = [nm, res[1], res[2]]
-      next if seen[st] || !tile_ok?(rx_map(nm), res[1], res[2])
-      seen[st] = true
+      nmap = rx_map(nm)
+      nlv = BridgeLib.arrival_level(TS[nmap.tileset_id], nmap, res[1], res[2], lv)
+      next if !tile_ok?(nmap, res[1], res[2], nlv)
       reached[nm] ||= [res[1], res[2]]
-      queue << st
+      visit.([nm, res[1], res[2], nlv])
       next
     end
+    d = dy == 1 ? 2 : dy == -1 ? 8 : dx == -1 ? 4 : 6
     # Doors and gates on solid tiles trigger when walked into
-    if (w = warps[[nx, ny]]) && !tile_ok?(m, nx, ny) && rx_map(w[0]) && rule_ok?(w[0])
-      st = [w[0], w[1], w[2]]
-      if !seen[st]
-        seen[st] = true
-        reached[w[0]] ||= [w[1], w[2]]
-        queue << st
-      end
+    if (w = warps[[nx, ny]]) && !tile_ok?(m, nx, ny, lv) && rx_map(w[0]) && rule_ok?(w[0])
+      reached[w[0]] ||= [w[1], w[2]]
+      wm = rx_map(w[0])
+      visit.([w[0], w[1], w[2], BridgeLib.arrival_level(TS[wm.tileset_id], wm, w[1], w[2], lv)])
       next
     end
     next if solid[[nx, ny]] && !warps[[nx, ny]]
-    next if !tile_ok?(m, nx, ny)
+    # Up on a bridge, its rails stop you leaving or entering sideways
+    next if BridgeLib.side_ok(ts, m, x, y, d, lv) == false || BridgeLib.side_ok(ts, m, nx, ny, 10 - d, lv) == false
+    next if !tile_ok?(m, nx, ny, lv)
     next if ledge?(m, nx, ny) && !ledge_ok?(m, nx, ny, dx, dy)
-    st = [id, nx, ny]
-    next if seen[st]
-    seen[st] = true
-    queue << st
+    visit.([id, nx, ny, BridgeLib.level_after(ts, m, switches_of(id), nx, ny, lv)])
   end
 end
 puts "Reachable on foot from map #{start_map} (#{sx},#{sy}): #{reached.size} maps"

@@ -1,6 +1,6 @@
 # FullPoke: full game roadmap
 
-_Last updated 2026-11-08. Companion to [PROJECT_STATUS.md](PROJECT_STATUS.md)
+_Last updated 2026-11-09. Companion to [PROJECT_STATUS.md](PROJECT_STATUS.md)
 (engine migration, Kanto opening) and [GEN9_INTEGRATION.md](GEN9_INTEGRATION.md)
 (the Generation 9 review and install plan)._
 
@@ -21,7 +21,7 @@ Game.exe was used. What was checked in Game.exe is listed under
 ```
 New game -> intro -> choose a starting region + mode
                          |
-        Interregional Forest (9 maps, 9 gates)  <-- Grove Compass from outdoors
+   Interregional Forest (16-map maze, 9 gates)  <-- Grove Compass from outdoors
           |      |      |      |      |      |      |      |      |
         Kanto  Johto  Hoenn  Sinnoh Unova  Kalos  Alola  Galar  Paldea
 ```
@@ -31,10 +31,9 @@ The regions are built in three ways:
 | Kind | Regions | How |
 | --- | --- | --- |
 | **Map pack maps with story** | Kanto | The pack's FireRed/LeafGreen-style maps, repaired, with story events (`kanto_story.rb`, plugin 105). |
-| **Map pack maps, wired** | Johto | The pack's HeartGold/SoulSilver-style maps, connected and populated from `tools/headless/geo/johto.rb` by `build_geo.rb`. |
-| **Generated, real layout** | Kalos, Alola, Galar, Unova, Paldea | Every real location is its own generated map, joined in the real order (`plans/<region>.rb`, `gen_region.rb`), then populated by the same builder. |
-| **Map pack maps, wired** | Hoenn | The pack's Hoenn maps, wired from `geo/hoenn.rb` (see [Hoenn and Sinnoh](#hoenn-and-sinnoh)). |
-| **Generated circuit (old)** | Sinnoh, until its real maps are merged | One route plus one town per Gym (the previous phase's placeholder). |
+| **Map pack maps, wired** | Johto, Hoenn, Sinnoh | The pack's maps for each region, connected and populated from `tools/headless/geo/<region>.rb` by `build_geo.rb` (see [Hoenn and Sinnoh](#hoenn-and-sinnoh)). |
+| **Pack maps plus generated** | Unova | The pack's hand-made Nuvema-to-Castelia maps, then generated maps for the rest (`plans/unova.rb`). |
+| **Generated, real layout** | Kalos, Alola, Galar, Paldea | Every real location is its own generated map, joined in the real order (`plans/<region>.rb`, `gen_region.rb`), then populated by the same builder. |
 
 | Piece | Where |
 | --- | --- |
@@ -71,7 +70,17 @@ The regions are built in three ways:
   just under the previous Leader's level to three under the next Leader's.
 
 ### 3. Interregional Forest: done, tested
-Unchanged: 9 maps, 9 two-way gates, the Heart Clearing (healing and PC).
+**A maze of every forest, shuffled** (`tools/headless/forest_maze.rb`):
+- **Size:** 16 maps (4 × 4, each 96 × 84 tiles) holding a 16 × 16 grid of
+  forest rooms.
+- **Rooms:** each room is a piece cut at random from one of the game's
+  forests: Viridian Forest, Ilex Forest, Petalburg Woods, Santalune Forest,
+  Pinwheel Forest, Lush Jungle and Glimwood Tangle.
+- **Paths:** corridors through thick tree walls join the rooms along a
+  random spanning tree, with extra loops.
+- **Gates and centre:** the nine two-way region gates are on the outer edge,
+  and the Heart Clearing (healing and PC) is in the middle.
+- **Reachability:** every walkable forest tile is reachable (audited).
 
 **Grove Compass, new limits:** it works only where an Escape Rope or Teleport
 would, which means outdoors or in caves. It never works:
@@ -118,12 +127,20 @@ Unchanged. From the second continuous region:
   - The Rocket Hideout skips its spin-tile floor (B2F).
   - Saffron's gates check for 4 badges instead of the Tea.
   - Victory Road 2F has ladder tiles drawn in.
+  - The Safari Zone is entered over the gate's carpet with no fee.
+- **Wired since the last update:**
+  - Doors for the house rooms that had none (Celadon, Pewter, Cinnabar),
+    plus the Cinnabar Lab back rooms.
+  - Underground Path Route 7–8.
+  - Seafoam Islands from Route 20's cave mouths.
+  - Cerulean Cave, open once you are Champion.
+  - The Hall of Fame room.
+  - Every dungeon floor, linked through drawn or added ladders.
+- **Walled off:** about 25,000 tiles of cliff tops, open sea and treetops
+  drawn walkable are now solid, on Kanto maps only.
 - **Not repaired:**
-  - Seafoam Islands and Cerulean Cave's inside.
-  - The Celadon Dept. Store doors.
-  - Underground Path 7–8.
+  - The Celadon Dept. Store doors (unchecked since the house-door work).
   - Victory Road's boulders.
-  - The Safari Zone.
   - Cycling Road's Bicycle requirement.
 
 ### 7. Johto on its real maps: done, tested
@@ -203,7 +220,7 @@ foot (27/27): all eight Gyms, Victory Road, the League and the Hall of Fame.
   Woods between Route 104's halves.
 - **Towns:** doors for 16 towns, with Gyms, route trainers, encounters and
   badge rules.
-- **Story battles:** May on Routes 110 and 119, Maxie above Route 112.
+- **Story battles:** May on Routes 110 and 119, Maxie on the Mt. Chimney summit.
 - **Stand-ins:**
   - Mr. Briney sails Route 104 ↔ Dewford ↔ Slateport.
   - Sailors replace Dive into Sootopolis and the surf to Ever Grande.
@@ -212,30 +229,63 @@ foot (27/27): all eight Gyms, Victory Road, the League and the Hall of Fame.
   - Victory Road is the generated one.
 - **Fixes:** the pack's sea tileset (28) gets passability from Kanto's tileset
   where the tiles are pixel-identical.
-- **Tests:**
-  - The badge-rule check opens exactly the next town at each badge count.
-  - The walkthrough wins Gyms 1–6 on foot. In the helper's runs it stalled on
-    Route 120 heading for Mossdeep; see the latest result under
-    [Testing](#testing).
-- **Not wired:** Granite Cave, Meteor Falls, Mt. Pyre, Jagged Pass,
-  Pacifidlog, the Battle Frontier and several sea routes.
+- **Wired for traversal:**
+  - Sea routes, Granite Cave, Meteor Falls, Fiery Path, Jagged Pass, Mt. Pyre
+    and Rusturf Tunnel.
+  - The cable car, and dive spots into the underwater map.
+  - Postgame boats to Southern Island, the Battle Frontier and Larousse with
+    Route 135.
+- **Cave tileset fixes:** walls and trees are solid, and the cave sea can be
+  surfed. Johto's caves share these tiles and still pass their walkthrough.
+- **Known gaps:**
+  - Fiery Path and Meteor Falls join the routes schematically, not at their
+    real entrances.
+  - Routes 114 and 115 have walkable cliffs, because their tileset has no
+    blocking.
 
-**Sinnoh on its real maps: partial (merged).**
+**Sinnoh on its real maps: done, tested.**
 - **Real maps:** Twinleaf, then Rowan's lab in Sandgem, through to Sunyshore.
+- **Wired for traversal:**
+  - Routes 219–221 and 224, Mt. Coronet, Alamos Town and Fuego Ironworks.
+  - The Battle Zone, by a Champion-only ferry from Snowpoint.
+  - Extra BridgeOn switches on the Cycling Road (Route 206).
+  - The Oreburgh gate now lands in the town.
+- **Walls:** about 39,000 tiles of rock plateaus, mountain tops and sea beyond
+  lines of rocks are solid.
 - **Badge checks:** each badge opens the next Gym town.
-- **Walkthrough:** passes five of eight Gyms on foot (through Fantina). It then
-  stops on Route 206 (the Cycling Road). The pack's BridgeOn/BridgeOff tiles
-  switch which layer you walk on, and the test route planner doesn't model that
-  switch, so the way to Canalave can't be walked by the test. Whether the
-  bridge works in the game itself is unverified.
-- **Gaps:** six house doors are missing, Route 216 west isn't reachable, and
-  the Mt. Coronet passes are cave warps.
-- **Bridge fix:** bridges now switch off on a new map, a fix in `090_World.rb`.
+- **Bridge fix:** bridges switch off on a new map (`090_World.rb`).
+- **Test planner fix:** the walkthrough used to stall at the Veilstone Gym.
+  The planner models a bridge only where the ground under it is solid, so on
+  the Cycling Road it planned a step through the bridge's side rail, which the
+  game (correctly) refuses while you are up on the bridge. It retried that
+  step until it ran out of attempts. `world_route.rb` now remembers a refused
+  step and plans around it.
 
-**Latest results:**
-- On foot: Paldea 31/31, Hoenn 27/27, Johto 27/27, Kalos 26/26, Alola 26/26,
-  Galar 26/26 and Unova 26/26.
-- Sinnoh reaches the fifth Gym.
+**Latest results (2026-11-09, after merging the Kanto, Sinnoh and Hoenn work):**
+- On foot: Sinnoh 26/26, Paldea 31/31, Hoenn 27/27, Johto 27/27, Kalos 26/26,
+  Alola 26/26, Galar 26/26 and Unova 26/26.
+- Regressions: t_systems 182/182, t_journey9 237/237, t_gen9 59/59, Kanto
+  28/28 in both modes, t_kanto_reach 35/35, t_kanto_story 60/60, and t_journey
+  and t_release pass.
+
+**Whole-game audit** (`SURF=1 AUDIT=<every map> t_reach.rb 913 2 73`):
+unreached tiles in areas went from 326,650 to 34,329 (13,165 in pockets of
+fewer than 10 tiles).
+- **Unused interior rooms (about 30,000 tiles):** the pack's Poké Center, Mart,
+  contest hall and gatehouse rooms that no door uses yet (maps 182, 181,
+  179, 22, 501, 10, 12, 503 and 498).
+- **Outdoor leftovers (about 2,000 tiles):** S.S. Anne, Vermilion, Silph Co.,
+  Viridian, Route 117, Alamos and a few water strips.
+- **Bridges:** the audit, the build's area linking and the walkthrough planner
+  now share `bridge_lib.rb`, which follows the game's bridge rules:
+  - BridgeOn and BridgeOff switches decide whether the player is up on a
+    bridge, and so do FullPoke's resets on map changes.
+  - Up on a bridge, its rails stop sideways moves.
+  - The old audit counted bridge tiles as walkable from either level. Under
+    the exact rule it found about 1,400 tiles that were really unreachable,
+    on Routes 120 and 121 (Hoenn) and 211, 212 and 227 (Sinnoh).
+  - Walls, blockers and area links for those spots are in the specs but **not
+    yet rebuilt or re-audited**.
 - Regressions: t_systems 182/182, t_journey9 235/235, t_gen9 59/59, Kanto
   27/27 in both modes, t_kanto_reach 35/35, and t_journey passes.
 

@@ -6,6 +6,7 @@
 # League. Loaded by build_world.rb, which calls build_geo_region for regions in
 # GEO_SPEC instead of generating a compact circuit.
 require_relative 'geo_lib'
+require_relative 'bridge_lib'
 # (geo/gen_*.rb are written by the build for the tests and aren't loaded here)
 Dir[File.join(__dir__, 'geo', '*.rb')].sort.reject { |f| File.basename(f).start_with?('gen_') }.each { |f| require f }
 
@@ -144,9 +145,10 @@ class GeoRegion
   # (mountain tops, plateaus, sea beyond a line of rocks): walls: { map =>
   # [[x, y], ...] } covers the area around each tile (land and water, up to
   # ledges and bridges) with an invisible solid tile (wall_tile, made solid by
-  # tile_fixes).
+  # tile_fixes). A seed [x, y, x0, y0, x1, y1] keeps to that box (scenery
+  # water that joins water players do reach).
   #-----------------------------------------------------------------------------
-  def wall_area(m, sx, sy)
+  def wall_area(m, sx, sy, box = nil)
     ts = TILESETS[m.tileset_id]
     open = lambda do |x, y|
       next false if !(passable_tile?(m, x, y) || Geo.water_tile?(m, x, y))
@@ -160,6 +162,7 @@ class GeoRegion
       [[1, 0], [-1, 0], [0, 1], [0, -1]].each do |dx, dy|
         n = [cx + dx, cy + dy]
         next if seen[n] || !open.(*n)
+        next if box && !(n[0].between?(box[0], box[2]) && n[1].between?(box[1], box[3]))
         seen[n] = true
         queue << n
       end
@@ -170,8 +173,8 @@ class GeoRegion
   def build_walls
     (@spec[:walls] || {}).each do |key, seeds|
       m = map(key)
-      seeds.each do |sx, sy|
-        area = wall_area(m, sx, sy)
+      seeds.each do |sx, sy, *box|
+        area = wall_area(m, sx, sy, box.empty? ? nil : box)
         puts "#{@region} #{key}: wall at #{sx},#{sy} covers #{area.size} tiles" if ENV['VERBOSE']
         # (on the top layer where it's free, so the next build can take it off)
         area.each_key { |x, y| m.data[x, y, 2] = @spec[:wall_tile] if m.data[x, y, 2] == 0 && !event_at?(m, x, y) }
@@ -336,6 +339,25 @@ class GeoRegion
         end
         (0..2).all? { |z| m.data[x, y, z] == 0 } ? :void : :land
       end
+      # The same at a bridge level (bridge_lib.rb): up on a bridge its own
+      # flags decide; down, bridge tiles are ignored
+      kind_at = lambda do |x, y, lv|
+        return nil if !inside.(x, y)
+        if lv == 1 && (b = BridgeLib.tile(ts, m, x, y))
+          return ts.passages[b] & 0x0f == 0x0f ? nil : :land
+        end
+        [2, 1, 0].each do |z|
+          t = m.data[x, y, z]
+          next if t == 0
+          tag = ts.terrain_tags[t]
+          next if tag == BridgeLib::TAG
+          return :water if [5, 6, 7].include?(tag)
+          return nil if ts.passages[t] & 0x0f == 0x0f
+          return :land if ts.priorities[t] == 0
+        end
+        (0..2).all? { |z| m.data[x, y, z] == 0 } ? :void : :land
+      end
+      switches = BridgeLib.switches(m)
       # Ledges are jumped in the directions their tile can be entered from
       ledge_ok = lambda do |x, y, d|
         [2, 1, 0].each do |z|
@@ -362,26 +384,33 @@ class GeoRegion
           c = pg.list.find { |cmd| cmd.code == 201 }
           warp[[e.x, e.y]] = [c.parameters[2], c.parameters[3]] if c && c.parameters[0] == 0 && c.parameters[1] == mid
         end
+        # States are [x, y, bridge level]; seen marks tiles reached at either level
         seen = {}
+        states = {}
         q = []
-        starts.each { |s| (seen[s] = true; q << s) if !seen[s] }
+        visit = lambda do |st|
+          next if states[st]
+          states[st] = true
+          seen[st[0, 2]] = true
+          q << st
+        end
+        starts.each { |sx, sy| visit.([sx, sy, 0]) }
         until q.empty?
-          x, y = q.shift
-          if (w = warp[[x, y]]) && !seen[w]
-            seen[w] = true
-            q << w
+          x, y, lv = q.shift
+          if (w = warp[[x, y]])
+            visit.([w[0], w[1], BridgeLib.arrival_level(ts, m, w[0], w[1], lv)])
           end
           dirs.each do |d, (dx, dy)|
             n = [x + dx, y + dy]
-            next if seen[n] || !inside.(*n)
-            k = kind.(*n)
+            next if !inside.(*n)
+            k = kind_at.(*n, lv)
             if !k && (w = warp[n])   # a door or ladder in a wall: walk into it
-              (seen[w] = true; q << w) if !seen[w]
+              visit.([w[0], w[1], BridgeLib.arrival_level(ts, m, w[0], w[1], lv)])
               next
             end
             next if !k || (solid[n] && !warp[n]) || !ledge_ok.(*n, d)
-            seen[n] = true
-            q << n
+            next if BridgeLib.side_ok(ts, m, x, y, d, lv) == false || BridgeLib.side_ok(ts, m, *n, 10 - d, lv) == false
+            visit.([*n, BridgeLib.level_after(ts, m, switches, *n, lv)])
           end
         end
         seen
@@ -533,7 +562,7 @@ class GeoRegion
       m = map(key)
       tile = @spec[:blocker_tiles][m.tileset_id] or raise "#{@region}: no blocker tile for tileset #{m.tileset_id}"
       seeds.each do |seed|
-        cells = seed.is_a?(Integer) ? blocker_cells_showing(m, seed) : blocker_area(m, *seed)
+        cells = seed.is_a?(Integer) ? blocker_cells_showing(m, seed) : blocker_area(m, *seed[0, 2], seed[2, 4])
         cells.each { |x, y| z = [2, 1].find { |l| m.data[x, y, l] == 0 } and m.data[x, y, z] = tile }
         puts "#{@region}: #{cells.length} tiles of #{key} blocked from #{seed.inspect}" if !cells.empty?
       end
@@ -548,8 +577,11 @@ class GeoRegion
     cells
   end
 
-  def blocker_area(m, sx, sy)
+  # (a seed [x, y, x0, y0, x1, y1] keeps to that box and stops at bridges)
+  def blocker_area(m, sx, sy, box = nil)
     return [] if !Geo.open_tile?(m, sx, sy)   # covered by an earlier build
+    box = nil if box&.empty?
+    ts = TILESETS[m.tileset_id]
     seen = { [sx, sy] => true }
     queue = [[sx, sy]]
     until queue.empty?
@@ -557,6 +589,7 @@ class GeoRegion
       [[1, 0], [-1, 0], [0, 1], [0, -1]].each do |dx, dy|
         n = [cx + dx, cy + dy]
         next if seen[n] || !Geo.open_tile?(m, *n)
+        next if box && (!(n[0].between?(box[0], box[2]) && n[1].between?(box[1], box[3])) || BridgeLib.tile(ts, m, *n))
         seen[n] = true
         queue << n
       end

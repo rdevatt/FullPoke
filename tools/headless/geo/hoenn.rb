@@ -161,6 +161,10 @@ GEO_SPEC[:hoenn] = {
     legendary_caves: [2206, 2385, [50, 0]],        # the bare rock around its chambers
     pyre: [[2, 2]],                                # the sea drawn behind Mt. Pyre's summit
     meteor: [[35, 0]],                             # the rock around Meteor Falls' chambers
+    # River strips under bridges with rails, cliffs on the land side: nothing
+    # reaches them (the boxes keep to the strip)
+    r120: [[49, 0, 48, 0, 57, 79]],
+    r121: [[48, 0, 48, 0, 97, 7]],
     sootopolis: [[1, 2], [2, 4], [0, 91], [0, 95], [0, 99]],  # frame lines around the unfinished map
     # The tops of Sootopolis' crater (Route 126) and of the Sky Pillar's rock
     # (Route 131), and rocks in the sea: drawn as walkable ground, but rock

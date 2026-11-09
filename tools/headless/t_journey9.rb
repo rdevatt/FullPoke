@@ -47,7 +47,8 @@ ORDER.each_with_index do |(region, mode), step|
     e = stage_maps.find { |x| x[:circuit][1] == n }
     next if !e
     on_map(e[:map])
-    tbl = GameData::Encounter.get(e[:map], 0).types[:Land]
+    types = GameData::Encounter.get(e[:map], 0).types
+    tbl = types[:Land] || types.values.find { |t| t && !t.empty? }   # caves have no Land table
     base = tbl.first
     w = pbGenerateWildPokemon(base[1], base[2])
     check("stage #{n} wild #{base[1]} L#{base[2]} -> #{w.speciesName} L#{w.level} (+#{st.offset})", w.level == [base[2] + st.offset, FullPoke.level_cap].min)
