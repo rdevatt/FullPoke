@@ -114,6 +114,7 @@ go_to(gate.x, gate.y)
 settle(4000)
 check("the gatehouse checks 8 Badges and lets the player onto Route 23 (#{where})", $game_map.map_id == 56)
 cave = $game_map.events.values.select { |e| e.name == 'FP: Cave' }.min_by(&:x)   # the west mouth is the way in
+$PokemonGlobal.repel = 999   # this leg checks the way across, not wild battles on the water
 travel(cave.x, cave.y)
 check("Surf across Route 23's water to Victory Road (#{where})", $game_map.map_id == 335)
 %w[Ladder Ladder Hole].each do |kind|

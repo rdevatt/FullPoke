@@ -9,6 +9,7 @@
 # are replaced on each run.
 require_relative 'world_lib'
 require_relative 'build_geo'
+require_relative 'gen_region'
 require_relative 'kanto_story'
 
 PluginManager.runPlugins unless $plugins_ran
@@ -309,7 +310,7 @@ end
 #-------------------------------------------------------------------------------
 # Region circuits
 #-------------------------------------------------------------------------------
-REAL_START = { johto: 7, hoenn: 122, sinnoh: 209, unova: 463, kanto: 23 }
+REAL_START = { johto: 7, hoenn: 122, sinnoh: 209, kanto: 23 }
 REGION_ROOT = { johto: 3, hoenn: 4, sinnoh: 408, unova: 32, kalos: 396, alola: 583, galar: 584 }
 REGION_BGM = {
   johto: ['Route 2', 'Cedolan City'], hoenn: ['Route 3', 'Lerucean Town'], sinnoh: ['Route 1', 'Lappet Town'],
@@ -896,31 +897,12 @@ end
 
 # Tall grass that the map pack's tilesets never tagged, so wild Pokémon can appear in it.
 GRASS_TAGS = { 23 => [390, 391] }
+# The cave tileset's black filler between cave areas was walkable.
+SOLID_TILES = { 27 => [391] }
 def tag_grass
   GRASS_TAGS.each { |ts, tiles| tiles.each { |t| TILESETS[ts].terrain_tags[t] = 2 } }
+  SOLID_TILES.each { |ts, tiles| tiles.each { |t| TILESETS[ts].passages[t] = 0x0f } }
 end
-
-#-------------------------------------------------------------------------------
-build_forest
-build_kanto_gate
-patch_intro
-patch_kanto_starters
-build_kanto
-tag_grass
-FullPoke::Circuit.region_ids.each do |r|
-  next if r == :kanto
-  if GEO_SPEC[r]
-    Geo.drop_pack_connections('PBS/map_connections.txt', GEO_SPEC[r][:maps].values)
-    (1..8).each { |n| IDS.release("#{r}/stage#{n}") }
-    IDS.release("#{r}/start")
-    build_geo_region(r)
-  else
-    build_region(r)
-  end
-end
-save_data(TILESETS, 'Data/Tilesets.rxdata')
-SAVED.each { |id, map| save_data(map, WG.map_path(id)) }
-IDS.save
 
 # Data file read by the plugin
 def ruby_lit(v)
@@ -933,6 +915,35 @@ def ruby_lit(v)
   else v.to_s
   end
 end
+
+#-------------------------------------------------------------------------------
+build_forest
+build_kanto_gate
+patch_intro
+patch_kanto_starters
+build_kanto
+tag_grass
+FullPoke::Circuit.region_ids.each do |r|
+  next if r == :kanto
+  if REGION_PLANS[r]
+    (1..8).each { |n| IDS.release("#{r}/stage#{n}") }
+    IDS.release("#{r}/start")
+    # Hand-made start towns that earlier builds used get their FP events removed
+    { unova: 463 }.each { |reg, mid| next if reg != r; m = WG.load_map(mid); remove_fp_events(m); save_map(mid, m) }
+    build_generated_region(r)
+  elsif GEO_SPEC[r]
+    Geo.drop_pack_connections('PBS/map_connections.txt', GEO_SPEC[r][:maps].values)
+    (1..8).each { |n| IDS.release("#{r}/stage#{n}") }
+    IDS.release("#{r}/start")
+    build_geo_region(r)
+  else
+    build_region(r)
+  end
+end
+save_data(TILESETS, 'Data/Tilesets.rxdata')
+SAVED.each { |id, map| save_data(map, WG.map_path(id)) }
+IDS.save
+
 trainers = FOREST_TRAINERS.map { |k, party| "  FullPoke::Teams.register(key: :#{k}, region: :forest, role: :trainer, tr_type: :BUGCATCHER, name: \"Forest Trainer\", party: #{party.inspect}, lose_text: \"The forest has much to teach.\")" }
 gym_tr = GYM_TRAINERS.map { |k, r, party, i| "  FullPoke::Teams.register(key: :#{k}, region: :#{r}, role: :trainer, tr_type: :#{i == 0 ? 'COOLTRAINER_M' : 'COOLTRAINER_F'}, name: \"#{i == 0 ? 'Gym Trainer' : 'Gym Trainer'}\", party: #{party.inspect}, lose_text: \"Our Leader is stronger than me!\")" }
 File.write('Plugins/FullPoke Core/091_World_Generated.rb', <<~RUBY)

@@ -545,15 +545,78 @@ BattleBack = field
 Name = Unova Gyms and League
 BattleBack = indoor1
 #-------------------------------
+[496]
+Name = Route 4
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[497]
+Name = Route 5
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[499]
+Name = Route 6
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[500]
+Name = Route 7
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[502]
+Name = Route 8
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[504]
+Name = Route 9
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[505]
+Name = Route 10
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[522]
+Name = Wellspring Cave
+BattleBack = cave1
+DarkMap = false
+#-------------------------------
+[523]
+Name = Chargestone Cave
+BattleBack = cave1
+DarkMap = false
+#-------------------------------
+[530]
+Name = Twist Mountain
+BattleBack = cave1
+DarkMap = false
+#-------------------------------
 [539]
 Name = Kalos Gyms and League
 BattleBack = indoor1
 #-------------------------------
 [541]
-Name = Kalos Pokémon Center
+Name = Kalos Interiors
 #-------------------------------
 [542]
 Name = Vaniville Town
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[543]
+Name = Aquacorde Town
 Outdoor = true
 ShowArea = true
 BattleBack = field
@@ -570,8 +633,26 @@ Outdoor = true
 ShowArea = true
 BattleBack = field
 #-------------------------------
+[546]
+Name = Camphrier Town
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
 [547]
 Name = Cyllage City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[548]
+Name = Ambrette Town
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[549]
+Name = Geosenge Town
 Outdoor = true
 ShowArea = true
 BattleBack = field
@@ -600,11 +681,140 @@ Outdoor = true
 ShowArea = true
 BattleBack = field
 #-------------------------------
+[555]
+Name = Couriway Town
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
 [556]
 Name = Snowbelle City
 Outdoor = true
 ShowArea = true
 BattleBack = field
+#-------------------------------
+[560]
+Name = Route 1
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[561]
+Name = Route 2
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[563]
+Name = Route 3
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[564]
+Name = Route 4
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[565]
+Name = Route 5
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[571]
+Name = Route 7
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[572]
+Name = Route 8
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[573]
+Name = Route 9
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[574]
+Name = Route 10
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[575]
+Name = Route 11
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[577]
+Name = Route 12
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[578]
+Name = Route 13
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[579]
+Name = Route 14
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[580]
+Name = Route 15
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[603]
+Name = Route 17
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[604]
+Name = Route 18
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[605]
+Name = Route 19
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[607]
+Name = Route 21
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[616]
+Name = Connecting Cave
+BattleBack = cave1
+DarkMap = false
+#-------------------------------
+[617]
+Name = Glittering Cave
+BattleBack = cave1
+DarkMap = false
+#-------------------------------
+[618]
+Name = Reflection Cave
+BattleBack = cave1
+DarkMap = false
 #-------------------------------
 [626]
 Name = Kalos Victory Road
@@ -613,7 +823,25 @@ ShowArea = true
 BattleBack = field
 #-------------------------------
 [629]
-Name = Alola Pokémon Center
+Name = Alola Interiors
+#-------------------------------
+[631]
+Name = Route 1
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[632]
+Name = Route 2
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[633]
+Name = Route 3
+Outdoor = true
+ShowArea = true
+BattleBack = field
 #-------------------------------
 [634]
 Name = Iki Town
@@ -623,6 +851,12 @@ BattleBack = field
 #-------------------------------
 [635]
 Name = Hau'oli City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[636]
+Name = Verdant Cavern
 Outdoor = true
 ShowArea = true
 BattleBack = field
@@ -651,8 +885,44 @@ Outdoor = true
 ShowArea = true
 BattleBack = field
 #-------------------------------
+[648]
+Name = Route 4
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[649]
+Name = Route 5
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[650]
+Name = Route 6
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[651]
+Name = Route 7
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[652]
+Name = Route 8
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[653]
+Name = Route 9
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
 [657]
-Name = Maile City
+Name = Malie City
 Outdoor = true
 ShowArea = true
 BattleBack = field
@@ -669,8 +939,122 @@ Outdoor = true
 ShowArea = true
 BattleBack = field
 #-------------------------------
+[660]
+Name = Mount Hokulani
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[661]
+Name = Mount Lanakila
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[664]
+Name = Route 10
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[666]
+Name = Route 12
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[668]
+Name = Route 14
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[671]
+Name = Route 17
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[673]
+Name = Seafolk Village
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[675]
+Name = Poni Wilds
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[680]
+Name = Poni Plains
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[687]
+Name = Route 1
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[688]
+Name = Route 2
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[689]
+Name = Route 3
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[690]
+Name = Route 4
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[691]
+Name = Route 5
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[692]
+Name = Route 6
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[693]
+Name = Route 7
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[694]
+Name = Route 8
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[695]
+Name = Route 9
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[696]
+Name = Route 10
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
 [698]
-Name = Galar Pokémon Center
+Name = Galar Interiors
 #-------------------------------
 [700]
 Name = Galar Gyms and League
@@ -678,6 +1062,12 @@ BattleBack = indoor1
 #-------------------------------
 [702]
 Name = Postwick
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[703]
+Name = Wedgehurst
 Outdoor = true
 ShowArea = true
 BattleBack = field
@@ -730,8 +1120,54 @@ Outdoor = true
 ShowArea = true
 BattleBack = field
 #-------------------------------
+[712]
+Name = Wyndon
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[714]
+Name = Rolling Fields
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[726]
+Name = Dusty Bowl
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[733]
+Name = Galar Mine
+BattleBack = cave1
+DarkMap = false
+#-------------------------------
+[734]
+Name = Galar Mine No. 2
+BattleBack = cave1
+DarkMap = false
+#-------------------------------
+[735]
+Name = Glimwood Tangle
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
 [891]
 Name = Route 30
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[907]
+Name = Desert Resort
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[908]
+Name = Pinwheel Forest
 Outdoor = true
 ShowArea = true
 BattleBack = field
@@ -792,6 +1228,54 @@ BattleBack = forest
 #-------------------------------
 [922]
 Name = Johto Interiors
+#-------------------------------
+[923]
+Name = Santalune Forest
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[924]
+Name = Dendemille Town
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[925]
+Name = Brooklet Hill
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[926]
+Name = Wela Volcano Park
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[927]
+Name = Lush Jungle
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[928]
+Name = Thrifty Megamart
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[929]
+Name = Nuvema Town
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[930]
+Name = Route 1
+Outdoor = true
+ShowArea = true
+BattleBack = field
 #-------------------------------
 [931]
 Name = Johto Victory Road
@@ -912,22 +1396,22 @@ ShowArea = true
 BattleBack = field
 #-------------------------------
 [952]
-Name = Unova Pokémon Center
+Name = Unova Interiors
 #-------------------------------
 [953]
-Name = Striaton City
+Name = Accumula Town
 Outdoor = true
 ShowArea = true
 BattleBack = field
 #-------------------------------
 [954]
-Name = Nacrene City
+Name = Route 2
 Outdoor = true
 ShowArea = true
 BattleBack = field
 #-------------------------------
 [955]
-Name = Castelia City
+Name = Striaton City
 Outdoor = true
 ShowArea = true
 BattleBack = field
@@ -955,56 +1439,56 @@ ShowArea = true
 BattleBack = field
 #-------------------------------
 [961]
-Name = Paldea Pokémon Center
+Name = Paldea Interiors
 #-------------------------------
 [962]
 Name = Paldea Gyms and League
 BattleBack = indoor1
 #-------------------------------
 [963]
-Name = Cortondo
+Name = Cabo Poco
 Outdoor = true
 ShowArea = true
 BattleBack = field
 #-------------------------------
 [964]
-Name = Artazon
+Name = Poco Path
 Outdoor = true
 ShowArea = true
 BattleBack = field
 #-------------------------------
 [965]
-Name = Levincia
+Name = Los Platos
 Outdoor = true
 ShowArea = true
 BattleBack = field
 #-------------------------------
 [966]
-Name = Cascarrafa
+Name = South Province (Area One)
 Outdoor = true
 ShowArea = true
 BattleBack = field
 #-------------------------------
 [967]
-Name = Medali
+Name = Mesagoza
 Outdoor = true
 ShowArea = true
 BattleBack = field
 #-------------------------------
 [968]
-Name = Montenevera
+Name = South Province (Area Three)
 Outdoor = true
 ShowArea = true
 BattleBack = field
 #-------------------------------
 [969]
-Name = Alfornada
+Name = Cortondo
 Outdoor = true
 ShowArea = true
 BattleBack = field
 #-------------------------------
 [970]
-Name = Glaseado Mountain
+Name = South Province (Area Two)
 Outdoor = true
 ShowArea = true
 BattleBack = field
@@ -1016,7 +1500,97 @@ ShowArea = true
 BattleBack = field
 #-------------------------------
 [972]
-Name = Cabo Poco
+Name = Artazon
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[973]
+Name = Route 3
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[974]
+Name = Nacrene City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[975]
+Name = Castelia City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[976]
+Name = East Province (Area One)
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[977]
+Name = Levincia
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[978]
+Name = Asado Desert
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[979]
+Name = Cascarrafa
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[980]
+Name = West Province (Area One)
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[981]
+Name = Medali
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[982]
+Name = East Province (Area Three)
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[983]
+Name = Montenevera
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[984]
+Name = North Province (Area One)
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[985]
+Name = Alfornada
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[986]
+Name = Glaseado Mountain
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[987]
+Name = Path to the Pokémon League
 Outdoor = true
 ShowArea = true
 BattleBack = field

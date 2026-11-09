@@ -65,3 +65,27 @@ def quick_trainer_battle(trainer, *my_pokemon)
 ensure
   $player.party.replace(saved) if !my_pokemon.empty?
 end
+
+# Evolution without the animation (the scene waits on frames and input the
+# headless harness doesn't drive): the same changes pbEvolutionSuccess makes.
+class PokemonEvolutionScene
+  def pbStartScreen(pokemon, newspecies)
+    @pokemon = pokemon
+    @newspecies = newspecies
+  end
+
+  def pbEvolution(_cancancel = true)
+    log "EVOLVE #{@pokemon.name} -> #{@newspecies}" if defined?(log)
+    @pokemon.action_after_evolution(@newspecies)
+    was_fainted = @pokemon.fainted?
+    @pokemon.species = @newspecies
+    @pokemon.hp = 0 if was_fainted
+    @pokemon.calc_stats
+    @pokemon.ready_to_evolve = false
+    $player.pokedex.register(@pokemon)
+    $player.pokedex.set_owned(@newspecies)
+    @pokemon.getMoveList.each { |lv, mv| @pokemon.learn_move(mv) if lv == 0 || lv == @pokemon.level }
+  end
+
+  def pbEndScreen(_need_fade_out = true); end
+end

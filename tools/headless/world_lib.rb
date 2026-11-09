@@ -130,7 +130,12 @@ module WG
     # (IDs past the map pack's last one, 908) are deleted so the ID is free again.
     def release(key)
       id = @assign.delete(key)
-      return if !id || id <= 908
+      return if !id
+      if id <= 908
+        # A map-pack placeholder: empty it again so it can be reused
+        save_data(WG.new_map(20, 15, 1).tap { |m| m.data = Table.new(20, 15, 3) }, WG.map_path(id))
+        return
+      end
       @infos.delete(id)
       File.delete(WG.map_path(id)) if File.exist?(WG.map_path(id))
     end

@@ -14,6 +14,7 @@ require_relative 'play_lib'
 require_relative 'test_lib'
 
 $stdout.sync = true
+$SHOW_BATTLE = ENV["VERBOSE"]
 REGION = (ENV['REGIONS'] || 'johto').split(',').first.to_sym
 MODE = (ENV['MODE'] || 'independent').to_sym
 PRIOR = (ENV['PRIOR'] || '').split(',').map(&:to_sym)
@@ -125,11 +126,12 @@ record('Rival 1', rival1, 1) if rival1
     sp, lo, hi = FullPoke::Circuit.encounter_table(REGION, n)[:Land].sort_by { |s| -s[0] }[1].values_at(1, 2, 3)
     $player.party.push(Pokemon.new(sp, FullPoke.scale_level((lo + hi) / 2, REGION))) if sp
   end
-  # Route trainers (they can be retried after training, like walking back later)
-  3.times do |i|
+  # Route trainers: about as many as the routes to a Gym hold (two or three
+  # areas with three each); they can be retried after training
+  6.times do |i|
     key = FullPoke::Circuit.route_trainer_defn(REGION, n, i)[:key]
     won, = battle_trainer(key)
-    heal if i == 2
+    heal if i.odd?
     if !won
       grind(n, levels: 1)
       battle_trainer(key)

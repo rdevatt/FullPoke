@@ -133,14 +133,24 @@ def surf_ready? = $PokemonGlobal.surfing || !$player.get_pokemon_with_move(:SURF
                   pbCheckHiddenMoveBadge(Settings::BADGE_FOR_SURF, false)
 
 # Walks (and surfs) to a map / tile. Raises if there's no way there.
-def travel_to(map_id, x = nil, y = nil, tries: 4)
-  tries.times do
+def travel_to(map_id, x = nil, y = nil, tries: 6)
+  tries.times do |t|
     return true if $game_map.map_id == map_id && (x.nil? || ($game_player.x == x && $game_player.y == y))
     steps = Route.plan(map_id, x, y, surf: surf_ready?) or raise "no route to map #{map_id} #{x},#{y} from #{where}"
-    ok = follow(steps)
+    ok = (follow(steps) rescue (log("follow: #{$!.message}"); false))
     return true if ok && $game_map.map_id == map_id && (x.nil? || ($game_player.x - x).abs + ($game_player.y - y).abs <= 1)
+    # Didn't get there: let things settle and step aside before planning again
+    settle(600)
+    dir = [:down, :left, :right, :up][t % 4]
+    walk(dir)
+    settle(200)
   end
-  raise "couldn't travel to map #{map_id} #{x},#{y}; stuck at #{where}"
+  near = $game_map.events.values.select { |e| (e.x - $game_player.x).abs + (e.y - $game_player.y).abs <= 3 }
+                .map { |e| "#{e.name}@#{e.x},#{e.y}#{e.through ? ' through' : ''}#{e.starting ? ' starting' : ''}" }
+  raise "couldn't travel to map #{map_id} #{x},#{y}; stuck at #{where} (surfing=#{$PokemonGlobal.surfing}, " \
+        "bicycle=#{$PokemonGlobal.bicycle}, interpreter=#{pbMapInterpreterRunning?}, moving=#{$game_player.moving?}, " \
+        "forcing=#{$game_player.move_route_forcing}, msg=#{$game_temp.message_window_showing}, " \
+        "passable up=#{$game_player.passable?($game_player.x, $game_player.y, 8)}, near=#{near.join('; ')})"
 end
 
 DIR_SYM = { 2 => :down, 4 => :left, 6 => :right, 8 => :up }
