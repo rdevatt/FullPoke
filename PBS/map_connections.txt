@@ -78,170 +78,6 @@
 87,South,0,91,North,23
 # Pokemon Island Town (87) - Pokemon Island Route (586)
 87,North,0,586,South,137
-# ROUTE 11 (44) - LAVENDER TOWN (27)
-44,East,0,27,West,72
-# ROUTE 12 (45) - LAVENDER TOWN (27)
-45,North,0,27,South,0
-# ROUTE 8 (41) - LAVENDER TOWN (27)
-41,East,5,27,West,0
-# ROUTE 9 (42) - LAVENDER TOWN (27)
-42,East,84,27,West,0
-# ROUTE 16 (49) - ROUTE 5 (38)
-49,North,159,38,South,0
-# ROUTE 11 (44) - ROUTE 5 (38)
-44,West,0,38,East,122
-# ROUTE 7 (40) - ROUTE 5 (38)
-40,East,0,38,West,37
-# ROUTE 8 (41) - ROUTE 5 (38)
-41,West,0,38,East,45
-# ROUTE 3 (36) - ROUTE 5 (38)
-36,East,10,38,West,0
-# ROUTE 14 (47) - ROUTE 5 (38)
-47,West,0,38,East,190
-# ROUTE 9 (42) - ROUTE 5 (38)
-42,West,34,38,East,0
-# SAFFRON CITY (31) - ROUTE 5 (38)
-31,North,0,38,South,0
-# CERULEAN CITY (26) - ROUTE 5 (38)
-26,South,0,38,North,0
-# ROUTE 4 (37) - ROUTE 5 (38)
-37,East,40,38,West,0
-# ROUTE 17 (50) - ROUTE 16 (49)
-50,North,0,49,South,22
-# CELADON CITY (29) - ROUTE 16 (49)
-29,West,3,49,East,0
-# ROUTE 2 (35) - ROUTE 16 (49)
-35,East,17,49,West,0
-# ROUTE 10 (43) - ROUTE 16 (49)
-43,South,0,49,North,279
-# LAVENDER TOWN (27) - INDIGO PLATEAU (33)
-27,0,0,33,386,125
-# ROUTE 1 (34) - ROUTE 22 (55)
-34,North,0,55,South,60
-# ROUTE 2 (35) - ROUTE 22 (55)
-35,South,0,55,North,54
-# VIRIDIAN CITY (173) - ROUTE 22 (55)
-173,West,0,55,East,0
-# ROUTE 6 (39) - ROUTE 11 (44)
-39,East,42,44,West,0
-# ROUTE 12 (45) - ROUTE 11 (44)
-45,West,48,44,East,0
-# VERMILION CITY (24) - ROUTE 11 (44)
-24,East,1,44,West,0
-# SAFFRON CITY (31) - ROUTE 11 (44)
-31,East,82,44,West,0
-# CERULEAN CITY (26) - ROUTE 11 (44)
-26,East,162,44,West,0
-# ROUTE 15 (48) - ROUTE 11 (44)
-48,East,0,44,West,98
-# ROUTE 10 (43) - ROUTE 11 (44)
-43,West,167,44,East,0
-# VERMILION CITY (24) - ROUTE 6 (39)
-24,North,3,39,South,0
-# ROUTE 8 (41) - ROUTE 6 (39)
-41,West,35,39,East,0
-# ROUTE 14 (47) - ROUTE 6 (39)
-47,West,0,39,East,110
-# ROUTE 9 (42) - ROUTE 6 (39)
-42,West,114,39,East,0
-# SAFFRON CITY (31) - ROUTE 6 (39)
-31,South,0,39,North,2
-# ROUTE 18 (51) - ROUTE 17 (50)
-51,North,0,50,South,1
-# ROUTE 25 (58) - ROUTE 23 (56)
-58,South,0,56,North,306
-# ROUTE 1 (34) - PALLET TOWN (23)
-34,South,1,23,North,0
-# ROUTE 21 (54) - PALLET TOWN (23)
-54,North,0,23,South,2
-# VIRIDIAN CITY (173) - ROUTE 1 (34)
-173,South,4,34,North,0
-# ROUTE 13 (46) - ROUTE 12 (45)
-46,North,48,45,South,0
-# ROUTE 8 (41) - ROUTE 12 (45)
-41,East,29,45,West,0
-# ROUTE 14 (47) - ROUTE 12 (45)
-47,North,72,45,South,0
-# ROUTE 9 (42) - ROUTE 12 (45)
-42,East,108,45,West,0
-# ROUTE 21 (54) - CINNABAR ISLAND (172)
-54,South,0,172,North,19
-# ROUTE 7 (40) - CELADON CITY (29)
-40,West,0,29,East,0
-# ROUTE 15 (48) - CELADON CITY (29)
-48,West,0,29,East,183
-# ROUTE 19 (52) - ROUTE 7 (40)
-52,East,0,40,West,226
-# FUCHSIA CITY (30) - ROUTE 7 (40)
-30,East,0,40,West,183
-# SAFFRON CITY (31) - ROUTE 7 (40)
-31,West,0,40,East,3
-# CERULEAN CITY (26) - ROUTE 7 (40)
-26,West,77,40,East,0
-# FUCHSIA CITY (30) - ROUTE 18 (51)
-30,West,10,51,East,0
-# ROUTE 25 (58) - ROUTE 24 (57)
-58,West,2,57,East,0
-# CERULEAN CITY (26) - ROUTE 24 (57)
-26,North,0,57,South,4
-# ROUTE 4 (37) - ROUTE 24 (57)
-37,North,108,57,South,0
-# VIRIDIAN CITY (173) - ROUTE 2 (35)
-173,North,0,35,South,2
-# PEWTER CITY (25) - ROUTE 2 (35)
-25,South,1,35,North,0
-# ROUTE 8 (41) - VERMILION CITY (24)
-41,West,76,24,East,0
-# ROUTE 14 (47) - VERMILION CITY (24)
-47,West,0,24,East,69
-# ROUTE 9 (42) - VERMILION CITY (24)
-42,West,155,24,East,0
-# ROUTE 14 (47) - ROUTE 13 (46)
-47,East,0,46,West,0
-# FUCHSIA CITY (30) - ROUTE 19 (52)
-30,South,17,52,North,0
-# ROUTE 20 (53) - ROUTE 19 (52)
-53,East,0,52,West,3
-# ROUTE 15 (48) - ROUTE 19 (52)
-48,West,43,52,East,0
-# SAFFRON CITY (31) - ROUTE 8 (41)
-31,East,5,41,West,0
-# CERULEAN CITY (26) - ROUTE 8 (41)
-26,East,85,41,West,0
-# ROUTE 15 (48) - ROUTE 8 (41)
-48,East,0,41,West,175
-# ROUTE 10 (43) - ROUTE 8 (41)
-43,West,90,41,East,0
-# ROUTE 15 (48) - FUCHSIA CITY (30)
-48,West,0,30,East,0
-# ROUTE 3 (36) - PEWTER CITY (25)
-36,West,0,25,East,17
-# SAFFRON CITY (31) - ROUTE 3 (36)
-31,West,0,36,East,50
-# CERULEAN CITY (26) - ROUTE 3 (36)
-26,West,30,36,East,0
-# ROUTE 4 (37) - ROUTE 3 (36)
-37,South,0,36,North,57
-# SAFFRON CITY (31) - ROUTE 14 (47)
-31,East,150,47,West,0
-# CERULEAN CITY (26) - ROUTE 14 (47)
-26,East,230,47,West,0
-# ROUTE 15 (48) - ROUTE 14 (47)
-48,East,0,47,West,30
-# SAFFRON CITY (31) - ROUTE 9 (42)
-31,East,0,42,West,74
-# CERULEAN CITY (26) - ROUTE 9 (42)
-26,East,6,42,West,0
-# ROUTE 15 (48) - ROUTE 9 (42)
-48,East,0,42,West,254
-# ROUTE 10 (43) - ROUTE 9 (42)
-43,West,11,42,East,0
-# ROUTE 4 (37) - SAFFRON CITY (31)
-37,East,80,31,West,0
-# ROUTE 10 (43) - SAFFRON CITY (31)
-43,South,0,31,North,120
-# ROUTE 4 (37) - CERULEAN CITY (26)
-37,East,0,26,West,0
 # ROUTE 28 (94) - ROUTE 27 (60)
 # NEW BARK TOWN (7) - ROUTE 27 (60)
 # OLIVINE CITY (88) - ROUTE 38 (104)
@@ -781,6 +617,44 @@
 918,South,0,921,North,0
 919,East,0,920,West,0
 920,East,0,921,West,0
+23,North,19,34,South,20
+173,South,4,34,North,0
+173,North,0,35,South,2
+25,South,1,35,North,0
+173,West,0,55,East,0
+36,West,0,25,East,17
+37,South,0,36,North,57
+37,East,0,26,West,0
+26,North,0,57,South,4
+58,West,2,57,East,0
+37,North,108,57,South,0
+26,South,0,38,North,0
+31,North,0,38,South,0
+26,East,6,42,West,0
+43,West,11,42,East,0
+43,South,0,27,North,0
+41,East,5,27,West,0
+41,East,29,45,West,0
+31,East,5,41,West,0
+31,West,0,40,East,3
+40,West,0,29,East,0
+24,North,3,39,South,0
+24,East,1,44,West,0
+45,West,48,44,East,0
+45,North,0,27,South,0
+46,North,48,45,South,0
+47,East,0,46,West,0
+48,East,0,47,West,30
+48,West,0,30,East,0
+29,West,3,49,East,0
+50,North,0,49,South,22
+51,North,0,50,South,1
+30,West,10,51,East,0
+30,South,17,52,North,0
+53,East,0,52,West,3
+53,West,40,172,East,0
+54,South,0,172,North,19
+54,North,0,23,South,2
 7,West,2,93,East,0
 93,West,2,17,East,0
 17,North,0,891,South,0

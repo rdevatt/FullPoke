@@ -56,7 +56,7 @@ GEO_SPEC[:johto] = {
     goldenrod: { stage: 3, doors: [[:big, 33, 13, 'Radio Tower', ["Welcome to the Goldenrod Radio Tower! Today's program: Professor Oak's Pokémon Talk."]],
                                    [:mart, 53, 12, 'Department Store'], [:house, 61, 12, 'Magnet Train Station', ["The Magnet Train to Saffron City isn't running today."]],
                                    [:house, 74, 5, 'Bike Shop', ["We sell the fastest bikes in Johto!"]], [:pc, 55, 25], [:gym, 79, 24],
-                                   [:big, 62, 19, 'Game Corner', ["The Game Corner is closed for renovations."]], [:house, 58, 6], [:house, 62, 6],
+                                   [:big, 62, 19, 'Game Corner', ["The Game Corner is closed for renovations."]], [:house, 62, 6],
                                    [:house, 75, 12], [:house, 57, 19], [:house, 73, 24], [:house, 61, 24]] },
     ecruteak: { stage: 4, doors: [[:big, 18, 33, 'Dance Theater', ["The Kimono Girls dance here every evening."]], [:house, 14, 33], [:house, 10, 35],
                                   [:mart, 30, 36], [:house, 27, 36], [:gym, 12, 41], [:house, 20, 41], [:house, 12, 47], [:pc, 21, 47],

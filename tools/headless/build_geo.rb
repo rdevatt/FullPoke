@@ -256,7 +256,11 @@ class GeoRegion
             next
           end
         end
+        clear_door_approach(m, dx, dy)
         out = step_out(m, dx, dy, 2)
+        if reachable_from(m, out[0], out[1]).size < 80
+          GEO_WARNINGS << "#{@region} #{town}: door #{kind} #{label} at #{dx},#{dy} opens onto a small enclosed area"
+        end
         case kind
         when :gym
           gym_door(town, m, dx, dy, out, t[:stage])
@@ -537,31 +541,50 @@ end
 # 70% of the places it's used. Ground/nature tiles (the first rows of the
 # tileset, and anything also used as ground) are never changed. Tileset 1 is
 # Kanto's and is left alone.
-#
-# The tiles found are kept per region in geo/passage_fixes.json and re-applied
-# exactly on later builds (searching again on an already-fixed tileset would
-# harden more tiles each time). Delete a region's entry to recompute it.
 FIX_PASSAGES_MIN_ID = 3000
-PASSAGE_FIXES = File.join(__dir__, 'geo', 'passage_fixes.json')
-def fix_building_passages(region, map_ids)
-  fixes = File.exist?(PASSAGE_FIXES) ? JSON.parse(File.read(PASSAGE_FIXES)) : {}
-  if !fixes[region.to_s]
-    fixes[region.to_s] = find_building_passages(map_ids)
-    File.write(PASSAGE_FIXES, JSON.generate(fixes) + "\n")
-  end
-  fixes.each_value do |by_ts|
-    by_ts.each { |ts_id, tiles| tiles.each { |t| TILESETS[ts_id.to_i].passages[t] = 0x0f } }
-  end
-  puts "Building tiles made solid for #{region}: " +
-       fixes[region.to_s].map { |ts_id, tiles| "tileset #{ts_id}: #{tiles.length}" }.join(', ')
-end
+# Tileset 1 is Kanto's; 26 already has hand-set passability in the base tilesets
+FIX_PASSAGES_SKIP = [1, 26]
+FIXED_TILES = {}
 
-def find_building_passages(map_ids)
-  found = {}
+# Doormats, carpets, steps and curbs around a door look like building parts to
+# fix_building_passages (they sit next to solid walls). From the tile in front
+# of each door, the shortest way to open ground is found, and any tile on it
+# that the fix made solid is made walkable again.
+def clear_door_approach(map, x, y)
+  ts = TILESETS[map.tileset_id]
+  fixed_ids = ->(cx, cy) { [1, 2].map { |z| map.data[cx, cy, z] }.select { |t| FIXED_TILES[[map.tileset_id, t]] } }
+  open = ->(cx, cy) { cx >= 0 && cy >= 0 && cx < map.width && cy < map.height && (passable_tile?(map, cx, cy) || !fixed_ids.(cx, cy).empty?) }
+  start = [x, y + 1]
+  return if !open.(*start)
+  prev = { start => nil }
+  queue = [start]
+  goal = nil
+  until queue.empty?
+    c = queue.shift
+    if passable_tile?(map, *c) && reachable_from(map, *c).size >= 80
+      goal = c
+      break
+    end
+    next if (c[0] - x).abs + (c[1] - y).abs > 12
+    [[0, 1], [1, 0], [-1, 0], [0, -1]].each do |dx, dy|
+      n = [c[0] + dx, c[1] + dy]
+      next if prev.key?(n) || n == [x, y] || !open.(*n)
+      prev[n] = c
+      queue << n
+    end
+  end
+  return if !goal
+  c = goal
+  while c
+    fixed_ids.(*c).each { |t| ts.passages[t] = 0; FIXED_TILES.delete([map.tileset_id, t]) }
+    c = prev[c]
+  end
+end
+def fix_building_passages(map_ids)
   by_ts = Hash.new { |h, k| h[k] = [] }
   map_ids.each { |mid| m = WG.load_map(mid); by_ts[m.tileset_id] << m }
   by_ts.each do |ts_id, maps|
-    next if ts_id == 1
+    next if FIX_PASSAGES_SKIP.include?(ts_id)
     ts = TILESETS[ts_id]
     seen = Hash.new(0); hit = Hash.new(0); ground = {}
     maps.each do |m|
@@ -578,10 +601,10 @@ def find_building_passages(map_ids)
         end
       end
     end
-    fix = seen.keys.select { |t| !ground[t] && hit[t] * 10 >= seen[t] * 7 }.sort
-    found[ts_id.to_s] = fix if !fix.empty?
+    fix = seen.keys.select { |t| !ground[t] && hit[t] * 10 >= seen[t] * 7 }
+    fix.each { |t| ts.passages[t] = 0x0f; FIXED_TILES[[ts_id, t]] = true }
+    puts "Tileset #{ts_id}: #{fix.length} building tiles made solid"
   end
-  found
 end
 
 INFO_NAME = ->(mid) { IDS.infos[mid].name.strip.split.map(&:capitalize).join(' ') }
@@ -632,6 +655,6 @@ end
 
 def build_geo_region(region)
   inherit_tileset_settings
-  fix_building_passages(region, GEO_SPEC[region][:maps].values)
+  fix_building_passages(GEO_SPEC[region][:maps].values)
   GeoRegion.new(region).build
 end

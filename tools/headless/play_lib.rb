@@ -117,10 +117,10 @@ def settle(frames = 400, min_frames: 20)
     quiet >= 4 && Graphics.frame_count - start >= min_frames
   end
 end
-def press_use
+def press_use(frames = 6000)
   $input_script = [Input::USE]
   quiet = 0
-  play_until("interact", frames: 6000) { quiet = ($input_script.empty? && !busy?) ? quiet + 1 : 0; quiet >= 4 }
+  play_until("interact", frames: frames) { quiet = ($input_script.empty? && !busy?) ? quiet + 1 : 0; quiet >= 4 }
 end
 def where = "map #{$game_map.map_id} (#{$game_player.x},#{$game_player.y}) dir #{$game_player.direction}"
 
