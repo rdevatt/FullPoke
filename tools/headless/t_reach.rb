@@ -146,17 +146,40 @@ if ENV['GRID']
 end
 
 # AUDIT=<map ids, comma-separated> lists, for each map, walkable tiles the walk
-# never reached (every tile should be reachable)
+# never reached (every tile should be reachable). Empty cells (nothing drawn)
+# don't count; tiles under events don't count. Unreached tiles are grouped
+# into areas: "areas" are groups of 10+ tiles, "pockets" smaller ones.
 if ENV['AUDIT']
-  total_bad = 0
+  totals = Hash.new(0)
   ENV['AUDIT'].split(',').map(&:to_i).each do |am|
     m = rx_map(am) or next
-    walk = []; miss = []
     solid_ev, warp_ev = events_of(am)
-    # Tiles under people, signs and items (or warps) aren't stood on
-    m.height.times { |y| m.width.times { |x| next if !tile_ok?(m, x, y) || solid_ev[[x, y]] || warp_ev[[x, y]]; walk << [x, y]; miss << [x, y] if !seen[[am, x, y]] } }
-    total_bad += miss.length
-    puts format('AUDIT %4d %-40s walkable %5d unreached %5d %s', am, INFOS[am]&.name.to_s[0, 40], walk.length, miss.length, miss.first(6).map { |x, y| "#{x},#{y}" }.join(' '))
+    drawn = ->(x, y) { (0..2).any? { |z| m.data[x, y, z].to_i > 0 } }
+    walk = 0; miss = {}
+    m.height.times do |y|
+      m.width.times do |x|
+        next if !drawn.(x, y) || !tile_ok?(m, x, y) || solid_ev[[x, y]] || warp_ev[[x, y]]
+        walk += 1
+        miss[[x, y]] = true if !seen[[am, x, y]]
+      end
+    end
+    groups = []
+    left = miss.dup
+    until left.empty?
+      start, = left.first
+      left.delete(start); q = [start]; g = [start]
+      until q.empty?
+        cx, cy = q.shift
+        [[1, 0], [-1, 0], [0, 1], [0, -1]].each { |dx, dy| n = [cx + dx, cy + dy]; next if !left.delete(n); q << n; g << n }
+      end
+      groups << g
+    end
+    areas = groups.select { |g| g.length >= 10 }
+    pockets = groups.reject { |g| g.length >= 10 }
+    totals[:area] += areas.sum(&:length); totals[:pocket] += pockets.sum(&:length); totals[:walk] += walk
+    next if miss.empty?
+    puts format('AUDIT %4d %-34s walkable %6d unreached %6d (areas %d: %d tiles; pockets %d: %d tiles) %s', am, INFOS[am]&.name.to_s[0, 34], walk, miss.length,
+                areas.length, areas.sum(&:length), pockets.length, pockets.sum(&:length), areas.max_by(&:length)&.first&.join(','))
   end
-  puts "AUDIT total unreached: #{total_bad}"
+  puts "AUDIT total walkable #{totals[:walk]}, unreached: #{totals[:area]} in areas, #{totals[:pocket]} in small pockets"
 end
