@@ -16,16 +16,16 @@ REGION_PLANS[:unova] = {
                                           doors: [[:house, 45, 10], [:house, 53, 10], [:house, 61, 9], [:pc, 64, 20], [:mart, 39, 30]] }],
     [:r302, :real, 'Route 2', { map: 494, stage_band: 1 }],
     [:striaton, :real, 'Striaton City', { map: 465, stage: 1,
-                                          doors: [[:house, 38, 42], [:pc, 46, 42], [:gym, 52, 42], [:mart, 46, 49], [:house, 56, 49]] }],
+                                          doors: [[:house, 38, 42], [:pc, 46, 42], [:gym, 52, 42], [:mart, 44, 53, nil, nil, :exact]] }],
     [:r303, :real, 'Route 3', { map: 495, stage_band: 2 }],
     [:wellspring, :cave, 'Wellspring Cave', { stage_band: 2, entrance: 'South' }],
     [:nacrene, :real, 'Nacrene City', { map: 466, stage: 2,
-                                        doors: [[:house, 42, 16], [:house, 47, 16], [:house, 54, 19, 'Café Warehouse'], [:gym, 68, 15],
+                                        doors: [[:house, 42, 16], [:house, 47, 16], [:house, 54, 19, 'Café Warehouse'], [:gym, 68, 15, nil, nil, :exact],
                                                 [:house, 85, 19], [:house, 91, 19], [:house, 45, 31], [:house, 50, 31], [:pc, 62, 32],
                                                 [:mart, 69, 29], [:house, 73, 29], [:house, 85, 31], [:house, 91, 31]] }],
     [:pinwheel, :forest, 'Pinwheel Forest', { stage_band: 3, extra_ports: [['West', 9.0 / 39]] }],   # 2nd opening: Nacrene's east glade
     [:castelia, :real, 'Castelia City', { map: 468, stage: 3,
-                                          doors: [[:gym, 28, 64], [:pc, 78, 65], [:mart, 94, 65], [:house, 53, 65]] }],
+                                          doors: [[:gym, 28, 64], [:pc, 78, 67, nil, nil, :exact], [:mart, 94, 67, nil, nil, :exact], [:house, 58, 67, nil, nil, :exact]] }],
     [:u4, :route, 'Route 4', { placeholder: 'Route 304', stage_band: 4, grass: 2 }],
     [:desert_resort, :route, 'Desert Resort', { stage_band: 4, grass: 6 }],
     [:nimbasa, :city, 'Nimbasa City', { gym: 4, stage: 4, houses: 4 }],
@@ -109,7 +109,7 @@ REGION_PLANS[:unova] = {
     r301: { starter: true }, r303: { badges: 1, extras: 1 }, pinwheel: 2, u4: 3, u5: 4, u6: 5, u7: 6, u8: 7, u10: { badges: 8, extras: 8 }
   },
   story: [
-    { kind: :battle, key: :unova_rival2, at: [:striaton, [40, 52]], intro: "Cheren: You got the Trio Badge too? Then let's test what we've learned!" },
+    { kind: :battle, key: :unova_rival2, at: [:striaton, [50, 47]], intro: "Cheren: You got the Trio Badge too? Then let's test what we've learned!" },
     { kind: :battle, key: :unova_ghetsis, at: [:opelucid, [27, 30]], requires: 7,
       intro: "Ghetsis: Team Plasma will rule Unova! Your interference ends here!",
       early: "A man in a strange robe watches the Dragonspiral Tower from afar." },
