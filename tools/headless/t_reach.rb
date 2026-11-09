@@ -168,6 +168,8 @@ end
 # never reached (every tile should be reachable). Empty cells (nothing drawn)
 # don't count; tiles under events don't count. Unreached tiles are grouped
 # into areas: "areas" are groups of 10+ tiles, "pockets" smaller ones.
+# (AUDIT=@file reads the ids from a file in tools/headless)
+ENV['AUDIT'] = File.read(File.join(__dir__, ENV['AUDIT'][1..])).strip if ENV['AUDIT']&.start_with?('@')
 if ENV['AUDIT']
   totals = Hash.new(0)
   ENV['AUDIT'].split(',').map(&:to_i).each do |am|
@@ -208,6 +210,45 @@ if ENV['AUDIT']
                     top.sort_by { |_, c| -c }.first(4).map { |t, c| "#{t}:#{c}" }.join(' '))
       end
     end
+    # AUDIT_AREAS=1 also lists each area's size, bounds, a tile in it, its
+    # commonest ground tiles and the closest pair of (area tile, reached tile)
+    areas.sort_by { |g| -g.length }.each do |g|
+      xs = g.map(&:first); ys = g.map(&:last)
+      ground = g.map { |x, y| m.data[x, y, 0] }.tally.max_by(3) { |_, c| c }.map { |t, c| "#{t}x#{c}" }.join(' ')
+      # (land tiles only: a passage can't drop the player into water)
+      wet = ->(x, y) { (0..2).any? { |z| (t = m.data[x, y, z]) && t > 0 && [5, 6, 7, 16].include?(TS[m.tileset_id].terrain_tags[t]) } }
+      dry = g.reject { |x, y| wet.(x, y) }
+      from = {}; g.each { |t| from[t] = t }
+      q = dry.dup; near = nil
+      until q.empty? || near
+        c = q.shift
+        [[1, 0], [-1, 0], [0, 1], [0, -1]].each do |dx, dy|
+          n = [c[0] + dx, c[1] + dy]
+          next if from[n] || n[0] < 0 || n[1] < 0 || n[0] >= m.width || n[1] >= m.height
+          from[n] = from[c]
+          (near = n; break) if seen[[am, n[0], n[1]]] && !wet.(*n) && !solid_ev[n] && !warp_ev[n]
+          q << n
+        end
+      end
+      link = near ? "link #{from[near].join(',')} #{near.join(',')}" : (dry.empty? ? 'all water' : '')
+      puts format('        area %5d tiles  x %d-%d  y %d-%d  at %-8s ground %s %s', g.length, xs.min, xs.max, ys.min, ys.max, g.min_by { |x, y| [y, x] }.join(','), ground, link)
+    end if ENV['AUDIT_AREAS']
+  end
+  # AUDIT_TILES=1: per bottom-layer tile, how often it was reached vs left in
+  # unreached areas (to find cliff-top tiles drawn walkable)
+  if ENV['AUDIT_TILES']
+    stats = Hash.new { |h, k| h[k] = [0, 0] }
+    ENV['AUDIT'].split(',').map(&:to_i).each do |am|
+      m = rx_map(am) or next
+      m.height.times do |y|
+        m.width.times do |x|
+          next if !tile_ok?(m, x, y) || (0..2).all? { |z| m.data[x, y, z].to_i == 0 }
+          key = [m.tileset_id, m.data[x, y, 0], [1, 2].map { |z| m.data[x, y, z] }.max]
+          seen[[am, x, y]] ? stats[key][0] += 1 : stats[key][1] += 1
+        end
+      end
+    end
+    stats.sort_by { |_, (r, u)| -u }.first(60).each { |(ts, l0, top), (r, u)| puts format('TILES ts%d layer0 %5d top %5d  reached %6d  unreached %6d', ts, l0, top, r, u) }
   end
   puts "AUDIT total walkable #{totals[:walk]}, unreached: #{totals[:area]} in areas, #{totals[:pocket]} in small pockets"
 end
