@@ -144,3 +144,19 @@ if ENV['GRID']
     puts format('%4d ', y) + (0...m.width).map { |x| seen[[gm, x, y]] ? 'o' : (tile_ok?(m, x, y) ? '.' : '#') }.join
   end
 end
+
+# AUDIT=<map ids, comma-separated> lists, for each map, walkable tiles the walk
+# never reached (every tile should be reachable)
+if ENV['AUDIT']
+  total_bad = 0
+  ENV['AUDIT'].split(',').map(&:to_i).each do |am|
+    m = rx_map(am) or next
+    walk = []; miss = []
+    solid_ev, warp_ev = events_of(am)
+    # Tiles under people, signs and items (or warps) aren't stood on
+    m.height.times { |y| m.width.times { |x| next if !tile_ok?(m, x, y) || solid_ev[[x, y]] || warp_ev[[x, y]]; walk << [x, y]; miss << [x, y] if !seen[[am, x, y]] } }
+    total_bad += miss.length
+    puts format('AUDIT %4d %-40s walkable %5d unreached %5d %s', am, INFOS[am]&.name.to_s[0, 40], walk.length, miss.length, miss.first(6).map { |x, y| "#{x},#{y}" }.join(' '))
+  end
+  puts "AUDIT total unreached: #{total_bad}"
+end

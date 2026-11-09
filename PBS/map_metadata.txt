@@ -1597,55 +1597,55 @@ ShowArea = true
 BattleBack = field
 #-------------------------------
 [913]
-Name = Interregional Forest - Kanto Path
+Name = Interregional Forest - Elder Oak Wilds
 Outdoor = true
 ShowArea = true
 BattleBack = forest
 #-------------------------------
 [914]
-Name = Interregional Forest - Johto Path
+Name = Interregional Forest - Whispering Hollow
 Outdoor = true
 ShowArea = true
 BattleBack = forest
 #-------------------------------
 [915]
-Name = Interregional Forest - Hoenn Path
+Name = Interregional Forest - Mossy Stone Ring
 Outdoor = true
 ShowArea = true
 BattleBack = forest
 #-------------------------------
 [916]
-Name = Interregional Forest - Galar Path
+Name = Interregional Forest - Old Ranger Hut
 Outdoor = true
 ShowArea = true
 BattleBack = forest
 #-------------------------------
 [917]
-Name = Interregional Forest - Heart Clearing
+Name = Interregional Forest - Twin Stumps
 Outdoor = true
 ShowArea = true
 BattleBack = forest
 #-------------------------------
 [918]
-Name = Interregional Forest - Sinnoh Path
+Name = Interregional Forest - Fern Maze
 Outdoor = true
 ShowArea = true
 BattleBack = forest
 #-------------------------------
 [919]
-Name = Interregional Forest - Alola Path
+Name = Interregional Forest - Heart Clearing
 Outdoor = true
 ShowArea = true
 BattleBack = forest
 #-------------------------------
 [920]
-Name = Interregional Forest - Southern Paths
+Name = Interregional Forest - Hollow Log Path
 Outdoor = true
 ShowArea = true
 BattleBack = forest
 #-------------------------------
 [921]
-Name = Interregional Forest - Unova Path
+Name = Interregional Forest - Sunlit Glade
 Outdoor = true
 ShowArea = true
 BattleBack = forest
@@ -1922,4 +1922,46 @@ Name = Path to the Pokémon League
 Outdoor = true
 ShowArea = true
 BattleBack = field
+#-------------------------------
+[988]
+Name = Interregional Forest - Bramble Tangle
+Outdoor = true
+ShowArea = true
+BattleBack = forest
+#-------------------------------
+[989]
+Name = Interregional Forest - Misty Thicket
+Outdoor = true
+ShowArea = true
+BattleBack = forest
+#-------------------------------
+[990]
+Name = Interregional Forest - Lantern Grove
+Outdoor = true
+ShowArea = true
+BattleBack = forest
+#-------------------------------
+[991]
+Name = Interregional Forest - Deepwood
+Outdoor = true
+ShowArea = true
+BattleBack = forest
+#-------------------------------
+[992]
+Name = Interregional Forest - Root Cellar Woods
+Outdoor = true
+ShowArea = true
+BattleBack = forest
+#-------------------------------
+[993]
+Name = Interregional Forest - Petal Path
+Outdoor = true
+ShowArea = true
+BattleBack = forest
+#-------------------------------
+[994]
+Name = Interregional Forest - Far Pines
+Outdoor = true
+ShowArea = true
+BattleBack = forest
 # <<< FullPoke generated <<<

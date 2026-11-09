@@ -10,6 +10,7 @@
 require_relative 'world_lib'
 require_relative 'build_geo'
 require_relative 'gen_region'
+require_relative 'forest_maze'
 require_relative 'kanto_story'
 
 PluginManager.runPlugins unless $plugins_ran
@@ -917,7 +918,7 @@ def ruby_lit(v)
 end
 
 #-------------------------------------------------------------------------------
-build_forest
+build_forest_maze
 build_kanto_gate
 patch_intro
 patch_kanto_starters
