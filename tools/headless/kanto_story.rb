@@ -710,7 +710,7 @@ def kanto_traversal
   # S.S. Anne: the deck, from the stairs at the end of the lower corridor
   k_link_near([345, 58, 126], [349, 9, 9])
   # ... and that corridor from the stairs drawn at the west end of 1F's corridor
-  link([345, 71, 126], [345, 59, 126])
+  link([345, 71, 126], [345, 59, 126], name: 'FP: Corridor stairs')
   # Underground Path Route 7 <-> Route 8: entrance houses, stairs, tunnel
   link([40, 7, 28], [369, 60, 52], name: 'FP: Door')
   link([41, 13, 9], [369, 181, 52], name: 'FP: Door')
@@ -785,7 +785,14 @@ def k_wall_off(map_id, x, y, size: nil)
   raise "Kanto: area at (#{x},#{y}) on map #{map_id} is #{r.size} tiles, not about #{size}" if size && r.size > size * 1.25 + 5
   r.each_key do |tx, ty|
     if m.data[tx, ty, 2] != 0
-      next if m.data[tx, ty, 1] != 0
+      if m.data[tx, ty, 1] != 0
+        # every layer drawn: an invisible event showing the blocking tile
+        next if event_at?(m, tx, ty)
+        pg = new_page(trigger: 0, list: EventList.build {})
+        pg.graphic.tile_id = tile
+        new_event(m, 'FP: Wall', tx, ty, [pg])
+        next
+      end
       m.data[tx, ty, 1] = m.data[tx, ty, 2]
     end
     m.data[tx, ty, 2] = tile

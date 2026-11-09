@@ -904,9 +904,15 @@ GRASS_TAGS = { 23 => [390, 391] }
 # 23: 4710, the empty tile kanto_story.rb walls off with (only Johto's building
 # fix made it solid, and that fix skips tiles Kanto's maps use).
 SOLID_TILES = { 27 => [391], 26 => [7460, 896], 23 => [4710] }
+require_relative 'invisible'
 def tag_grass
   GRASS_TAGS.each { |ts, tiles| tiles.each { |t| TILESETS[ts].terrain_tags[t] = 2 } }
   SOLID_TILES.each { |ts, tiles| tiles.each { |t| TILESETS[ts].passages[t] = 0x0f } }
+  INVISIBLE_TILES.each do |ts, t|
+    TILESETS[ts].passages[t] = 0x0f
+    TILESETS[ts].priorities[t] = 0
+    TILESETS[ts].terrain_tags[t] = 0
+  end
 end
 
 # Data file read by the plugin

@@ -394,6 +394,9 @@ class GeoRegion
         (0..2).all? { |z| m.data[x, y, z] == 0 } ? :void : :land
       end
       switches = BridgeLib.switches(m)
+      # Without bridge switches the player is never up on a bridge: only the
+      # ground counts when looking for unreached areas
+      kind = ->(x, y) { kind_at.(x, y, 0) } if switches.empty?
       # Ledges are jumped in the directions their tile can be entered from
       ledge_ok = lambda do |x, y, d|
         [2, 1, 0].each do |z|

@@ -6,6 +6,7 @@
 # Ledges are one-way (the way their tiles let you jump them); NPCs and other solid events block.
 require_relative 'play_lib'
 require_relative 'bridge_lib'
+require_relative 'invisible'
 
 start_map, sx, sy = (ARGV[0] ? ARGV[0..2].map(&:to_i) : [23, 13, 9])
 SURF = ENV['SURF'] == '1'   # water counts as walkable (the player can Surf, and Cut and Rock Smash)
@@ -196,7 +197,8 @@ if ENV['AUDIT']
     walk = 0; miss = {}
     m.height.times do |y|
       m.width.times do |x|
-        next if !drawn.(x, y) || !tile_ok?(m, x, y) || solid_ev[[x, y]] || warp_ev[[x, y]]
+        # (on a map without bridge switches the player is never up on a bridge)
+        next if !drawn.(x, y) || !tile_ok?(m, x, y, switches_of(am).empty? ? 0 : nil) || solid_ev[[x, y]] || warp_ev[[x, y]]
         walk += 1
         miss[[x, y]] = true if !seen[[am, x, y]]
       end
@@ -215,6 +217,33 @@ if ENV['AUDIT']
     areas = groups.select { |g| g.length >= 10 }
     pockets = groups.reject { |g| g.length >= 10 }
     totals[:area] += areas.sum(&:length); totals[:pocket] += pockets.sum(&:length); totals[:walk] += walk
+    # SEAL=1: put the tileset's invisible solid tile (invisible.rb) on every
+    # pocket tile and save the map. Nothing reaches them even with every field
+    # move, so no path is lost. Skipped: tiles beside an event (boulders, NPCs
+    # that walk), bridges and ledges, and cells drawn on every layer.
+    if ENV['SEAL'] && !pockets.empty? && (inv = INVISIBLE_TILES[m.tileset_id])
+      ts = TS[m.tileset_id]
+      near_ev = {}
+      m.events.each_value { |e| (-1..1).each { |dx| (-1..1).each { |dy| near_ev[[e.x + dx, e.y + dy]] = true } } }
+      sealed = 0
+      pockets.flatten(1).each do |x, y|
+        next if near_ev[[x, y]]
+        next if (0..2).any? { |z| (t = m.data[x, y, z]) && t > 0 && [1, BridgeLib::TAG].include?(ts.terrain_tags[t]) }
+        if m.data[x, y, 2] == 0
+          m.data[x, y, 2] = inv
+        elsif m.data[x, y, 1] == 0
+          m.data[x, y, 1] = m.data[x, y, 2]
+          m.data[x, y, 2] = inv
+        else
+          next
+        end
+        sealed += 1
+      end
+      if sealed > 0
+        File.binwrite(File.join(ENV['GAME_DIR'] || '/game', format('Data/Map%03d.rxdata', am)), Marshal.dump(m))
+        totals[:sealed] += sealed
+      end
+    end
     next if miss.empty?
     puts format('AUDIT %4d %-34s walkable %6d unreached %6d (areas %d: %d tiles; pockets %d: %d tiles) %s', am, INFOS[am]&.name.to_s[0, 34], walk, miss.length,
                 areas.length, areas.sum(&:length), pockets.length, pockets.sum(&:length), areas.max_by(&:length)&.first&.join(','))
@@ -268,4 +297,5 @@ if ENV['AUDIT']
     stats.sort_by { |_, (r, u)| -u }.first(60).each { |(ts, l0, top), (r, u)| puts format('TILES ts%d layer0 %5d top %5d  reached %6d  unreached %6d', ts, l0, top, r, u) }
   end
   puts "AUDIT total walkable #{totals[:walk]}, unreached: #{totals[:area]} in areas, #{totals[:pocket]} in small pockets"
+  puts "SEALED #{totals[:sealed]} pocket tiles" if ENV['SEAL']
 end
