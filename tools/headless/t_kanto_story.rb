@@ -208,7 +208,7 @@ settle(4000)
 check("four Badges: through the gate (#{where})", $game_map.map_id == 38)
 on_map(31, 23, 24)
 check('Silph Co. door', enter(ev_at(23, 23)) && $game_map.map_id == 258)
-boost(50, 'Silph Co.')
+boost(55, 'Silph Co.')   # the 7F rival's Pidgeot outlasted a lone L50 Venusaur on some RNG paths
 heal
 $choices = ['7F']
 enter(ev_named('FP: Elevator'))

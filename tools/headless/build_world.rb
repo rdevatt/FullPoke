@@ -848,6 +848,7 @@ def build_kanto
   kanto_victory_road
   kanto_story
   kanto_gym_trainers(KANTO_GYM_ROOMS, leaders)
+  kanto_traversal
   CONNECTIONS.concat(KANTO_CONNECTIONS)
 end
 
@@ -899,7 +900,7 @@ end
 # Tall grass that the map pack's tilesets never tagged, so wild Pokémon can appear in it.
 GRASS_TAGS = { 23 => [390, 391] }
 # The cave tileset's black filler between cave areas was walkable.
-SOLID_TILES = { 27 => [391] }
+SOLID_TILES = { 27 => [391], 26 => [7460, 896] }   # 26: the snow around Seafoam's floors; an unused empty tile (kanto_story.rb)
 def tag_grass
   GRASS_TAGS.each { |ts, tiles| tiles.each { |t| TILESETS[ts].terrain_tags[t] = 2 } }
   SOLID_TILES.each { |ts, tiles| tiles.each { |t| TILESETS[ts].passages[t] = 0x0f } }

@@ -162,16 +162,31 @@ end
 # Like spot_near, for someone who stays put for good (trainers stand where
 # they battled): never on a tile that would cut `from` off from any of `keep`,
 # counting the solid events already placed.
-def standing_spot(map_id, x, y, from, keep, void_tile: nil)
+def standing_spot(map_id, x, y, from, keep, void_tile: nil, whole: false)
   m = kmap(map_id)
   reach = reachable_from(m, *from, void_tile: void_tile)
   solid = m.events.values.select { |e| e.pages[0] && !e.pages[0].through &&
                                        (e.pages[0].graphic.character_name != '' || e.pages[0].graphic.tile_id > 0) }
                      .map { |e| [e.x, e.y] }
+  # tiles reachable from `from` with these blocked
+  size = lambda do |blocked|
+    seen = blocked.to_h { |t| [t, true] }.merge(from => true); q = [from]; n = 1
+    until q.empty?
+      c = q.shift
+      [[1, 0], [-1, 0], [0, 1], [0, -1]].each do |dx, dy|
+        t = [c[0] + dx, c[1] + dy]
+        next if seen[t] || !reach[t]
+        seen[t] = true; q << t; n += 1
+      end
+    end
+    n
+  end
+  all = size.(solid)
   (0..60).each do |r|
     (-r..r).flat_map { |dx| [[x + dx, y + r - dx.abs], [x + dx, y - r + dx.abs]] }.uniq.each do |p|
       next if !reach[p] || event_at?(m, *p) || p == from
       next if keep.any? { |k| cuts_off?(map_id, solid + [p], from, k, void_tile: void_tile) }
+      next if whole && size.(solid + [p]) < all - 1   # whole: nor any other part of the floor
       return p
     end
   end
@@ -501,8 +516,8 @@ def kanto_story
   k_story_npc(silph, *gio11, 'Giovanni', "trainer_#{gs[:tr_type]}", 'giovanni_silph', gone: true)
   must_reach(silph, f11, beside(silph, *gio11), 'Silph Co. 11F')
   # the grunts must leave a way to Giovanni (who then leaves the President free)
-  k_trainer(silph, *standing_spot(silph, f11[0] - 4, f11[1] + 4, f11, [beside(silph, *gio11)]), :kanto_rocket_silph1, sight: 2)
-  k_trainer(silph, *standing_spot(silph, f11[0] + 2, f11[1] + 6, f11, [beside(silph, *gio11)]), :kanto_rocket_silph2, sight: 2)
+  k_trainer(silph, *standing_spot(silph, f11[0] - 4, f11[1] + 4, f11, [beside(silph, *gio11)], whole: true), :kanto_rocket_silph1, sight: 2)
+  k_trainer(silph, *standing_spot(silph, f11[0] + 2, f11[1] + 6, f11, [beside(silph, *gio11)], whole: true), :kanto_rocket_silph2, sight: 2)
   # HMs: Flash (Oak's aide, Route 2 gate), Fly (Route 16), Surf and Strength (Safari Zone gate)
   aide = spot_near(12, 35, 10, beside(12, 37, 5))
   new_event(kmap(12), 'FP: Oak\'s aide', *aide, [new_page(trigger: 0, graphic: 'NPC 09', list: EventList.build {
@@ -536,3 +551,271 @@ def kanto_gym_trainers(rooms, leaders)
     end
   end
 end
+
+#-------------------------------------------------------------------------------
+# 5. Traversal: every room and area of Kanto within reach
+#-------------------------------------------------------------------------------
+# Walkable tiles, and with surf: true water tiles (any tile whose top layer is
+# water, as Game_Map#playerPassable? treats it when surfing).
+def k_open?(m, x, y, surf)
+  return false if x < 0 || y < 0 || x >= m.width || y >= m.height
+  return true if passable_tile?(m, x, y)
+  return false if !surf
+  ts = TILESETS[m.tileset_id]
+  [2, 1, 0].each { |z| t = m.data[x, y, z]; return [5, 6, 7].include?(ts.terrain_tags[t]) if t > 0 }
+  false
+end
+
+# The map's areas: tile => area index, and the tiles of each area.
+def k_areas(m, surf: true)
+  comp = {}; areas = []
+  m.height.times do |y|
+    m.width.times do |x|
+      next if comp[[x, y]] || !k_open?(m, x, y, surf)
+      i = areas.length; g = []; q = [[x, y]]; comp[[x, y]] = i
+      until q.empty?
+        c = q.shift; g << c
+        [[1, 0], [-1, 0], [0, 1], [0, -1]].each do |dx, dy|
+          n = [c[0] + dx, c[1] + dy]
+          next if comp[n] || !k_open?(m, *n, surf)
+          comp[n] = i; q << n
+        end
+      end
+      areas << g
+    end
+  end
+  [comp, areas]
+end
+
+# A tile of the area for a warp: a drawn ladder (`prefer`) if there is a free
+# one, else a dry free tile away from events, as open as possible (so it never
+# blocks a corridor), nearest to (x, y).
+def k_warp_spot(m, tiles, x, y, prefer: [])
+  ev = m.events.values.to_h { |e| [[e.x, e.y], true] }
+  dist = ->((tx, ty)) { (tx - x).abs + (ty - y).abs }
+  drawn = tiles.select { |tx, ty| !ev[[tx, ty]] && [1, 2].any? { |z| prefer.include?(m.data[tx, ty, z]) } }
+  return [drawn.min_by(&dist), true] if !drawn.empty?
+  cands = tiles.select do |tx, ty|
+    passable_tile?(m, tx, ty) && !ev[[tx, ty]] && [[1, 0], [-1, 0], [0, 1], [0, -1]].none? { |dx, dy| ev[[tx + dx, ty + dy]] }
+  end
+  open = ->(tx, ty) { [-1, 0, 1].product([-1, 0, 1]).count { |dx, dy| passable_tile?(m, tx + dx, ty + dy) } }
+  best = cands.map { |t| [open.(*t), t] }
+  [9, 6, 4, 0].each do |need|
+    pick = best.select { |o, _| o >= need }.min_by { |_, t| dist.(t) }
+    return [pick[1], false] if pick
+  end
+  [nil, false]
+end
+
+# Links every area of a dungeon map (10+ tiles, inside box [x0, y0, x1, y1] if
+# given) to the parts reachable from its entrances, nearest first: through its
+# drawn ladders (`prefer`) where it has free ones, else through new ladders
+# (gfx: [[dy, tile id], ...] drawn on layer 2). The entrances are the areas
+# beside warps to other maps, plus `entries`. Returns the number of links.
+def k_stitch(map_id, entries = [], min: 10, gfx: nil, prefer: [], name: 'FP: Ladder', box: nil, surf: true, skip: [])
+  m = kmap(map_id)
+  comp, areas = k_areas(m, surf: surf)
+  touch = ->(i, x, y) { [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]].any? { |dx, dy| comp[[x + dx, y + dy]] == i } }
+  inbox = ->(x, y) { !box || (x >= box[0] && y >= box[1] && x <= box[2] && y <= box[3]) }
+  todo = entries.map { |x, y| comp[[x, y]] or raise "Kanto: stitch entry (#{x},#{y}) on map #{map_id} is not walkable" }
+  m.events.each_value do |e|
+    next if !inbox.(e.x, e.y)
+    warp_cmds(e).each { |c| next if c.parameters[1] == map_id; todo.concat(areas.each_index.select { |i| touch.(i, e.x, e.y) }) }
+  end
+  reached = {}
+  spread = lambda do
+    until todo.empty?
+      i = todo.shift
+      next if reached[i]
+      reached[i] = true
+      m.events.each_value do |e|
+        next if !touch.(i, e.x, e.y)
+        warp_cmds(e).each { |c| j = comp[[c.parameters[2], c.parameters[3]]]; todo << j if c.parameters[1] == map_id && j }
+      end
+    end
+  end
+  spread.()
+  raise "Kanto: stitch of map #{map_id} has no entrance" if reached.empty?
+  skipped = skip.map { |x, y| comp[[x, y]] }
+  links = 0
+  loop do
+    left = areas.each_index.select do |i|
+      !reached[i] && !skipped.include?(i) && areas[i].length >= min && areas[i].any? { |x, y| inbox.(x, y) && passable_tile?(m, x, y) }
+    end
+    break if left.empty?
+    want = left.to_h { |i| [i, true] }
+    # the nearest unreached area: breadth-first over the whole map from the reached ones
+    from = {}; q = []
+    reached.each_key { |i| areas[i].each { |t| from[t] = t; q << t } }
+    hit = nil
+    until q.empty? || hit
+      c = q.shift
+      [[1, 0], [-1, 0], [0, 1], [0, -1]].each do |dx, dy|
+        n = [c[0] + dx, c[1] + dy]
+        next if from[n] || n[0] < 0 || n[1] < 0 || n[0] >= m.width || n[1] >= m.height
+        from[n] = from[c]
+        (hit = n; break) if want[comp[n]]
+        q << n
+      end
+    end
+    i = comp[hit]; src = from[hit]
+    a, a_drawn = k_warp_spot(m, areas[comp[src]], *src, prefer: prefer)
+    b, b_drawn = k_warp_spot(m, areas[i], *hit, prefer: prefer)
+    raise "Kanto: no place for a ladder on map #{map_id} near #{hit.join(',')}" if !a || !b
+    link([map_id, *a], [map_id, *b], name: name)
+    [[a, a_drawn], [b, b_drawn]].each do |(x, y), drawn|
+      (gfx || []).each { |dy, t| m.data[x, y + dy, 2] = t if !drawn && m.data[x, y + dy, 2] == 0 }
+    end
+    links += 1
+    todo << i
+    spread.()
+  end
+  links
+end
+
+# Two-way stairs between the areas around a and b ([map, x, y]), each end on a
+# free open tile nearest to the given one.
+def k_link_near(a, b, name: 'FP: Stairs')
+  ends = [a, b].map do |mid, x, y|
+    m = kmap(mid)
+    spot, = k_warp_spot(m, reachable_from(m, x, y).keys, x, y)
+    raise "Kanto: no free tile near (#{x},#{y}) on map #{mid}" if !spot
+    [mid, *spot]
+  end
+  link(*ends, name: name)
+end
+
+def kanto_traversal
+  tag_grass   # tileset fixes first: the areas below are worked out with them
+  # Houses whose doors the pack left without warps (their rooms in map 179 led
+  # to a town tile with no way back)
+  [[[29, 21, 31], [179, 21, 140]],                                     # Celadon
+   [[25, 36, 28], [179, 34, 409]], [[25, 11, 34], [179, 68, 409]],    # Pewter
+   [[172, 33, 7], [179, 117, 226]], [[172, 35, 14], [179, 142, 226]], # Cinnabar
+   [[172, 42, 16], [179, 171, 226]], [[172, 41, 24], [179, 118, 257]],
+   [[172, 29, 27], [179, 142, 257]], [[172, 33, 27], [179, 168, 257]]].each { |out, room| link(out, room, name: 'FP: Door') }
+  # Cinnabar Lab: the lobby's three doorways to its back rooms. The labs map
+  # keeps its other FP events (Oak's Lab opening, built by
+  # build_kanto_opening.rb), so only these doors are replaced.
+  if !SAVED[175]
+    SAVED[175] = WG.load_map(175)
+    SAVED[175].events.delete_if { |_, e| e.name == 'FP: Door' }
+  end
+  [[42, 33], [48, 50], [54, 67]].each { |dx, my| link([175, dx, 10], [175, 41, my], name: 'FP: Door') }
+  # Route gates: upstairs of Route 11's and Route 22's gates; the stairs of the
+  # others are drawn walled in, so a twin warp beside them is walked into
+  link([12, 357, 34], [12, 355, 13])
+  k_link_near([12, 446, 24], [12, 462, 20])
+  [[146, 77], [246, 75], [358, 95], [442, 94]].each { |x, y| k_touchable(12, x, y) }
+  # S.S. Anne: the deck, from the stairs at the end of the lower corridor
+  k_link_near([345, 58, 126], [349, 9, 9])
+  # Underground Path Route 7 <-> Route 8: entrance houses, stairs, tunnel
+  link([40, 7, 28], [369, 60, 52], name: 'FP: Door')
+  link([41, 13, 9], [369, 181, 52], name: 'FP: Door')
+  link([369, 60, 48], [369, 83, 48])
+  link([369, 181, 48], [369, 157, 48])
+  # Safari Zone: through the gate's north passage (no fee); the grass drawn
+  # around it is out of bounds
+  link([12, 83, 53], [249, 78, 82], name: 'FP: Safari Zone')   # the carpet is drawn solid: walk into it
+  k_wall_off(249, 0, 0, size: 6726)
+  # Seafoam Islands: the two cave mouths on Route 20
+  link([53, 60, 43], [340, 6, 22], name: 'FP: Cave')
+  link([53, 72, 49], [340, 32, 22], name: 'FP: Cave')
+  # Cerulean Cave (for Champions): 1F ladders up to 2F (middle) and down to B1F
+  [[[10, 2], [61, 4]], [[34, 2], [81, 4]], [[2, 4], [53, 6]], [[30, 10], [74, 9]], [[24, 11], [71, 10]],
+   [[5, 15], [55, 14]], [[1, 7], [104, 7]]].each { |a, b| link([194, *a], [194, *b], name: 'FP: Ladder') }
+  (WORLD[:map_rules] ||= {})[194] = { region: :kanto, completed: true }
+  # Hall of Fame: the Champion's door leads into it, and out of it home
+  hof = kmap(292).events.values.find { |e| e.name == 'FP: Hall of Fame' } or raise 'Kanto: no Hall of Fame door'
+  hof.pages.each { |pg| pg.list.each { |c| (c.code = 201; c.parameters = [0, 297, 5, 11, 8, 1]) if c.code == 355 && c.parameters[0] =~ /go_home/ } }
+  solidify_void(kmap(297))
+  ev_script_touch(kmap(297), 5, 12, 'FP: Hall of Fame exit', 'FullPoke.go_home(:kanto)')
+  must_reach(297, [5, 11], [5, 3], 'Hall of Fame')
+  # Every other floor and room of the dungeons: their own ladders where drawn,
+  # else new ones (a door mat inside buildings)
+  cave = { gfx: [[-1, 8193], [0, 8201]], prefer: [8201, 8200] }
+  k_stitch(340, prefer: [7421], gfx: [[0, 7421]])                          # Seafoam Islands
+  [194, 332, 338, 329, 335].each { |id| k_stitch(id, **cave) }             # Cerulean Cave, Mt. Moon, Rock Tunnel, Diglett's Cave, Victory Road
+  [207, 258, 280, 345, 375, 369].each { |id| k_stitch(id, gfx: [[0, 585]]) } # Tower, Silph Co., Mansion, S.S. Anne, Hideout, Underground Paths
+  k_stitch(249, name: 'FP: Path')                                         # Safari Zone
+  K_DECOR.each { |id, x, y, size| k_wall_off(id, x, y, size: size) }
+end
+
+# A warp drawn walled in on all four sides gets a twin on a wall tile beside
+# it that can be walked into.
+def k_touchable(map_id, x, y)
+  m = kmap(map_id)
+  ev = warp_event_at(map_id, x, y) or raise "Kanto: no warp at map #{map_id} (#{x},#{y})"
+  side = [[1, 0], [-1, 0], [0, 1], [0, -1]]
+  return if side.any? { |dx, dy| passable_tile?(m, x + dx, y + dy) }
+  tx, ty = side.map { |dx, dy| [x + dx, y + dy] }.find do |nx, ny|
+    !event_at?(m, nx, ny) && side.any? { |dx, dy| [nx + dx, ny + dy] != [x, y] && passable_tile?(m, nx + dx, ny + dy) }
+  end
+  raise "Kanto: warp at map #{map_id} (#{x},#{y}) can't be reached from any side" if !tx
+  c = warp_cmds(ev)[0]
+  ev_warp(m, tx, ty, *c.parameters[1, 4], name: 'FP: Stairs')
+end
+
+# An empty tile that blocks, per tileset, to wall off what can't be reached
+# (26's is made solid in build_world.rb's SOLID_TILES; no map used it).
+K_BLOCK_TILE = { 1 => 896, 2 => 764, 23 => 4710, 26 => 896 }
+
+# Makes an area nobody can reach solid (land or water joined to (x, y)): the
+# cliff tops, the sea outside the channels and the ground around the Safari Zone
+# that the map pack drew walkable. `size` is the area's expected size, a check
+# that the flood stays inside it.
+def k_wall_off(map_id, x, y, size: nil)
+  m = kmap(map_id)
+  tile = K_BLOCK_TILE[m.tileset_id] or raise "Kanto: no blocking tile for tileset #{m.tileset_id}"
+  return 0 if m.data[x, y, 2] == tile   # walled off by an earlier build (maps are rebuilt from the last one)
+  raise "Kanto: (#{x},#{y}) on map #{map_id} isn't walkable" if !k_open?(m, x, y, true)
+  r = { [x, y] => true }; q = [[x, y]]
+  until q.empty?
+    c = q.shift
+    [[1, 0], [-1, 0], [0, 1], [0, -1]].each do |dx, dy|
+      n = [c[0] + dx, c[1] + dy]
+      next if r[n] || !k_open?(m, *n, true)
+      r[n] = true; q << n
+    end
+  end
+  ev = m.events.values.find { |e| r[[e.x, e.y]] && !warp_cmds(e).empty? }
+  raise "Kanto: area at (#{x},#{y}) on map #{map_id} has a warp (#{ev.name})" if ev
+  raise "Kanto: area at (#{x},#{y}) on map #{map_id} is #{r.size} tiles, not about #{size}" if size && r.size > size * 1.25 + 5
+  r.each_key do |tx, ty|
+    if m.data[tx, ty, 2] != 0
+      next if m.data[tx, ty, 1] != 0
+      m.data[tx, ty, 1] = m.data[tx, ty, 2]
+    end
+    m.data[tx, ty, 2] = tile
+  end
+  r.size
+end
+
+# Areas no one can reach, as [map, x, y, size]: cliff tops and rock fill drawn
+# walkable, the sea outside the routes' channels (behind rock lines and fences),
+# tree tops and roof edges. Found with the whole-game audit (t_reach.rb AUDIT=).
+K_DECOR = [
+  [36, 2, 0, 292], [36, 17, 3, 12], [36, 0, 18, 11],                       # Route 3
+  [37, 39, 0, 778], [37, 0, 0, 377], [37, 24, 0, 192],                     # Route 4
+  [41, 5, 19, 925], [41, 5, 0, 445],                                       # Route 8
+  [42, 67, 6, 21], [42, 7, 16, 12],                                        # Route 9
+  [43, 1, 78, 33], [43, 2, 58, 20], [43, 2, 38, 13], [43, 14, 68, 10],     # Route 10
+  [55, 0, 0, 669], [55, 55, 30, 256], [55, 4, 25, 94], [55, 13, 30, 25], [55, 51, 11, 10],   # Route 22
+  [56, 9, 22, 125], [56, 0, 154, 42], [56, 20, 154, 39], [56, 24, 34, 25], [56, 22, 0, 12], [56, 0, 0, 11],  # Route 23
+  [57, 0, 0, 764], [57, 36, 16, 50], [57, 17, 16, 14], [57, 34, 29, 78],   # Route 24
+  [58, 39, 23, 510], [58, 0, 0, 407], [58, 99, 0, 128], [58, 104, 0, 60], [58, 121, 14, 42],  # Route 25
+  [25, 0, 0, 475], [25, 46, 36, 70], [25, 11, 0, 52], [25, 44, 34, 22], [25, 3, 7, 16], [25, 16, 12, 10],  # Pewter
+  [26, 0, 0, 22], [26, 30, 0, 72],                                         # Cerulean
+  [52, 2, 0, 10], [52, 0, 6, 59],                                          # Route 19
+  [30, 10, 27, 24], [30, 19, 37, 18], [30, 36, 39, 12],                    # Fuchsia
+  [33, 20, 18, 14], [33, 18, 13, 12], [33, 0, 18, 12], [33, 0, 13, 10],    # Indigo Plateau
+  [53, 0, 0, 4418], [46, 70, 0, 3384],                                     # Routes 20 and 13: open sea
+  [45, 19, 1, 1394], [45, 0, 2, 161], [45, 0, 0, 10], [45, 6, 19, 10],     # Route 12
+  [54, 0, 15, 549], [35, 59, 40, 38], [44, 0, 22, 30],                     # Routes 21, 2, 11
+  [50, 9, 146, 40], [50, 23, 146, 28], [47, 18, 23, 128],                  # Routes 17, 14
+  [48, 18, 26, 54], [48, 6, 17, 18], [48, 6, 24, 12],                      # Route 15
+  [24, 0, 0, 293], [24, 52, 33, 72], [24, 31, 1, 22], [24, 47, 5, 12], [24, 51, 5, 12],  # Vermilion
+  [172, 16, 0, 13],                                                        # Cinnabar
+  [173, 2, 22, 57], [173, 0, 0, 44], [173, 26, 1, 34], [173, 5, 0, 16],    # Viridian
+  [27, 0, 20, 40], [235, 7, 0, 11], [175, 11, 36, 28]                      # Lavender, Game Corner, Labs
+]
