@@ -793,7 +793,7 @@
 213,East,0,231,West,114
 231,East,5,214,West,0
 214,South,0,232,North,0
-232,South,0,233,North,15
+232,South,0,233,North,0
 212,East,0,233,West,0
 234,East,0,215,West,23
 216,South,0,236,North,30

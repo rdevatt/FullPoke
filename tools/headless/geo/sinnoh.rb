@@ -25,13 +25,15 @@ GEO_SPEC[:sinnoh] = {
     [:r217, 'North', :snowpoint], [:r213, 'East', :r222], [:r222, 'East', :sunyshore], [:sunyshore, 'North', :r223],
     [:r223, 'North', :league_isle]
   ],
-  offsets: { [:r216, :r217] => -152, [:r205, :eterna] => 5, [:r222, :sunyshore] => -1 },
+  offsets: { [:r216, :r217] => -152, [:r205, :eterna] => 5, [:r222, :sunyshore] => -1, [:r206, :r207] => 0 },
   gates: [
     # Hearthome's north gatehouse and Route 209's west exit
     [:hearthome, [[8, 8], [9, 8], [10, 8]], [9, 10, 2], :r209, [[0, 52], [0, 53], [0, 54], [0, 55], [0, 56]], [2, 54, 6]],
     # Hearthome's south stairs and Route 212's north gatehouse
     [:hearthome, [[7, 53], [8, 53], [9, 53], [10, 53]], [8, 51, 8], :r212, [[17, 3], [18, 3], [19, 3], [20, 3]], [18, 5, 2]],
     # Veilstone's south exit and Route 214's gatehouse
+    # Eterna's south gatehouse and the top of the Cycling Road (Route 206)
+    [:eterna, [[15, 56], [16, 56], [17, 56], [18, 56]], [16, 54, 8], :r206, [[15, 4], [16, 4], [17, 4], [18, 4]], [16, 6, 2]],
     # Route 213: the gatehouse between the hotel meadow and Valor Lakefront
     [:r213, [[57, 58]], [56, 58, 4], :r213, [[59, 58]], [60, 58, 6]],
     [:veilstone, [[34, 67], [35, 67], [36, 67], [37, 67], [38, 67], [39, 67]], [36, 64, 8], :r214, [[15, 3], [16, 3], [17, 3], [18, 3]], [16, 5, 2]]
@@ -86,7 +88,7 @@ GEO_SPEC[:sinnoh] = {
   },
   trainers: { r218: 2, r223: 2 },
   requires: {
-    r201: { starter: true }, r204: 1, floaroma: 1, r205: 1, eterna: 1,
+    r202: { starter: true }, r204: 1, floaroma: 1, r205: 1, eterna: 1,
     r206: 2, r207: 2, r208: 2, hearthome: 2, r209: 2, solaceon: 2, r210: 2, r215: 2, veilstone: 2,
     r214: 3, r213: 3, pastoria: 3, r212: { badges: 4, extras: 4 },
     r218: 5, canalave: 5, r211w: 5, r211e: 5, celestic: 5,

@@ -142,6 +142,18 @@ end
 $battle_results = []
 EventHandlers.add(:on_end_battle, :headless_record, proc { |outcome, _canLose| $battle_results << outcome })
 
+# A step onto or along a bridge, which is walkable once the bridge's BridgeOn
+# switch (at its end) has been stepped on; planned as if the bridge were on.
+def bridge_step?(cx, cy, nx, ny, d)
+  return false if !$game_map.valid?(nx, ny)
+  return false if !$game_map.terrain_tag(nx, ny, true).bridge && !$game_map.terrain_tag(cx, cy, true).bridge
+  old = $PokemonGlobal.bridge
+  $PokemonGlobal.bridge = 1
+  ok = $game_player.passable?(cx, cy, d)
+  $PokemonGlobal.bridge = old
+  ok
+end
+
 # Breadth-first path on the current map using the engine's own passability checks.
 # Tiles holding other events' touch triggers are avoided (except the goal).
 def find_path(gx, gy)
@@ -163,7 +175,7 @@ def find_path(gx, gy)
       next if prev.key?([nx, ny]) || avoid[[nx, ny]]
       # An event on the goal tile (a door, an NPC) is reached by walking into it.
       goal_event = nx == gx && ny == gy && $game_map.events.values.any? { |e| e.x == gx && e.y == gy }
-      next unless $game_player.passable?(cx, cy, d) || (goal_event && $game_map.valid?(nx, ny))
+      next unless $game_player.passable?(cx, cy, d) || bridge_step?(cx, cy, nx, ny, d) || (goal_event && $game_map.valid?(nx, ny))
       prev[[nx, ny]] = [cx, cy, d]
       queue << [nx, ny]
     end
