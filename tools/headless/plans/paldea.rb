@@ -30,12 +30,13 @@ REGION_PLANS[:paldea] = {
     [:glaseado, :route, 'Glaseado Mountain', { stage_band: 8, size: [60, 48], grass: 6, trial: 8, trial_name: "Grusha's Gym" }],
     [:league_road, :route, 'Path to the Pokémon League', { stage_band: 9 }]
   ],
+  # One neighbour per side of each map (two on one edge would overlap)
   links: [
     [:cabo_poco, 'North', :poco_path], [:poco_path, 'North', :los_platos], [:los_platos, 'North', :south1],
-    [:south1, 'North', :mesagoza], [:mesagoza, 'West', :south3, 0.3], [:south3, 'West', :cortondo],
-    [:mesagoza, 'South', :south2, 0.8], [:south2, 'East', :artazon], [:mesagoza, 'East', :east1],
-    [:east1, 'East', :levincia], [:mesagoza, 'West', :asado_desert, 0.7], [:asado_desert, 'West', :cascarrafa],
-    [:cascarrafa, 'North', :west1], [:west1, 'North', :medali], [:levincia, 'North', :east3],
+    [:south1, 'North', :mesagoza], [:south1, 'East', :south2], [:south2, 'East', :artazon],
+    [:mesagoza, 'West', :south3], [:south3, 'West', :cortondo], [:south3, 'North', :asado_desert],
+    [:asado_desert, 'West', :cascarrafa], [:cascarrafa, 'North', :west1], [:west1, 'North', :medali],
+    [:mesagoza, 'East', :east1], [:east1, 'East', :levincia], [:levincia, 'North', :east3],
     [:east3, 'North', :montenevera], [:mesagoza, 'North', :north1], [:north1, 'West', :alfornada],
     [:north1, 'North', :glaseado], [:glaseado, 'East', :league_road]
   ],

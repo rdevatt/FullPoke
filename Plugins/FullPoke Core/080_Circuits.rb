@@ -69,8 +69,10 @@ module FullPoke
     # bring a team close to the Gym without long grinding.
     def stage_levels(region_id, n)
       if n > STAGES
+        # Victory Road: from the last Leader's level up to a few under the Champion's
         last = leader_top_level(stage(region_id, STAGES)[:leader])
-        return [last - 2, last + 4]
+        champ = leader_top_level(get(region_id)[:champion])
+        return [last, [champ - 4, last + 4].max]
       end
       hi = [leader_top_level(stage(region_id, n)[:leader]) - 3, 4].max
       lo = (n <= 1) ? 2 : leader_top_level(stage(region_id, n - 1)[:leader]) - 4

@@ -253,6 +253,8 @@ module Gen
       ports[a] << [side, frac || 0.5]
       ports[b] << [Geo::OPPOSITE[side], frac || 0.5]
     end
+    ports.each { |key, list| sides = list.map(&:first); dup = sides.select { |sd| sides.count(sd) > 1 }.uniq
+                              raise "#{region}: #{key} has more than one neighbour on its #{dup.join('/')} side" if !dup.empty? }
     st = plan[:start]; vr = plan[:victory_road]
     ports[st[:town]] << [st[:gate_side], 0.5]
     ports[vr[:from]] << [vr[:side], 0.5]
@@ -305,6 +307,15 @@ module Gen
       [tiles, [mid[0] - dx * 2, mid[1] - dy * 2]]
     end
     gate_tiles, arrival = edge.(st[:town], st[:gate_side])
+    # Map connections line up the generated exits exactly (not by matching)
+    spec[:offsets] = {}
+    plan[:links].each do |a, side, b, frac|
+      ma = WG.load_map(spec[:maps][a]); mb = WG.load_map(spec[:maps][b])
+      ca = port_center(ma.width, ma.height, side, frac || 0.5)
+      cb = port_center(mb.width, mb.height, Geo::OPPOSITE[side], frac || 0.5)
+      along = %w[North South].include?(side) ? 0 : 1
+      spec[:offsets][[a, b]] = ca[along] - cb[along]
+    end
     spec[:start] = { town: st[:town], forest_gate: gate_tiles, arrival: arrival, gate_dir: st[:gate_side],
                      arrival_dir: { 'West' => 6, 'East' => 4, 'North' => 2, 'South' => 8 }[st[:gate_side]] }
     vr_tiles, = edge.(vr[:from], vr[:side])
