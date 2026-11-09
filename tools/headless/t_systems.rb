@@ -199,13 +199,15 @@ kanto_maps.each do |m|
     total = slots.sum { |s| s[0] }
     slots.map { |s| s[1] }.uniq.each do |sp|
       share = slots.select { |s| s[1] == sp }.sum { |s| s[0] } * 100.0 / total
-      common.push(sp) if share > 20
+      common.push(sp) if share > FullPoke::RARE_THRESHOLD
     end
   end
 end
-always_common = common.uniq.reject { |sp| FullPoke::Forest.rare_entries(:kanto).any? { |e| e[:species] == sp } }
-check("Common-only Kanto species are excluded (e.g. #{always_common.first(5).join(', ')})",
-      always_common.none? { |sp| pool.any? { |e| e[:species] == sp } })
+common.uniq!
+check("Species above 5% anywhere in Kanto are excluded (#{common.length}, e.g. #{common.first(6).join(', ')})",
+      common.none? { |sp| pool.any? { |e| e[:species] == sp } })
+check("Pidgey (common on Route 1, 5% elsewhere) isn't rare", common.include?(:PIDGEY) && pool.none? { |e| e[:species] == :PIDGEY })
+check("common_species lists the excluded ones", (FullPoke::Forest.common_species(:kanto) - common).empty?)
 johto_only = FullPoke::Forest.rare_entries(:johto).select { |e| FullPoke::Forest.kind_of(e[:type]) == :land }.map { |e| e[:species] }.uniq -
              FullPoke::Forest.rare_entries(:kanto).map { |e| e[:species] }
 check("Johto-only rares absent before Johto is completed (#{johto_only.first(5).join(', ')})",
@@ -221,6 +223,36 @@ n.times { r = FullPoke::Forest.choose(:Land); counts[r ? r[0] : nil] += 1 }
 max_share = counts.reject { |k, _| k.nil? }.values.max.to_f * 100 / n
 check("Sampled #{n} forest opportunities: nothing #{(counts[nil] * 100.0 / n).round(1)}%, top species #{max_share.round(2)}% (<= ~5%)",
       max_share <= 5.6 && counts[nil] >= n * 0.45)
+
+section "Grove Compass restrictions"
+$fullpoke = FullPoke::Progress.new
+FullPoke.begin_region(:kanto, :continuous)
+on_map(23, 10, 10)   # Pallet Town (outdoor)
+check("Outdoors in Kanto: the compass works", FullPoke.compass_block_reason.nil?)
+$game_temp.in_battle = true
+check("In battle: blocked", !FullPoke.can_use_compass?(false))
+$game_temp.in_battle = false
+FullPoke.lock_compass
+check("During a locked story sequence: blocked", !FullPoke.can_use_compass?(false))
+FullPoke.lock_compass(false)
+$PokemonGlobal.diving = true
+check("Underwater: blocked", !FullPoke.can_use_compass?(false))
+$PokemonGlobal.diving = false
+$PokemonGlobal.partner = [:RIVAL1, "Blue", 0, []]
+check("With a partner trainer: blocked", !FullPoke.can_use_compass?(false))
+$PokemonGlobal.partner = nil
+$game_system.map_interpreter.setup([RPG::EventCommand.new(355, 0, ["x = 1"]), RPG::EventCommand.new(0, 0, [])], 0)
+check("While an event script runs: blocked", !FullPoke.can_use_compass?(false))
+$game_system.map_interpreter.setup(nil, 0)   # (Interpreter#clear keeps the list)
+on_map(175, 6, 10)   # Oak's Lab (indoor)
+check("Indoors: blocked", !FullPoke.can_use_compass?(false))
+on_map(23, 10, 10)
+$game_system.map_interpreter.setup(nil, 0)   # Pallet's own cutscene events, for this check only
+$PokemonGlobal.surfing = true
+reason = FullPoke.compass_block_reason
+check("While surfing: allowed (#{reason.inspect})", reason.nil?)
+check("Surfing stops on arrival", FullPoke.transfer(*FullPoke::World.forest_exit(:kanto)) && !$PokemonGlobal.surfing)
+$game_temp.player_transferring = false
 
 section "Save and load keep regions and party sets"
 $fullpoke = FullPoke::Progress.new

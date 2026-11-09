@@ -1,10 +1,12 @@
 #===============================================================================
 # Wild Pokémon in the Interregional Forest.
 #
-# Only rare Pokémon from completed regions appear. A species is rare if, on some
-# map of a completed region, its slots for one encounter method add up to
-# RARE_THRESHOLD % or less of that method's table. (Summing the slots stops a
-# common Pokémon from qualifying through one small slot.) The pool is worked out
+# Only rare Pokémon from completed regions appear. A species is rare in a
+# region if, on every map and encounter method of that region where it appears,
+# its slots add up to RARE_THRESHOLD % or less of that method's table. Summing
+# the slots stops one Pokémon from qualifying through several small slots, and
+# a Pokémon that's common anywhere in the region (Pidgey on Kanto's Route 1)
+# doesn't qualify through a small slot somewhere else. The pool is worked out
 # from the region's real encounter tables, so it grows as regions are completed
 # and is empty before the first one.
 #
@@ -41,6 +43,7 @@ module FullPoke
       key = [:region, region_id]
       return @cache[key] if @cache[key]
       ret = []
+      common = {}
       maps = FullPoke.maps_of_region(region_id)
       GameData::Encounter.each do |enc|
         next if !maps.include?(enc.map)
@@ -57,14 +60,33 @@ module FullPoke
           end
           by_species.each do |species, e|
             pct = e[:chance] * 100.0 / total
-            next if pct > FullPoke::RARE_THRESHOLD
+            if pct > FullPoke::RARE_THRESHOLD
+              common[species] = true
+              next
+            end
             ret.push({ species: species, min: e[:min], max: e[:max], pct: pct,
                        map: enc.map, type: type, region: region_id })
           end
         end
       end
+      ret.reject! { |e| common[e[:species]] }
       @cache[key] = ret
       return ret
+    end
+
+    # Species excluded from a region's pool because they're common somewhere in it.
+    def common_species(region_id)
+      key = [:common, region_id]
+      return @cache[key] if @cache[key]
+      rare = rare_entries(region_id).map { |e| e[:species] }.uniq
+      seen = []
+      maps = FullPoke.maps_of_region(region_id)
+      GameData::Encounter.each do |enc|
+        next if !maps.include?(enc.map)
+        enc.types.each_value { |slots| (slots || []).each { |s| seen.push(s[1]) } }
+      end
+      @cache[key] = seen.uniq - rare
+      return @cache[key]
     end
 
     # The forest pool for :land or :water, one entry per species.

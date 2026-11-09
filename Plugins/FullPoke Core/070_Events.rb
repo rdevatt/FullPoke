@@ -168,21 +168,40 @@ end
 
 #===============================================================================
 # Grove Compass: a key item that returns the player to the forest gate of the
-# region they're in, from anywhere outside a building.
+# region they're in. It works where an Escape Rope or Teleport would: outdoors
+# or in a cave, never in a building, during a scripted scene or battle, in the
+# Safari Zone or Bug-Catching Contest, with someone following, underwater, or
+# while a story sequence has locked it (FullPoke.lock_compass).
 #===============================================================================
 module FullPoke
-  def self.can_use_compass?(show_messages = true)
+  def self.lock_compass(on = true)
+    progress.flags[:compass_locked] = on
+  end
+
+  def self.compass_locked?
+    return progress.flags[:compass_locked] ? true : false
+  end
+
+  # nil if the compass can be used here, otherwise the reason (a message).
+  def self.compass_block_reason
     region_id = current_map_region
-    if !region_id || region_id == :forest
-      pbMessage(_INTL("The needle spins lazily. You're already in the forest.")) if show_messages && region_id == :forest
-      pbMessage(_INTL("The needle doesn't move here.")) if show_messages && !region_id
-      return false
-    end
-    if !World.forest_exit(region_id)
-      pbMessage(_INTL("The needle doesn't move here.")) if show_messages
-      return false
-    end
-    return true
+    return _INTL("The needle spins lazily. You're already in the forest.") if region_id == :forest
+    return _INTL("The needle doesn't move here.") if !region_id || !World.forest_exit(region_id)
+    return _INTL("Now isn't the time to use that.") if $game_temp.in_battle || pbMapInterpreterRunning?
+    return _INTL("Now isn't the time to use that.") if compass_locked?
+    return _INTL("It can't be used when you have someone with you.") if $PokemonGlobal.partner ||
+                                                                        !$game_player.can_map_transfer_with_follower?
+    return _INTL("It can't be used here.") if pbInSafari? || pbInBugContest? || $PokemonGlobal.diving
+    outdoor = $game_map.metadata&.outdoor_map
+    cave = $PokemonGlobal.escapePoint && !$PokemonGlobal.escapePoint.empty?
+    return _INTL("The needle won't settle indoors.") if !outdoor && !cave
+    return nil
+  end
+
+  def self.can_use_compass?(show_messages = true)
+    reason = compass_block_reason
+    pbMessage(reason) if reason && show_messages
+    return reason.nil?
   end
 
   def self.use_compass
@@ -190,6 +209,7 @@ module FullPoke
     dest = World.forest_exit(region_id)
     return false if !dest
     pbMessage(_INTL("The Grove Compass points the way back to the Interregional Forest."))
+    pbEraseEscapePoint
     return transfer(*dest)
   end
 end
