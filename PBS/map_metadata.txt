@@ -457,6 +457,203 @@ Outdoor = true
 ShowArea = true
 BattleBack = field
 #-------------------------------
+[113]
+Name = Petalburg City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[114]
+Name = Slateport City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[115]
+Name = Mauville City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[116]
+Name = Rustboro City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[117]
+Name = Fortree City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[118]
+Name = Lilycove City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[119]
+Name = Mossdeep City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[120]
+Name = Sootopolis City Nc
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[121]
+Name = Ever Grande City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[122]
+Name = Littleroot Town
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[123]
+Name = Oldale Town
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[124]
+Name = Dewford Town
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[125]
+Name = Lavaridge Town
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[126]
+Name = Fallarbor Town
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[127]
+Name = Verdanturf Town
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[129]
+Name = Route 101
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[130]
+Name = Route 102
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[131]
+Name = Route 103
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[132]
+Name = Route 104
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[134]
+Name = Route 106
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[138]
+Name = Route 110
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[139]
+Name = Route 111
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[140]
+Name = Route 112
+BattleBack = cave1
+DarkMap = false
+#-------------------------------
+[141]
+Name = Route 113
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[144]
+Name = Route 116
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[145]
+Name = Route 117
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[146]
+Name = Route 118
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[147]
+Name = Route 119
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[148]
+Name = Route 120
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[149]
+Name = Route 121
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[150]
+Name = Route 122
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[152]
+Name = Route 124
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[154]
+Name = Route 126
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
 [178]
 Name = Route 47
 Outdoor = true
@@ -545,6 +742,11 @@ BattleBack = field
 Name = Unova Gyms and League
 BattleBack = indoor1
 #-------------------------------
+[515]
+Name = Rusturf Tunnel
+BattleBack = cave1
+DarkMap = false
+#-------------------------------
 [539]
 Name = Kalos Gyms and League
 BattleBack = indoor1
@@ -602,6 +804,12 @@ BattleBack = field
 #-------------------------------
 [556]
 Name = Snowbelle City
+Outdoor = true
+ShowArea = true
+BattleBack = field
+#-------------------------------
+[566]
+Name = Petalburg Woods
 Outdoor = true
 ShowArea = true
 BattleBack = field
@@ -800,59 +1008,11 @@ ShowArea = true
 BattleBack = field
 #-------------------------------
 [932]
-Name = Hoenn Pokémon Center
+Name = Hoenn Interiors
 #-------------------------------
 [933]
 Name = Hoenn Gyms and League
 BattleBack = indoor1
-#-------------------------------
-[934]
-Name = Rustboro City
-Outdoor = true
-ShowArea = true
-BattleBack = field
-#-------------------------------
-[935]
-Name = Dewford Town
-Outdoor = true
-ShowArea = true
-BattleBack = field
-#-------------------------------
-[936]
-Name = Mauville City
-Outdoor = true
-ShowArea = true
-BattleBack = field
-#-------------------------------
-[937]
-Name = Lavaridge Town
-Outdoor = true
-ShowArea = true
-BattleBack = field
-#-------------------------------
-[938]
-Name = Petalburg City
-Outdoor = true
-ShowArea = true
-BattleBack = field
-#-------------------------------
-[939]
-Name = Fortree City
-Outdoor = true
-ShowArea = true
-BattleBack = field
-#-------------------------------
-[940]
-Name = Mossdeep City
-Outdoor = true
-ShowArea = true
-BattleBack = field
-#-------------------------------
-[941]
-Name = Sootopolis City
-Outdoor = true
-ShowArea = true
-BattleBack = field
 #-------------------------------
 [942]
 Name = Sinnoh Pokémon Center
