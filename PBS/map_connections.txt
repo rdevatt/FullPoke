@@ -600,7 +600,7 @@
 146,North,0,147,South,0
 147,East,0,117,West,0
 117,East,1,148,West,0
-148,South,0,149,North,0
+148,South,7,149,North,0
 149,East,0,118,West,24
 149,South,0,150,North,1
 118,East,0,152,West,0

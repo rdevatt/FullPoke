@@ -466,7 +466,8 @@ class GeoRegion
       dead_end = lambda do |tiles|
         set = tiles.to_h { |t| [t, true] }
         # Off the map edge and away from other events where possible
-        tiles.select { |x, y| land.(x, y) && dirs.values.any? { |dx, dy| land.(x + dx, y + dy) } }.min_by do |x, y|
+        # (never on a bridge: a ladder there would need the player up or down)
+        tiles.select { |x, y| land.(x, y) && !BridgeLib.tile(ts, m, x, y) && dirs.values.any? { |dx, dy| land.(x + dx, y + dy) && !BridgeLib.tile(ts, m, x + dx, y + dy) } }.min_by do |x, y|
           [x > 0 && y > 0 && x < m.width - 1 && y < m.height - 1 ? 0 : 1,
            dirs.values.any? { |dx, dy| event_at?(m, x + dx, y + dy) } ? 1 : 0,
            dirs.values.count { |dx, dy| set[[x + dx, y + dy]] }, y, x]
