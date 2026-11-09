@@ -143,8 +143,13 @@ def travel_to(map_id, x = nil, y = nil, tries: 4)
   tries.times do
     return true if $game_map.map_id == map_id && (x.nil? || ($game_player.x == x && $game_player.y == y))
     steps = Route.plan(map_id, x, y, surf: surf_ready?) or raise "no route to map #{map_id} #{x},#{y} from #{where}"
+    before = [$game_map.map_id, $game_player.x, $game_player.y]
     begin
       ok = follow(steps)
+      if !ok && [$game_map.map_id, $game_player.x, $game_player.y] == before
+        log "no progress through map #{$game_map.map_id}; planning around it"
+        Route.avoided << $game_map.map_id
+      end
     rescue RuntimeError => e
       raise if !e.message.start_with?('no path to', "couldn't reach")
       # The plan crossed this map a way that doesn't work in the game (one-way
