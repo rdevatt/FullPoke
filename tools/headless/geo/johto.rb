@@ -115,6 +115,10 @@ GEO_SPEC[:johto] = {
   trainers: { r40: 2, r41: 2, rage: 2 },
   caves: [:union_cave, :ice_path, :sprout, :bell_tower, :lighthouse, :slowpoke_well, :dark_cave, :dragons_den,
           :ruins_caves, :cliffedge, :cliff_caves, :tohjo, :mt_silver],
+  # Scenery drawn walkable or surfable that no path reaches gets an invisible
+  # solid tile (see GeoRegion#build_blockers): Route 48's pool in the rock
+  blocker_tiles: { 28 => 896 },
+  blockers: { r48: [[204, 73]] },
   # Maps drawn as several separate floors or levels: ladders join every part
   # to the ones reached from the way in (see GeoRegion#link_areas)
   link_areas: {
