@@ -225,7 +225,11 @@ class GeoRegion
           GEO_WARNINGS << "#{@region} #{town}: door #{kind} #{gx},#{gy} skipped (#{e.message})"
           next
         end
+        clear_door_approach(m, dx, dy)
         out = step_out(m, dx, dy, 2)
+        if reachable_from(m, out[0], out[1]).size < 80
+          GEO_WARNINGS << "#{@region} #{town}: door #{kind} #{label} at #{dx},#{dy} opens onto a small enclosed area"
+        end
         case kind
         when :gym
           gym_door(town, m, dx, dy, out, t[:stage])
@@ -507,6 +511,42 @@ end
 # tileset, and anything also used as ground) are never changed. Tileset 1 is
 # Kanto's and is left alone.
 FIX_PASSAGES_MIN_ID = 3000
+FIXED_TILES = {}
+
+# Doormats, carpets, steps and curbs around a door look like building parts to
+# fix_building_passages (they sit next to solid walls). From the tile in front
+# of each door, the shortest way to open ground is found, and any tile on it
+# that the fix made solid is made walkable again.
+def clear_door_approach(map, x, y)
+  ts = TILESETS[map.tileset_id]
+  fixed_ids = ->(cx, cy) { [1, 2].map { |z| map.data[cx, cy, z] }.select { |t| FIXED_TILES[[map.tileset_id, t]] } }
+  open = ->(cx, cy) { cx >= 0 && cy >= 0 && cx < map.width && cy < map.height && (passable_tile?(map, cx, cy) || !fixed_ids.(cx, cy).empty?) }
+  start = [x, y + 1]
+  return if !open.(*start)
+  prev = { start => nil }
+  queue = [start]
+  goal = nil
+  until queue.empty?
+    c = queue.shift
+    if passable_tile?(map, *c) && reachable_from(map, *c).size >= 80
+      goal = c
+      break
+    end
+    next if (c[0] - x).abs + (c[1] - y).abs > 12
+    [[0, 1], [1, 0], [-1, 0], [0, -1]].each do |dx, dy|
+      n = [c[0] + dx, c[1] + dy]
+      next if prev.key?(n) || n == [x, y] || !open.(*n)
+      prev[n] = c
+      queue << n
+    end
+  end
+  return if !goal
+  c = goal
+  while c
+    fixed_ids.(*c).each { |t| ts.passages[t] = 0; FIXED_TILES.delete([map.tileset_id, t]) }
+    c = prev[c]
+  end
+end
 def fix_building_passages(map_ids)
   by_ts = Hash.new { |h, k| h[k] = [] }
   map_ids.each { |mid| m = WG.load_map(mid); by_ts[m.tileset_id] << m }
@@ -529,7 +569,7 @@ def fix_building_passages(map_ids)
       end
     end
     fix = seen.keys.select { |t| !ground[t] && hit[t] * 10 >= seen[t] * 7 }
-    fix.each { |t| ts.passages[t] = 0x0f }
+    fix.each { |t| ts.passages[t] = 0x0f; FIXED_TILES[[ts_id, t]] = true }
     puts "Tileset #{ts_id}: #{fix.length} building tiles made solid"
   end
 end

@@ -63,12 +63,18 @@ module FullPoke
       return FullPoke.parse_party(defn[:party]).map { |p| p[:level] }.max || 5
     end
 
-    # [min, max] wild level on the route leading to stage n (n = 1..8, 9 = Victory Road)
+    # [min, max] wild level on the way to stage n (n = 1..8, 9 = Victory Road).
+    # Levels climb from just below the previous Leader's ace to a few levels
+    # under this stage's Leader, so the routes (with the party-wide Exp. Share)
+    # bring a team close to the Gym without long grinding.
     def stage_levels(region_id, n)
-      return [2, 5] if n <= 1
-      prev = leader_top_level(stage(region_id, n - 1)[:leader])
-      lo = [(prev * 0.8).round, 2].max
-      hi = [prev + 1, lo + 2].max
+      if n > STAGES
+        last = leader_top_level(stage(region_id, STAGES)[:leader])
+        return [last - 2, last + 4]
+      end
+      hi = [leader_top_level(stage(region_id, n)[:leader]) - 3, 4].max
+      lo = (n <= 1) ? 2 : leader_top_level(stage(region_id, n - 1)[:leader]) - 4
+      lo = [[lo, 2].max, hi - 2].min
       return [lo, hi]
     end
 
