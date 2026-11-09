@@ -3,7 +3,7 @@
 # warps (doors, stairs, gates) and FullPoke's scripted gates. Used to audit the
 # map pack's Kanto connections and the generated circuits.
 #   tools/headless/run.sh t_reach.rb [map x y] [target map ids...]
-# Ledges are treated as one-way (downwards); NPCs and other solid events block.
+# Ledges are one-way (the way their tiles let you jump them); NPCs and other solid events block.
 require_relative 'play_lib'
 
 start_map, sx, sy = (ARGV[0] ? ARGV[0..2].map(&:to_i) : [23, 13, 9])
@@ -34,8 +34,8 @@ def tile_ok?(m, x, y)
     next if t.nil? || t == 0
     tag = ts.terrain_tags[t]
     return true if tag == 15   # bridge: walkable once a BridgeOn event puts you up on it
-    if [5, 6, 7, 16].include?(tag)   # water (needs Surf)
-      return SURF && ts.passages[t] & 0x0f != 0x0f || SURF && z == 0
+    if [5, 6, 7, 16].include?(tag)   # water (needs Surf; surfing ignores a water tile's passage, as Game_Map#playerPassable? does)
+      return SURF && (tag != 16 || ts.passages[t] & 0x0f != 0x0f || z == 0)
     end
     return false if ts.passages[t] & 0x0f == 0x0f
     return true if ts.priorities[t] == 0
@@ -46,6 +46,21 @@ end
 def ledge?(m, x, y)
   ts = TS[m.tileset_id]
   (0..2).any? { |z| (t = m.data[x, y, z]) && t > 0 && ts.terrain_tags[t] == 1 }
+end
+
+# A ledge is jumped in the directions its tile lets you enter it from (as the
+# engine's passability does); one with no directions set is jumped downwards.
+def ledge_ok?(m, x, y, dx, dy)
+  ts = TS[m.tileset_id]
+  d = dy == 1 ? 2 : dy == -1 ? 8 : dx == -1 ? 4 : 6
+  [2, 1, 0].each do |z|
+    t = m.data[x, y, z]
+    next if !t || t == 0 || ts.terrain_tags[t] != 1
+    pass = ts.passages[t] & 0x0f
+    return dy == 1 if pass == 0
+    return pass & (1 << ((10 - d) / 2 - 1)) == 0
+  end
+  dy == 1
 end
 
 @ev_cache = {}
@@ -118,7 +133,7 @@ until queue.empty?
     end
     next if solid[[nx, ny]] && !warps[[nx, ny]]
     next if !tile_ok?(m, nx, ny)
-    next if ledge?(m, nx, ny) && dy != 1
+    next if ledge?(m, nx, ny) && !ledge_ok?(m, nx, ny, dx, dy)
     st = [id, nx, ny]
     next if seen[st]
     seen[st] = true
@@ -136,10 +151,10 @@ if !targets.empty?
   end
 end
 
-# GRID=<map> prints which tiles of that map were reached ('o') over its walkable tiles ('.')
-if ENV['GRID']
-  gm = ENV['GRID'].to_i
-  m = rx_map(gm)
+# GRID=<map>[,<map>...] prints which tiles of each map were reached ('o') over its walkable tiles ('.')
+(ENV['GRID'] || '').split(',').map(&:to_i).each do |gm|
+  m = rx_map(gm) or next
+  puts "GRID #{gm}"
   m.height.times do |y|
     puts format('%4d ', y) + (0...m.width).map { |x| seen[[gm, x, y]] ? 'o' : (tile_ok?(m, x, y) ? '.' : '#') }.join
   end

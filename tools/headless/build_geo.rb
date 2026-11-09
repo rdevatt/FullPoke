@@ -83,6 +83,7 @@ class GeoRegion
   def build
     root = region_root(@region)
     @root = root
+    generate_maps
     build_rooms
     gmap, gid, grooms, lrooms = build_gyms(@region, root)
     @gyms = { map: gmap, id: gid, rooms: grooms }
@@ -92,6 +93,7 @@ class GeoRegion
     build_docks
     build_ferries
     build_towns
+    link_areas
     build_start
     build_routes
     build_story
@@ -106,6 +108,25 @@ class GeoRegion
       cave = WG.load_map(mid).tileset_id == 27 || (@spec[:caves] || []).include?(key)
       meta(mid, @spec.dig(:names, key) || INFO_NAME.call(mid), outdoor: !cave, battleback: cave ? 'cave1' : 'field',
            extra: cave ? ["DarkMap = false"] : [])
+    end
+  end
+
+  # Places the map pack has only as empty placeholder maps, generated as caves
+  # like the generated regions' (its ports are winding branches, sealed at the
+  # map edge): `generate: { key => { size: [w, h], ports: [[side, frac], ...] } }`
+  def generate_maps
+    (@spec[:generate] || {}).each do |key, g|
+      rng = Random.new(Zlib.crc32("geo/#{@region}/#{key}"))
+      m = Gen.cave({ size: g[:size], rocks: g[:rocks] }, g[:ports], rng)
+      m.height.times do |y|
+        m.width.times do |x|
+          next if x > 0 && y > 0 && x < m.width - 1 && y < m.height - 1
+          m.data[x, y, 0] = Gen::CAVE_VOID
+          m.data[x, y, 1] = 0
+        end
+      end
+      WG.set_bgm(m, g[:bgm] || 'Cave')
+      save_data(m, WG.map_path(id(key)))
     end
   end
 
@@ -217,8 +238,190 @@ class GeoRegion
     end
   end
 
-  # The top- or bottom-most walkable tile of the area around `near`.
+  # Maps drawn as several separate areas (tower floors side by side, cave
+  # levels, cliff tops, lagoons behind rocks): every area with 10+ walkable
+  # (or 10+ surfable) tiles that players can't reach from
+  # `link_areas: { key => [x, y] }` (or a list of points: tiles they do reach)
+  # gets a two-way ladder. Reaching is worked out like t_reach.rb does: Surf,
+  # one-way ledges, and warps within the map count. Where the area faces a
+  # reached tile across a cliff, wall or line of rocks up to 3 tiles thick,
+  # the ladder is in that wall (walk or surf into it; a wall one tile thick
+  # uses two tiles side by side, one each way). Otherwise the two ends stand
+  # in dead ends, where nobody steps by accident.
+  def link_areas
+    dirs = { 2 => [0, 1], 8 => [0, -1], 4 => [-1, 0], 6 => [1, 0] }
+    back = { 2 => 8, 8 => 2, 4 => 6, 6 => 4 }
+    (@spec[:link_areas] || {}).each do |key, entries|
+      m = map(key)
+      mid = id(key)
+      ts = TILESETS[m.tileset_id]
+      entries = [entries] if entries[0].is_a?(Integer)
+      inside = ->(x, y) { x >= 0 && y >= 0 && x < m.width && y < m.height }
+      # :land, :water, :void (nothing drawn: passable, but no place for a
+      # ladder) or nil (solid). The topmost tile decides, as in the engine.
+      kind = lambda do |x, y|
+        return nil if !inside.(x, y)
+        [2, 1, 0].each do |z|
+          t = m.data[x, y, z]
+          next if t == 0
+          tag = ts.terrain_tags[t]
+          return :land if tag == 15
+          return :water if [5, 6, 7].include?(tag)
+          return nil if ts.passages[t] & 0x0f == 0x0f
+          return :land if ts.priorities[t] == 0
+        end
+        (0..2).all? { |z| m.data[x, y, z] == 0 } ? :void : :land
+      end
+      # Ledges are jumped in the directions their tile can be entered from
+      ledge_ok = lambda do |x, y, d|
+        [2, 1, 0].each do |z|
+          t = m.data[x, y, z]
+          next if t == 0 || ts.terrain_tags[t] != 1
+          pass = ts.passages[t] & 0x0f
+          return d == 2 if pass == 0
+          return pass & (1 << ((10 - d) / 2 - 1)) == 0
+        end
+        true
+      end
+      land = ->(x, y) { kind.(x, y) == :land && !event_at?(m, x, y) }
+      walk = lambda do |starts|
+        warp = {}
+        solid = {}
+        m.events.each_value do |e|
+          pg = e.pages[0] or next
+          solid[[e.x, e.y]] = true if pg.graphic.character_name != '' && !pg.through && pg.trigger != 1
+          c = pg.list.find { |cmd| cmd.code == 201 }
+          warp[[e.x, e.y]] = [c.parameters[2], c.parameters[3]] if c && c.parameters[0] == 0 && c.parameters[1] == mid
+        end
+        seen = {}
+        q = []
+        starts.each { |s| (seen[s] = true; q << s) if !seen[s] }
+        until q.empty?
+          x, y = q.shift
+          if (w = warp[[x, y]]) && !seen[w]
+            seen[w] = true
+            q << w
+          end
+          dirs.each do |d, (dx, dy)|
+            n = [x + dx, y + dy]
+            next if seen[n] || !inside.(*n)
+            k = kind.(*n)
+            if !k && (w = warp[n])   # a door or ladder in a wall: walk into it
+              (seen[w] = true; q << w) if !seen[w]
+              next
+            end
+            next if !k || (solid[n] && !warp[n]) || !ledge_ok.(*n, d)
+            seen[n] = true
+            q << n
+          end
+        end
+        seen
+      end
+      # Each entry, or the nearest open tile if it names a door or a wall
+      starts = entries.map do |ex, ey|
+        (0..6).lazy.flat_map { |r| (-r..r).flat_map { |dx| [[ex + dx, ey + r - dx.abs], [ex + dx, ey - r + dx.abs]] } }
+              .find { |t| kind.(*t) && !event_at?(m, *t) } || raise("#{@region}: nothing walkable near #{key} #{ex},#{ey}")
+      end
+      count = 0
+      skipped = {}
+      ladder = lambda do |wa, b, b_dir, wb, a, a_dir|
+        count += 1
+        ev_warp(m, wa[0], wa[1], mid, b[0], b[1], b_dir, name: "FP: Ladder #{count}")
+        ev_warp(m, wb[0], wb[1], mid, a[0], a[1], a_dir, name: "FP: Ladder #{count} back")
+      end
+      dead_end = lambda do |tiles|
+        set = tiles.to_h { |t| [t, true] }
+        # Off the map edge and away from other events where possible
+        tiles.select { |x, y| land.(x, y) && dirs.values.any? { |dx, dy| land.(x + dx, y + dy) } }.min_by do |x, y|
+          [x > 0 && y > 0 && x < m.width - 1 && y < m.height - 1 ? 0 : 1,
+           dirs.values.any? { |dx, dy| event_at?(m, x + dx, y + dy) } ? 1 : 0,
+           dirs.values.count { |dx, dy| set[[x + dx, y + dy]] }, y, x]
+        end
+      end
+      200.times do
+        seen = walk.(starts)
+        # Unreached areas (tiles joined both ways)
+        group_of = {}
+        groups = []
+        m.height.times do |y|
+          m.width.times do |x|
+            next if group_of[[x, y]] || seen[[x, y]] || skipped[[x, y]] || !kind.(x, y) || event_at?(m, x, y)
+            g = []
+            q = [[x, y]]
+            group_of[[x, y]] = true
+            until q.empty?
+              c = q.shift
+              g << c
+              dirs.each_value do |dx, dy|
+                n = [c[0] + dx, c[1] + dy]
+                next if group_of[n] || seen[n] || skipped[n] || !kind.(*n) || event_at?(m, *n)
+                group_of[n] = true
+                q << n
+              end
+            end
+            # Water counts too: a lagoon behind a line of rocks
+            groups << g if g.count { |t| land.(*t) } >= 10 || g.count { |t| kind.(*t) == :water } >= 10
+          end
+        end
+        break if groups.empty?
+        # Walls between an area and reached ground (or water, for a lagoon:
+        # surfing through the rocks)
+        wall_ok = ->(w) { inside.(*w) && !kind.(*w) && !event_at?(m, *w) }
+        same = ->(t, k) { kind.(*t) == k && !event_at?(m, *t) }
+        linked = groups.select do |g|
+          in_g = g.to_h { |t| [t, true] }
+          best = nil
+          g.each do |bx, by|
+            bk = kind.(bx, by)
+            next if ![:land, :water].include?(bk) || event_at?(m, bx, by)
+            dirs.each do |d, (dx, dy)|
+              (1..3).each do |k|
+                wall = (1..k).map { |s| [bx + dx * s, by + dy * s] }
+                break if !wall.all?(&wall_ok)
+                a = [bx + dx * (k + 1), by + dy * (k + 1)]
+                next if !seen[a] || !same.(a, bk)
+                if k == 1
+                  # A wall one tile thick: the way back is the wall tile beside it
+                  [[dy, dx], [-dy, -dx]].each do |px, py|
+                    w2 = [wall[0][0] + px, wall[0][1] + py]
+                    b2 = [bx + px, by + py]; a2 = [a[0] + px, a[1] + py]
+                    next if !wall_ok.(w2) || !in_g[b2] || !same.(b2, bk) || !seen[a2] || !same.(a2, bk)
+                    best = [1, [bx, by], d, wall[0], a2, w2]
+                    break
+                  end
+                elsif !best || k < best[0]
+                  best = [k, [bx, by], d, wall[-1], a, wall[0]]
+                end
+                break
+              end
+            end
+            break if best && best[0] == 1
+          end
+          next false if !best
+          _, b, d, wa, a, wb = best
+          # Walking into the wall from the reached side climbs to b, and back
+          ladder.(wa, b, back[d], wb, a, d)
+          true
+        end
+        next if !linked.empty?
+        g = groups.max_by(&:length)
+        a = dead_end.(seen.keys.select { |t| inside.(*t) })
+        b = dead_end.(g)
+        if !a || !b
+          GEO_WARNINGS << "#{@region}: #{key} has no spot for a ladder to the area around #{g[0].join(',')}"
+          g.each { |t| skipped[t] = true }
+          next
+        end
+        oa = step_out(m, *a); ob = step_out(m, *b)
+        ladder.(a, ob[0..1], ob[2], b, oa[0..1], oa[2])
+      end
+    end
+  end
+
+  # The top- or bottom-most walkable tile of the area around `near`, or
+  # (`door: [x, y]`) the building front nearest that point.
   def pick_tile(m, sel)
+    return Geo.snap_door(m, *sel[:door]) if sel[:door]
     area = reachable_from(m, *sel[:near]).keys.reject { |x, y| event_at?(m, x, y) }
     raise "#{@region}: nothing walkable near #{sel[:near].inspect}" if area.size < 2
     case sel[:pick]
@@ -285,8 +488,9 @@ class GeoRegion
         when :gym
           gym_door(town, m, dx, dy, out, t[:stage])
         when :dungeon
-          dest = label   # [map key, x, y]
+          dest = label   # [map key, x, y] or [map key, { near:, pick: }]
           dm = map(dest[0])
+          dest = [dest[0], *pick_tile(dm, dest[1])] if dest[1].is_a?(Hash)
           inside = step_out(dm, dest[1], dest[2], 8)
           ev_warp(m, dx, dy, id(dest[0]), inside[0], inside[1], inside[2], name: "FP: Door #{dest[0]}")
           ev_warp(dm, dest[1], dest[2], id(town), out[0], out[1], 2, name: "FP: Exit to #{town}")
@@ -713,8 +917,21 @@ def inherit_tileset_settings
   end
 end
 
+# A region's own corrections to the shared tilesets, kept as data in its spec:
+# `tile_fixes: { tileset => { solid: [tiles], open: [tiles], tags: { tile => terrain tag } } }`.
+# Tilesets are rebuilt from the base every run, so fixes never compound.
+def apply_tile_fixes(region)
+  (GEO_SPEC[region][:tile_fixes] || {}).each do |ts_id, fx|
+    ts = TILESETS[ts_id]
+    (fx[:solid] || []).each { |t| ts.passages[t] |= 0x0f }
+    (fx[:open] || []).each { |t| ts.passages[t] &= ~0x0f }
+    (fx[:tags] || {}).each { |t, tag| ts.terrain_tags[t] = tag }
+  end
+end
+
 def build_geo_region(region)
   inherit_tileset_settings
+  apply_tile_fixes(region)
   fix_building_passages(GEO_SPEC[region][:maps].values)
   GeoRegion.new(region).build
 end
