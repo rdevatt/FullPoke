@@ -78,6 +78,8 @@ GEO_SPEC[:sinnoh] = {
     # Oreburgh Gate: Route 203's cave mouth and Oreburgh's west tunnel
     [:r203, [49, 11], :oreburgh, [8, 12], { out_a: 2, out_b: 6 }],
     [:r207, [58, 7], :r208, [8, 12], { out_a: 4, out_b: 2 }],
+    # Route 212: the bridge's south end and the ground under it, walled in
+    [:r212, [48, 103], :r212, [45, 106], { out_a: 8, out_b: 8 }],
     # Mt. Coronet's northern passage: Route 211's cave to the snowfields of Route 216
     [:r211e, [2, 9], :r216, [150, 30], { out_a: 2, out_b: 2 }]
   ],

@@ -219,12 +219,22 @@ if ENV['AUDIT']
     totals[:area] += areas.sum(&:length); totals[:pocket] += pockets.sum(&:length); totals[:walk] += walk
     # SEAL=1: put the tileset's invisible solid tile (invisible.rb) on every
     # pocket tile and save the map. Nothing reaches them even with every field
-    # move, so no path is lost. Skipped: tiles beside an event (boulders, NPCs
-    # that walk), bridges and ledges, and cells drawn on every layer.
+    # move, so no path is lost. Skipped: tiles beside an event that moves or
+    # can be pushed (NPCs that walk, Strength boulders) or that has a move
+    # route, bridges and ledges, and cells drawn on every layer.
     if ENV['SEAL'] && !pockets.empty? && (inv = INVISIBLE_TILES[m.tileset_id])
       ts = TS[m.tileset_id]
       near_ev = {}
-      m.events.each_value { |e| (-1..1).each { |dx| (-1..1).each { |dy| near_ev[[e.x + dx, e.y + dy]] = true } } }
+      # (events any event's move route moves: 0 is the event itself, -1 the player)
+      routed = {}
+      m.events.each_value do |e|
+        e.pages.each { |pg| pg.list.each { |c| routed[c.parameters[0] == 0 ? e.id : c.parameters[0]] = true if c.code == 209 } }
+      end
+      m.events.each_value do |e|
+        moves = e.name =~ /boulder|strength|rock/i || routed[e.id] || e.pages.any? { |pg| pg.move_type != 0 }
+        next if !moves
+        (-1..1).each { |dx| (-1..1).each { |dy| near_ev[[e.x + dx, e.y + dy]] = true } }
+      end
       sealed = 0
       pockets.flatten(1).each do |x, y|
         next if near_ev[[x, y]]

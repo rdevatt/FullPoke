@@ -42,7 +42,17 @@ tools/headless/run.sh t_kanto_story.rb             # S.S. Anne, Pokémon Tower, 
 tools/headless/run.sh t_reach.rb 23 13 9 33 292   # which maps are reachable on foot from Pallet Town
 RULES=johto:3 SURF=1 tools/headless/run.sh t_reach.rb 7 11 25 85 90   # ... with 3 Johto badges, surfing
 GRID=59 tools/headless/run.sh t_reach.rb 7 11 25 59                  # print which tiles of map 59 were reached
+SURF=1 AUDIT=@all_ids.txt tools/headless/run.sh t_reach.rb 913 2 73  # whole-game audit: every walkable tile nothing reaches
+DIAG=1 REGIONS=sinnoh PROBE=2,273,22,7,273,37,6 tools/headless/run.sh t_route_probe.rb   # replay one planner trip, logging each try
 ```
+
+The audit groups unreached tiles into areas (10+ tiles) and pockets.
+`AUDITV=1` or `AUDIT_AREAS=1` lists each area (with the nearest reached tile),
+`AUDIT_TILES=1` tallies tiles, and `SEAL=1` puts the tileset's invisible solid
+tile (`invisible.rb`) on every pocket tile not beside an event and saves the
+maps. Bridges follow the game's rules in `bridge_lib.rb`: BridgeOn/BridgeOff
+switches, side rails while up on a bridge, and FullPoke's bridge reset. The
+audit, `world_route.rb` and `build_geo.rb`'s `link_areas` share it.
 
 Tests walk between maps with `world_route.rb` (`travel_to(map, x, y)`): it
 plans over walkable tiles, map connections, warps and water (surfing when the
@@ -54,9 +64,13 @@ circuits for regions without either; the Kanto story and League hookup; the
 New Game region choice) is built by:
 
 ```bash
-tools/headless/run.sh build_world.rb   # rebuild generated maps (IDs kept in world_ids.json)
-tools/headless/run.sh t_compile.rb     # then recompile (map metadata/connections)
+tools/headless/rebuild.sh              # build_world.rb, t_compile.rb (keeping the built tilesets), then the pocket seal
 ```
+
+`rebuild.sh` is how the committed data is made. By hand: `run.sh
+build_world.rb`, then `run.sh t_compile.rb` (save `Data/Tilesets.rxdata`
+before and restore it after: the compile overwrites it), then the `SEAL=1`
+audit.
 
 It only replaces maps it generated and events named `FP: ...` on map-pack
 maps, so it's safe to re-run. Edit the builder or the region data in
@@ -114,7 +128,10 @@ docker build -t fullpoke-ruby tools/headless/docker && tools/headless/render.sh 
 | `build_geo.rb`, `geo_lib.rb`, `geo/*.rb` | Regions built from the map pack's real maps |
 | `gen_region.rb`, `plans/*.rb` | Regions generated as separate maps in their real order |
 | `kanto_story.rb`, `fix_tileset_passability.rb`, `t_kanto_*.rb` | Kanto story events, the cave tileset fix, their tests |
-| `world_route.rb` | Multi-map routing for tests |
+| `world_route.rb`, `t_route_probe.rb` | Multi-map routing for tests; replaying one trip |
+| `bridge_lib.rb` | The engine's bridge rules, shared by the audit, the planner and `link_areas` |
+| `invisible.rb`, `invisible_tiles.rb` | The invisible solid tile per tileset, and the tool that finds one (a transparent tile no map draws) |
+| `rebuild.sh`, `all_ids.txt` | Full rebuild with the pocket seal; the map ids the whole-game audit covers |
 | `pass_grid.rb`, `geo_probe.rb`, `room_list.rb` | Inspection for geo specs |
 | `test_lib.rb` | `check`/`section`/`on_map` helpers for the newer tests; evolution without the animation |
 

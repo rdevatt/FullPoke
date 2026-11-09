@@ -166,7 +166,7 @@ GEO_SPEC[:hoenn] = {
     meteor: [[35, 0]],                             # the rock around Meteor Falls' chambers
     # River strips under bridges with rails, cliffs on the land side: nothing
     # reaches them (the boxes keep to the strip)
-    r120: [[49, 0, 48, 0, 57, 79], [55, 53, 48, 53, 57, 79]],
+    r120: [[49, 0, 48, 0, 57, 79], [53, 75, 48, 53, 57, 79]],
     r121: [[48, 0, 48, 0, 97, 7]],
     sootopolis: [[1, 2], [2, 4], [0, 91], [0, 95], [0, 99]],  # frame lines around the unfinished map
     # The tops of Sootopolis' crater (Route 126) and of the Sky Pillar's rock
