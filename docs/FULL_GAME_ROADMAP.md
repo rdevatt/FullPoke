@@ -197,7 +197,8 @@ What the generated maps look like:
   "(generated)" in the map tree.
 
 ### Hoenn and Sinnoh
-**Hoenn on its real maps: partial (merged).**
+**Hoenn on its real maps: done, tested.** `t_geo.rb` plays it start to finish on
+foot (27/27): all eight Gyms, Victory Road, the League and the Hall of Fame.
 - **Maps:** the pack's maps from Littleroot to Ever Grande, with Petalburg
   Woods between Route 104's halves.
 - **Towns:** doors for 16 towns, with Gyms, route trainers, encounters and
@@ -222,18 +223,21 @@ What the generated maps look like:
 **Sinnoh on its real maps: partial (merged).**
 - **Real maps:** Twinleaf, then Rowan's lab in Sandgem, through to Sunyshore.
 - **Badge checks:** each badge opens the next Gym town.
-- **Walkthrough:** five of eight Gyms passed on foot before the merge. It then
-  stuck at the bottom of the Cycling Road; an Oreburgh–Route 207 gate was
-  added as a way west but hasn't been confirmed.
+- **Walkthrough:** passes five of eight Gyms on foot (through Fantina). It then
+  stops on Route 206 (the Cycling Road). The pack's BridgeOn/BridgeOff tiles
+  switch which layer you walk on, and the test route planner doesn't model that
+  switch, so the way to Canalave can't be walked by the test. Whether the
+  bridge works in the game itself is unverified.
 - **Gaps:** six house doors are missing, Route 216 west isn't reachable, and
   the Mt. Coronet passes are cave warps.
 - **Bridge fix:** bridges now switch off on a new map, a fix in `090_World.rb`.
 
-**Latest results** (end of session; the final Hoenn and Sinnoh walkthroughs
-were still running):
-- Paldea 31/31, Johto 27/27, Kalos 26/26, Alola 26/26, Galar 26/26 and
-  Unova 26/26 on foot.
-- Hoenn's Route 120 bridge crossing was fixed after its last run.
+**Latest results:**
+- On foot: Paldea 31/31, Hoenn 27/27, Johto 27/27, Kalos 26/26, Alola 26/26,
+  Galar 26/26 and Unova 26/26.
+- Sinnoh reaches the fifth Gym.
+- Regressions: t_systems 182/182, t_journey9 235/235, t_gen9 59/59, Kanto
+  27/27 in both modes, t_kanto_reach 35/35, and t_journey passes.
 
 ### 9. Balance (no level boosts): measured
 `t_balance.rb` plays a region's battles in order and grants no levels. The
