@@ -161,9 +161,17 @@ def standing_spot(map_id, x, y, from, keep, void_tile: nil)
   raise "Kanto: no standing spot near #{x},#{y} on map #{map_id}"
 end
 
+# ev_trainer with a generated name ("FP: Trainer(n)" still reads as a trainer
+# to Essentials), so rebuilding replaces it.
+def fp_trainer(*args)
+  ev = ev_trainer(*args)
+  ev.name = "FP: #{ev.name}"
+  ev
+end
+
 def k_trainer(map_id, x, y, key, sight: 3, dir: 2, intro: nil)
   defn = FullPoke::Teams.get(key) or raise "Kanto: no trainer #{key}"
-  ev_trainer(kmap(map_id), x, y, sight, "trainer_#{defn[:tr_type]}", dir, defn[:tr_type],
+  fp_trainer(kmap(map_id), x, y, sight, "trainer_#{defn[:tr_type]}", dir, defn[:tr_type],
              intro || 'You look like a Trainer! Let\'s battle!',
              "FullPoke::Circuit.extra_battle(:kanto, :#{key})", 'That was a good battle.')
 end
@@ -308,8 +316,13 @@ def kanto_victory_road
   g = kmap(12)
   old = warp_event_at(12, 447, 16)
   g.events.delete(old.id) if old
+  # The pack's placeholders here: a "TESTER" handing out the Boulder Badge and a
+  # guard checking a "Rock Badge" variable that only the tester sets
+  g.events.delete_if { |_, e| e.name == 'TESTER' || (e.name == 'Counter(1)' && e.x == 448 && e.y == 17) }
   ev_warp(g, 447, 16, 56, 13, 153, 8, name: 'FP: To Route 23', script_cond: 'FullPoke::KantoStory.league_gate?',
-          fail_text: '...')
+          fail_text: 'The guard blocks the way.')
+  ev_npc(g, 448, 17, 'FP: League guard', 'NPC 27', ['Beyond here are Route 23 and Victory Road, the way to the Indigo Plateau.',
+                                                     'Only Trainers with all eight Kanto Badges may pass.'], dir: 4)
 end
 
 def kanto_story
@@ -339,7 +352,7 @@ def kanto_story
   k_trainer(ship, *standing_spot(ship, 94, 124, ship1, [up1, gang]), :kanto_ssanne_t2, sight: 3, dir: 4)
   k_trainer(ship, *standing_spot(ship, 78, 53, deck2, [[90, 46], down2]), :kanto_ssanne_t3, sight: 3, dir: 6)
   rival = FullPoke::Teams.get(:kanto_rival_ssanne)
-  ev_trainer(kmap(ship), *standing_spot(ship, 90, 48, deck2, [[90, 46]]), 4, "trainer_#{rival[:tr_type]}", 2, rival[:tr_type],
+  fp_trainer(kmap(ship), *standing_spot(ship, 90, 48, deck2, [[90, 46]]), 4, "trainer_#{rival[:tr_type]}", 2, rival[:tr_type],
              "Bonjour! Fancy meeting you here. Let's see how your Pokémon are doing!",
              'FullPoke::Circuit.extra_battle(:kanto, :kanto_rival_ssanne)', 'Humph! At least you\'re raising your Pokémon!')
   k_story_npc(ship, *spot_near(ship, 57, 33, [57, 36]), 'Captain', 'NPC 01', 'captain', done: 'Fair winds to you!')
@@ -387,7 +400,7 @@ def kanto_story
   tower = 207
   rv = FullPoke::Teams.get(:kanto_rival_tower)
   f2 = beside(tower, 46, 10)
-  ev_trainer(kmap(tower), *standing_spot(tower, 38, 10, f2, [beside(tower, 30, 10)]), 4, "trainer_#{rv[:tr_type]}", 6, rv[:tr_type],
+  fp_trainer(kmap(tower), *standing_spot(tower, 38, 10, f2, [beside(tower, 30, 10)]), 4, "trainer_#{rv[:tr_type]}", 6, rv[:tr_type],
              "Hey! What brings you here? Your Pokémon don't look dead! Let's see if they can still fight!",
              'FullPoke::Circuit.extra_battle(:kanto, :kanto_rival_tower)', 'What? You stinker! I took it easy on you, too!')
   [[65, 6, 57, 73], [92, 6, 100, 84], [120, 14, 112, 128]].each_with_index do |(x, y, from, to), i|
@@ -448,7 +461,7 @@ def kanto_story
   emp = spot_near(silph, f7s[0] - 12, f7s[1] + 8, f7s)
   k_story_npc(silph, *emp, 'Silph employee', 'NPC 15', 'lapras', done: 'Lapras is a gentle Pokémon.')
   rs = FullPoke::Teams.get(:kanto_rival_silph)
-  ev_trainer(kmap(silph), *standing_spot(silph, f7s[0] - 6, f7s[1] + 4, f7s, [beside(silph, *emp)]), 4,
+  fp_trainer(kmap(silph), *standing_spot(silph, f7s[0] - 6, f7s[1] + 4, f7s, [beside(silph, *emp)]), 4,
              "trainer_#{rs[:tr_type]}", 2, rs[:tr_type],
              'What kept you? Team Rocket is here, but first let me show you how strong I\'ve become!',
              'FullPoke::Circuit.extra_battle(:kanto, :kanto_rival_silph)', 'Arrgh! You\'re still better than me!')

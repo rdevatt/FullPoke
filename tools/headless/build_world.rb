@@ -788,6 +788,7 @@ def build_kanto
   gm = WG.load_map(177)
   remove_fp_events(gm)
   gm.events.delete_if { |_, e| e.name.strip == 'Misty' }   # map-pack placeholder
+  solidify_void(gm)   # the black space between the Gym rooms is walkable
   leaders = {}
   KANTO_GYM_ROOMS.each do |n, (ax, ay)|
     reach = reachable_from(gm, ax, ay, void_tile: 384)
