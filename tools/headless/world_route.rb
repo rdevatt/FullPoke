@@ -47,6 +47,15 @@ module Route
     :land
   end
 
+  # A bridge deck over solid ground (a walkway): reachable on foot along the
+  # bridge, never by surfing up to it from the water below
+  def deck?(m, x, y)
+    ts = TS[m.tileset_id]
+    layers = [2, 1, 0].map { |z| m.data[x, y, z] }.select { |t| t && t > 0 }
+    layers.any? { |t| ts.terrain_tags[t] == 15 } &&
+      layers.any? { |t| ts.terrain_tags[t] != 15 && ts.passages[t] & 0x0f == 0x0f }
+  end
+
   def ledge?(m, x, y)
     ts = TS[m.tileset_id]
     (0..2).any? { |z| (t = m.data[x, y, z]) && t > 0 && ts.terrain_tags[t] == 1 }
@@ -151,6 +160,7 @@ module Route
         next if prev.key?(nxt) || solid[[nx, ny]]
         kind = tile(m, nx, ny)
         next if !kind || (kind == :water && !surf)
+        next if tile(m, x, y) == :water && deck?(m, nx, ny)
         next if directional && (!dir_ok?(m, x, y, d) || !dir_ok?(m, nx, ny, 10 - d))
         next if ledge?(m, nx, ny) && d != 2
         prev[nxt] = [cur, :step]
@@ -256,8 +266,17 @@ def follow(steps)
         go_to(how[1], how[2])
         settle(4000)
       else
-        walk(DIR_SYM[how[1]])
-        settle(2000)
+        # Water on the other side of the map edge: face it and Surf first
+        if !$PokemonGlobal.surfing && Route.tile(Route.rx(state[0]), state[1], state[2]) == :water
+          $game_player.turn_generic(how[1])
+          $choices = [0]
+          press_use
+          settle(2000)
+          return false if !$PokemonGlobal.surfing
+        else
+          walk(DIR_SYM[how[1]])
+          settle(2000)
+        end
       end
       return false if $game_map.map_id != state[0] || [$game_player.x, $game_player.y] != [state[1], state[2]]
       i += 1
