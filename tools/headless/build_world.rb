@@ -9,6 +9,7 @@
 # are replaced on each run.
 require_relative 'world_lib'
 require_relative 'build_geo'
+require_relative 'kanto_story'
 
 PluginManager.runPlugins unless $plugins_ran
 $plugins_ran = true
@@ -761,11 +762,8 @@ end
 KANTO_GYM_ROOMS = {   # stage => arrival tile in map 177 (from the town doors)
   2 => [64, 20], 3 => [93, 21], 4 => [125, 20], 5 => [156, 23], 6 => [75, 94], 7 => [29, 60], 8 => [18, 24]
 }
-KANTO_EXTRAS = [   # [map, near x, near y, trainer key, line]
+KANTO_EXTRAS = [   # [map, near x, near y, trainer key, line] (the rest of the story: kanto_story.rb)
   [26, 24, 6, :kanto_rival_cerulean, "Hey! Let's see how your Pokémon are doing!"],
-  [24, 26, 38, :kanto_rival_ssanne, "Bonjour! Fancy meeting you here. Let's battle!"],
-  [29, 34, 22, :kanto_giovanni_hideout, "So you've come this far. I am Giovanni, leader of Team Rocket."],
-  [31, 24, 18, :kanto_rival_silph, "What kept you? Let me show you how strong I've become!"],
   [55, 30, 20, :kanto_rival_route22, "I'm heading to the Pokémon League. Not before I beat you, though!"]
 ]
 
@@ -774,13 +772,18 @@ def build_kanto
   gm = WG.load_map(177)
   remove_fp_events(gm)
   gm.events.delete_if { |_, e| e.name.strip == 'Misty' }   # map-pack placeholder
+  solidify_void(gm)   # the black space between the Gym rooms is walkable
+  leaders = {}
   KANTO_GYM_ROOMS.each do |n, (ax, ay)|
     reach = reachable_from(gm, ax, ay, void_tile: 384)
     spot = reach.keys.reject { |p| event_at?(gm, *p) }.min_by { |x, y| [y, (x - ax).abs] }
+    leaders[n] = spot
     leader = FullPoke::Teams.get(data[:stages][n - 1][:leader])
     new_event(gm, "FP: Leader #{leader[:name]}", spot[0], spot[1], [new_page(trigger: 0, graphic: "trainer_#{leader[:tr_type]}", list: EventList.build {
-      text("I'm #{leader[:name]}, the Gym Leader. Let's see what you can do!")
-      if_script("FullPoke::Circuit.challenge(:kanto, #{n})") { text('You battled splendidly.') }
+      if_script("FullPoke::KantoStory.gym_open?(#{n})") do
+        text("I'm #{leader[:name]}, the Gym Leader. Let's see what you can do!")
+        if_script("FullPoke::Circuit.challenge(:kanto, #{n})") { text('You battled splendidly.') }
+      end
     })])
   end
   save_map(177, gm)
@@ -809,13 +812,13 @@ def build_kanto
   r23 = WG.load_map(56)
   remove_fp_events(r23)
   gx, gy = free_spot(r23, 17, 1)
+  # The top of Route 23, reached through Victory Road (the Badge check is at
+  # the Route 22 gate)
   new_event(r23, 'FP: To Indigo Plateau', gx, gy, [new_page(trigger: 1, list: EventList.build {
-    if_script('FullPoke.region_badge_count(:kanto) >= 8', otherwise: proc { text('Only Trainers with all eight Kanto Badges may pass to the Indigo Plateau.') }) do
-      play_se('Door exit')
-      transfer(33, arrive[0], arrive[1], 8)
-    end
+    play_se('Door exit')
+    transfer(33, arrive[0], arrive[1], 8)
   })])
-  ev_sign(r23, *free_spot(r23, gx + 2, gy + 1), 'FP: Sign', ['Route 23', 'North: Indigo Plateau. Eight Badges required.'])
+  ev_sign(r23, *free_spot(r23, gx + 2, gy + 1), 'FP: Sign', ['Route 23', 'North: Indigo Plateau. South: Victory Road.'])
   save_map(56, r23)
   # Story battles (optional in Kanto) and Mewtwo
   KANTO_EXTRAS.each do |map_id, nx, ny, key, line|
@@ -839,6 +842,11 @@ def build_kanto
   })])
   save_map(26, cer)
   WORLD[:regions][:kanto][:league] = entry
+  kanto_repairs
+  kanto_victory_road
+  kanto_story
+  kanto_gym_trainers(KANTO_GYM_ROOMS, leaders)
+  CONNECTIONS.concat(KANTO_CONNECTIONS)
 end
 
 
