@@ -44,7 +44,11 @@ GEO_SPEC[:hoenn] = {
     { name: 'Sailor', at: [:mossdeep, [24, 26]], to: [:sootopolis, [27, 53]], badges: 7, dest_name: 'Sootopolis City' },
     { name: 'Sailor', at: [:sootopolis, [27, 53]], to: [:mossdeep, [24, 26]], badges: 0, dest_name: 'Mossdeep City' },
     { name: 'Sailor', at: [:sootopolis, [30, 53]], to: [:ever_grande, [22, 47]], badges: 8, dest_name: 'Ever Grande City' },
-    { name: 'Sailor', at: [:ever_grande, [22, 47]], to: [:sootopolis, [30, 53]], badges: 0, dest_name: 'Sootopolis City' }
+    { name: 'Sailor', at: [:ever_grande, [22, 47]], to: [:sootopolis, [30, 53]], badges: 0, dest_name: 'Sootopolis City' },
+    # The pack's Route 119 north of the Weather Institute can't be crossed (its
+    # river and bridges block every way), so a guide leads you along the trail
+    { name: 'Weather Institute guide', graphic: 'NPC 11', at: [:r119, [46, 114]], to: [:fortree, [3, 19]], badges: 5, dest_name: 'Fortree City' },
+    { name: 'Weather Institute guide', graphic: 'NPC 11', at: [:fortree, [2, 20]], to: [:r119, [46, 114]], badges: 0, dest_name: 'the Weather Institute' }
   ],
   start: { town: :littleroot, forest_gate: [[13, 18], [14, 18]], arrival: [14, 17], gate_dir: 'South' },
   towns: {
